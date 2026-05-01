@@ -9,7 +9,7 @@
 
     body {
       background: #e5e7eb;
-      font-family: 'Segoe UI', 'Arial', sans-serif;
+      font-family: 'Courier New', 'Segoe UI', monospace;
       padding: 20px;
     }
 
@@ -19,11 +19,12 @@
       background: white;
       border: 2px solid #333;
       box-shadow: 10px 10px 20px rgba(0,0,0,0.2);
+      position: relative;
     }
 
     .ballot-header {
       background: #f8fafc;
-      padding: 15px;
+      padding: 20px;
       text-align: center;
       border-bottom: 2px solid #333;
       position: relative;
@@ -33,39 +34,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 25px;
+      gap: 30px;
       margin-bottom: 15px;
       flex-wrap: wrap;
     }
 
     .logo-item {
       text-align: center;
-      width: 90px;
+      width: 100px;
     }
 
-    .logo-item img {
-      width: 60px;
+    .logo-item svg {
+      width: 70px;
       height: auto;
-      display: block;
-      margin: 0 auto;
     }
 
     .logo-item p {
       font-size: 9px;
       margin-top: 5px;
       font-weight: bold;
-      color: #1e3a8a;
     }
 
     .ballot-header h1 {
-      font-size: 16px;
-      letter-spacing: 1px;
+      font-size: 18px;
+      letter-spacing: 2px;
       font-weight: bold;
       margin: 5px 0;
     }
 
     .ballot-header p {
-      font-size: 10px;
+      font-size: 11px;
+      margin-top: 5px;
       color: #555;
     }
 
@@ -73,33 +72,34 @@
       position: absolute;
       right: 10px;
       top: 10px;
-      font-size: 9px;
+      font-size: 10px;
       border-left: 1px solid #ccc;
       padding-left: 10px;
     }
 
     .election-selector {
-      background: #f0f0f0;
-      padding: 10px;
+      background: #f1f5f1;
+      padding: 15px;
+      border-bottom: 1px dashed #999;
       text-align: center;
-      border-bottom: 1px solid #ccc;
     }
 
     .election-buttons {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .election-btn {
-      padding: 5px 12px;
+      padding: 8px 20px;
       background: white;
-      border: 1px solid #666;
+      border: 1px solid #333;
       cursor: pointer;
-      font-size: 11px;
-      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      transition: all 0.2s;
     }
 
     .election-btn.active {
@@ -109,29 +109,31 @@
     }
 
     .ballot-body {
-      padding: 15px;
+      padding: 20px;
     }
 
     .position-section {
-      margin-bottom: 20px;
-      border-bottom: 1px dashed #ccc;
-      padding-bottom: 12px;
+      margin-bottom: 25px;
+      border-bottom: 1px dotted #ccc;
+      padding-bottom: 15px;
     }
 
     .position-title {
-      background: #e9ecef;
-      padding: 6px 10px;
+      background: #e5e7eb;
+      padding: 8px 12px;
       font-weight: bold;
-      font-size: 13px;
-      border-left: 4px solid #1e3a8a;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      border-left: 5px solid #1e3a8a;
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
     }
 
     .vote-limit {
       font-size: 10px;
-      color: #666;
+      color: #555;
       font-weight: normal;
     }
 
@@ -144,30 +146,32 @@
     .candidate-row {
       display: flex;
       align-items: center;
-      padding: 6px 10px;
+      padding: 8px 12px;
       border: 1px solid #e5e7eb;
-      border-radius: 5px;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .candidate-row:hover {
-      background: #f1f5f9;
+      background: #f8fafc;
     }
 
     .candidate-row.selected {
-      background: #e0f2fe;
-      border-color: #0ea5e9;
+      background: #e0e7ff;
+      border-color: #1e3a8a;
     }
 
     .shade-oval {
-      width: 24px;
-      height: 24px;
+      width: 30px;
+      height: 30px;
       border: 2px solid #333;
       border-radius: 50%;
-      margin-right: 12px;
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: white;
-      flex-shrink: 0;
+      transition: all 0.2s;
     }
 
     .candidate-row.selected .shade-oval {
@@ -176,13 +180,9 @@
     }
 
     .candidate-row.selected .shade-oval::after {
-      content: "✓";
+      content: "●";
       color: white;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
+      font-size: 18px;
     }
 
     .candidate-info {
@@ -190,29 +190,29 @@
     }
 
     .candidate-name {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
     }
 
     .candidate-party {
-      font-size: 10px;
+      font-size: 11px;
       color: #666;
       margin-top: 2px;
     }
 
     .multi-seat-info {
-      font-size: 10px;
+      font-size: 11px;
       color: #16a34a;
-      margin-top: 6px;
-      padding-left: 36px;
+      margin-top: 8px;
+      padding-left: 45px;
     }
 
     .ballot-footer {
       background: #f8fafc;
-      padding: 10px;
+      padding: 15px;
       text-align: center;
       border-top: 2px solid #333;
-      font-size: 9px;
+      font-size: 10px;
     }
 
     .actions {
@@ -224,21 +224,21 @@
     }
 
     .btn {
-      padding: 6px 18px;
+      padding: 10px 25px;
       border: none;
       cursor: pointer;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 14px;
       border-radius: 5px;
     }
 
     .btn-review {
-      background: #fbbf24;
+      background: #fcdb30;
       color: #1e3a8a;
     }
 
     .btn-clear {
-      background: #cbd5e1;
+      background: #ccc;
       color: #333;
     }
 
@@ -265,7 +265,7 @@
       max-width: 500px;
       width: 90%;
       padding: 20px;
-      border-radius: 12px;
+      border-radius: 10px;
       max-height: 80vh;
       overflow-y: auto;
     }
@@ -273,13 +273,11 @@
     .modal-content h3 {
       margin-bottom: 15px;
       color: #1e3a8a;
-      font-size: 16px;
     }
 
     .review-item {
-      padding: 6px;
+      padding: 8px;
       border-bottom: 1px solid #ddd;
-      font-size: 12px;
     }
 
     .watermark {
@@ -287,7 +285,7 @@
       bottom: 10px;
       right: 10px;
       opacity: 0.1;
-      font-size: 40px;
+      font-size: 60px;
       pointer-events: none;
     }
 
@@ -301,24 +299,52 @@
 
 <div class="ballot-paper">
   <div class="ballot-header">
+    <!-- LOGOS CONTAINER - TATLONG SVG LOGOS -->
     <div class="logos-container">
-      <!-- Logo 1: REPUBLIKA NG PILIPINAS -->
+      <!-- Logo 1: REPUBLIKA NG PILIPINAS (Coat of arms style) -->
       <div class="logo-item">
-        <img src="PILIPINAS.png" alt="Republika ng Pilipinas" style="width: 60px; height: auto;">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="45" fill="#0038a8" stroke="#fcdb30" stroke-width="2"/>
+          <polygon points="50,20 58,40 78,40 62,53 68,73 50,60 32,73 38,53 22,40 42,40" fill="#fcdb30"/>
+          <circle cx="50" cy="50" r="15" fill="#ce1126"/>
+          <polygon points="50,45 53,55 63,55 55,61 58,71 50,65 42,71 45,61 37,55 47,55" fill="#fcdb30"/>
+          <text x="50" y="88" text-anchor="middle" fill="#0038a8" font-size="6" font-weight="bold">REPUBLIKA NG PILIPINAS</text>
+        </svg>
         <p>REPUBLIKA NG<br>PILIPINAS</p>
       </div>
+      
       <!-- Logo 2: BAGONG PILIPINAS -->
       <div class="logo-item">
-        <img src="Bagong Pilipinas.png" alt="Bagong Pilipinas" style="width: 60px; height: auto;">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="80" height="80" rx="15" fill="url(#grad1)" stroke="#fcdb30" stroke-width="2"/>
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0038a8"/>
+              <stop offset="50%" stop-color="#fcdb30"/>
+              <stop offset="100%" stop-color="#ce1126"/>
+            </linearGradient>
+          </defs>
+          <text x="50" y="45" text-anchor="middle" fill="white" font-size="20" font-weight="bold">🇵🇭</text>
+          <text x="50" y="62" text-anchor="middle" fill="white" font-size="7" font-weight="bold">BAGONG</text>
+          <text x="50" y="72" text-anchor="middle" fill="white" font-size="7" font-weight="bold">PILIPINAS</text>
+        </svg>
         <p>BAGONG<br>PILIPINAS</p>
       </div>
+      
       <!-- Logo 3: COMELEC -->
       <div class="logo-item">
-        <img src="COMELEC.png" alt="COMELEC" style="width: 60px; height: auto;">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="80" height="80" rx="10" fill="#fcdb30" stroke="#0038a8" stroke-width="2"/>
+          <text x="50" y="40" text-anchor="middle" fill="#0038a8" font-size="10" font-weight="bold">COMELEC</text>
+          <text x="50" y="55" text-anchor="middle" fill="#ce1126" font-size="6">COMMISSION ON</text>
+          <text x="50" y="65" text-anchor="middle" fill="#ce1126" font-size="6">ELECTIONS</text>
+          <text x="50" y="82" text-anchor="middle" fill="#0038a8" font-size="5">VOX POPULI</text>
+        </svg>
         <p>COMELEC</p>
       </div>
     </div>
-
+    
+    <!-- TITLE - INAYOS NA, ISANG "REPUBLIC OF THE PHILIPPINES" LANG -->
     <h1>REPUBLIC OF THE PHILIPPINES</h1>
     <h1>OFFICIAL BALLOT</h1>
     <p>VoteSecure PH - Automated Election System | Bagong Pilipinas</p>
@@ -327,6 +353,7 @@
     </div>
   </div>
 
+  <!-- ELECTION TYPE SELECTOR -->
   <div class="election-selector">
     <strong>📋 SELECT ELECTION TYPE:</strong>
     <div class="election-buttons">
@@ -337,8 +364,10 @@
     </div>
   </div>
 
+  <!-- BALLOT BODY (dynamic) -->
   <div class="ballot-body" id="ballotBody"></div>
 
+  <!-- FOOTER -->
   <div class="ballot-footer">
     <p>⚠️ INSTRUCTIONS: Shade the oval (●) completely beside the candidate of your choice.</p>
     <p>Do not write anything outside the designated areas. This ballot is official and confidential.</p>
@@ -346,6 +375,7 @@
   </div>
 </div>
 
+<!-- ACTION BUTTONS -->
 <div class="actions">
   <button class="btn btn-clear" onclick="clearAll()">🗑️ CLEAR ALL</button>
   <button class="btn btn-review" onclick="reviewVotes()">📋 REVIEW VOTES</button>
@@ -354,6 +384,7 @@
 
 <div class="watermark">🗳️</div>
 
+<!-- REVIEW MODAL -->
 <div id="reviewModal" class="modal">
   <div class="modal-content">
     <h3>📋 Review Your Ballot</h3>
@@ -372,6 +403,7 @@
   let ballotNumber = 'VTR-' + Math.floor(Math.random() * 1000000);
   document.getElementById('ballotNo').innerText = ballotNumber;
 
+  // CANDIDATES DATA (sample)
   const candidatesData = {
     barangay: {
       positions: ['Punong Barangay', 'Barangay Kagawad (7 seats)', 'SK Chairperson', 'SK Kagawad (7 seats)'],
@@ -456,11 +488,13 @@
 
   function selectCandidate(positionKey, candidate, maxSeats) {
     const key = `${currentElection}_${positionKey}`;
+    
     if (maxSeats === 1) {
       myVotes[key] = [candidate];
     } else {
       const currentVotes = myVotes[key] || [];
       const exists = currentVotes.find(v => v.id === candidate.id);
+      
       if (exists) {
         myVotes[key] = currentVotes.filter(v => v.id !== candidate.id);
       } else {
@@ -477,13 +511,16 @@
   function renderBallot() {
     const data = candidatesData[currentElection];
     if (!data) return;
+
     let html = '';
+    
     data.positions.forEach(position => {
       const candidates = data.candidates[position] || [];
       const maxSeats = position.includes('(') ? parseInt(position.match(/\((\d+)/)[1]) : 1;
       const positionKey = position.replace(/ \([^)]+\)/, '');
       const key = `${currentElection}_${positionKey}`;
       const myVote = myVotes[key] || [];
+      
       html += `
         <div class="position-section">
           <div class="position-title">
@@ -492,6 +529,7 @@
           </div>
           <div class="candidates-list">
       `;
+      
       candidates.forEach(candidate => {
         const isSelected = myVote.some(v => v.id === candidate.id);
         html += `
@@ -504,11 +542,14 @@
           </div>
         `;
       });
+      
       if (maxSeats > 1) {
         html += `<div class="multi-seat-info">✓ You may vote up to ${maxSeats} candidates for this position</div>`;
       }
+      
       html += `</div></div>`;
     });
+    
     document.getElementById('ballotBody').innerHTML = html;
   }
 
@@ -534,6 +575,7 @@
   function reviewVotes() {
     let reviewHtml = '';
     let hasVotes = false;
+    
     for (const [key, votes] of Object.entries(myVotes)) {
       if (votes.length > 0) {
         hasVotes = true;
@@ -545,7 +587,11 @@
         reviewHtml += `</div>`;
       }
     }
-    if (!hasVotes) reviewHtml = '<p>You haven\'t voted for anyone yet.</p>';
+    
+    if (!hasVotes) {
+      reviewHtml = '<p>You haven\'t voted for anyone yet.</p>';
+    }
+    
     document.getElementById('reviewList').innerHTML = reviewHtml;
     document.getElementById('reviewModal').style.display = 'flex';
   }
@@ -561,11 +607,15 @@
 
   function submitVotes() {
     let totalVotes = 0;
-    for (const votes of Object.values(myVotes)) totalVotes += votes.length;
+    for (const votes of Object.values(myVotes)) {
+      totalVotes += votes.length;
+    }
+    
     if (totalVotes === 0) {
       alert('⚠️ Please vote for at least one candidate before submitting.');
       return;
     }
+    
     if (confirm('🗳️ FINAL SUBMISSION\n\nAre you sure you want to submit your ballot?\n\nYou CANNOT change your votes after submission!')) {
       localStorage.setItem('userVotes', JSON.stringify(myVotes));
       localStorage.setItem('hasVoted', 'true');
@@ -581,6 +631,7 @@
     }
   }
 
+  // Initialize
   setupElectionButtons();
   renderBallot();
   checkAlreadyVoted();
