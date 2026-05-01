@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting Ballot | VoteSecure PH</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #0038a8, #002266);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .voter-info {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Election Type Selector */
+    .election-selector {
+      background: white;
+      border-radius: 15px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .election-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .election-btn {
+      padding: 12px 25px;
+      border: 2px solid #0038a8;
+      background: white;
+      color: #0038a8;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+
+    .election-btn.active {
+      background: #0038a8;
+      color: white;
+    }
+
+    .election-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,56,168,0.3);
+    }
+
+    /* Ballot Card */
+    .ballot-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      border-top: 5px solid #fcdb30;
+    }
+
+    .position-title {
+      background: linear-gradient(135deg, #ce1126, #8b0000);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .candidate-item {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .candidate-item:hover {
+      border-color: #0038a8;
+      background: #f0f4ff;
+    }
+
+    .candidate-item.selected {
+      border-color: #16a34a;
+      background: #f0fdf4;
+      box-shadow: 0 0 0 2px #16a34a;
+    }
+
+    .candidate-avatar {
+      width: 50px;
+      height: 50px;
+      background: #e2e8f0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .candidate-info {
+      flex: 1;
+    }
+
+    .candidate-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #0a1628;
+    }
+
+    .candidate-party {
+      font-size: 12px;
+      color: #0038a8;
+      margin-top: 4px;
+    }
+
+    .vote-shade {
+      width: 30px;
+      height: 30px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.3s;
+    }
+
+    .candidate-item.selected .vote-shade {
+      background: #16a34a;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 15px;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0038a8, #002266);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,56,168,0.4);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: white;
+    }
+
+    .btn-warning {
+      background: #fcdb30;
+      color: #0038a8;
+    }
+
+    /* Review Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-content h3 {
+      color: #0038a8;
+      margin-bottom: 1rem;
+    }
+
+    .review-item {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .candidates-grid { grid-template-columns: 1fr; }
+      .election-btn { padding: 8px 15px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>
+    <span>🗳️</span> VoteSecure PH
+  </h1>
+  <div class="voter-info" id="voterInfo">Loading...</div>
+</div>
+
+<div class="container">
+  <!-- Election Type Selector -->
+  <div class="election-selector">
+    <div class="election-buttons">
+      <button class="election-btn active" data-election="barangay">🏘️ Barangay & SK Election</button>
+      <button class="election-btn" data-election="municipal">🏛️ Municipal/City Election</button>
+      <button class="election-btn" data-election="provincial">🏢 Provincial Election</button>
+      <button class="election-btn" data-election="national">🇵🇭 National Election</button>
+    </div>
+  </div>
+
+  <!-- Ballot Container -->
+  <div id="ballotContainer"></div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-warning" onclick="clearAll()">🗑️ Clear All Votes</button>
+    <button class="btn btn-primary" onclick="reviewVotes()">📋 Review Your Votes</button>
+    <button class="btn btn-success" onclick="submitVotes()">✅ Submit Final Ballot</button>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div id="reviewModal" class="modal">
+  <div class="modal-content">
+    <h3>📋 Review Your Votes</h3>
+    <div id="reviewList"></div>
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
+      <button class="btn btn-primary" onclick="closeModal()">Continue Voting</button>
+      <button class="btn btn-success" onclick="confirmSubmit()">Confirm & Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  let currentElection = 'barangay';
+  let myVotes = {};
+
+  // Sample Candidates Data (Connected to backend later)
+  const candidatesData = {
+    barangay: {
+      positions: ['Punong Barangay', 'Barangay Kagawad (7 seats)', 'SK Chairperson', 'SK Kagawad (7 seats)'],
+      candidates: {
+        'Punong Barangay': [
+          { id: 1, name: 'Juan Dela Cruz', party: 'Partido ng Masa', avatar: '👨' },
+          { id: 2, name: 'Maria Santos', party: 'Bayanihan', avatar: '👩' },
+          { id: 3, name: 'Jose Rizal', party: 'Reporma', avatar: '👨' }
+        ],
+        'Barangay Kagawad (7 seats)': [
+          { id: 11, name: 'Pedro Penduko', party: 'Partido ng Masa', avatar: '👨' },
+          { id: 12, name: 'Ana Reyes', party: 'Bayanihan', avatar: '👩' },
+          { id: 13, name: 'Lito Lapid', party: 'Reporma', avatar: '👨' },
+          { id: 14, name: 'Cora Aquino', party: 'Partido ng Masa', avatar: '👩' },
+          { id: 15, name: 'Benigno Ramos', party: 'Bayanihan', avatar: '👨' },
+          { id: 16, name: 'Gloria Macapagal', party: 'Reporma', avatar: '👩' },
+          { id: 17, name: 'Fidel Ramos', party: 'Partido ng Masa', avatar: '👨' },
+          { id: 18, name: 'Joseph Estrada', party: 'Bayanihan', avatar: '👨' },
+          { id: 19, name: 'Rodrigo Duterte', party: 'Reporma', avatar: '👨' }
+        ],
+        'SK Chairperson': [
+          { id: 21, name: 'Kiko Pangilinan', party: 'Kabataan', avatar: '👨' },
+          { id: 22, name: 'Risa Hontiveros', party: 'Youth Vote', avatar: '👩' }
+        ],
+        'SK Kagawad (7 seats)': [
+          { id: 31, name: 'Bam Aquino', party: 'Kabataan', avatar: '👨' },
+          { id: 32, name: 'Chel Diokno', party: 'Youth Vote', avatar: '👨' },
+          { id: 33, name: 'Leila de Lima', party: 'Kabataan', avatar: '👩' },
+          { id: 34, name: 'Antonio Trillanes', party: 'Youth Vote', avatar: '👨' }
+        ]
+      }
+    },
+    municipal: {
+      positions: ['Mayor', 'Vice Mayor', 'Councilor (8 seats)'],
+      candidates: {
+        'Mayor': [
+          { id: 101, name: 'Isko Moreno', party: 'Aksyon', avatar: '👨' },
+          { id: 102, name: 'Vico Sotto', party: 'Reporma', avatar: '👨' }
+        ],
+        'Vice Mayor': [
+          { id: 111, name: 'Honey Lacuna', party: 'Aksyon', avatar: '👩' },
+          { id: 112, name: 'Manny Pacquiao', party: 'PROMDI', avatar: '👨' }
+        ],
+        'Councilor (8 seats)': [
+          { id: 121, name: 'Mikey Belmonte', party: 'Aksyon', avatar: '👨' },
+          { id: 122, name: 'Winnie Castelo', party: 'Reporma', avatar: '👨' },
+          { id: 123, name: 'Joey Hizon', party: 'Aksyon', avatar: '👨' },
+          { id: 124, name: 'Larry Silva', party: 'Reporma', avatar: '👨' }
+        ]
+      }
+    },
+    provincial: {
+      positions: ['Governor', 'Vice Governor', 'Provincial Board Member (6 seats)'],
+      candidates: {
+        'Governor': [
+          { id: 201, name: 'Daniel Fernando', party: 'NUP', avatar: '👨' },
+          { id: 202, name: 'Wilhelmino Sy-Alvarado', party: 'PDP-Laban', avatar: '👨' }
+        ],
+        'Vice Governor': [
+          { id: 211, name: 'Alex Castro', party: 'NUP', avatar: '👨' },
+          { id: 212, name: 'Atty. Pancho', party: 'PDP-Laban', avatar: '👨' }
+        ],
+        'Provincial Board Member (6 seats)': [
+          { id: 221, name: 'Rodelio Bernardo', party: 'NUP', avatar: '👨' },
+          { id: 222, name: 'Christopher Clemente', party: 'PDP-Laban', avatar: '👨' },
+          { id: 223, name: 'Eduardo Dimaiwat', party: 'NUP', avatar: '👨' }
+        ]
+      }
+    },
+    national: {
+      positions: ['President', 'Vice President', 'Senator (12 seats)', 'Party-List'],
+      candidates: {
+        'President': [
+          { id: 301, name: 'Bongbong Marcos', party: 'PFP', avatar: '👨' },
+          { id: 302, name: 'Leni Robredo', party: 'Liberal', avatar: '👩' },
+          { id: 303, name: 'Manny Pacquiao', party: 'PROMDI', avatar: '👨' }
+        ],
+        'Vice President': [
+          { id: 311, name: 'Sara Duterte', party: 'Lakas', avatar: '👩' },
+          { id: 312, name: 'Kiko Pangilinan', party: 'Liberal', avatar: '👨' }
+        ],
+        'Senator (12 seats)': [
+          { id: 321, name: 'Robin Padilla', party: 'PDP-Laban', avatar: '👨' },
+          { id: 322, name: 'Loren Legarda', party: 'NPC', avatar: '👩' },
+          { id: 323, name: 'Raffy Tulfo', party: 'Independent', avatar: '👨' },
+          { id: 324, name: 'Sonny Angara', party: 'LDP', avatar: '👨' },
+          { id: 325, name: 'Chiz Escudero', party: 'NPC', avatar: '👨' },
+          { id: 326, name: 'Grace Poe', party: 'Independent', avatar: '👩' }
+        ],
+        'Party-List': [
+          { id: 331, name: 'ACT-CIS', party: 'Party-list', avatar: '📋' },
+          { id: 332, name: '1-Rider', party: 'Party-list', avatar: '📋' },
+          { id: 333, name: 'Kabataan', party: 'Party-list', avatar: '📋' }
+        ]
+      }
+    }
+  };
+
+  // Load voter info
+  function loadVoterInfo() {
+    const voterData = localStorage.getItem('voterData');
+    if (voterData) {
+      const voter = JSON.parse(voterData);
+      document.getElementById('voterInfo').innerHTML = `👤 ${voter.name} | ${voter.voter_id || voter.id}`;
+    } else {
+      document.getElementById('voterInfo').innerHTML = `👤 Voter | ${localStorage.getItem('voterToken') ? 'Logged In' : 'Guest'}`;
+    }
+  }
+
+  // Initialize votes for a position
+  function initVotesForPosition(positionKey, maxSeats = 1) {
+    const key = `${currentElection}_${positionKey}`;
+    if (!myVotes[key]) {
+      myVotes[key] = { maxSeats, votes: [] };
+    }
+  }
+
+  // Handle vote selection
+  function selectCandidate(positionKey, candidate, maxSeats) {
+    const key = `${currentElection}_${positionKey}`;
+    
+    if (maxSeats === 1) {
+      // Single seat - replace
+      myVotes[key] = { maxSeats, votes: [candidate] };
+    } else {
+      // Multiple seats - toggle
+      const currentVotes = myVotes[key]?.votes || [];
+      const exists = currentVotes.find(v => v.id === candidate.id);
+      
+      if (exists) {
+        myVotes[key] = { maxSeats, votes: currentVotes.filter(v => v.id !== candidate.id) };
+      } else {
+        if (currentVotes.length >= maxSeats) {
+          alert(`⚠️ You can only vote for ${maxSeats} candidate(s) for this position.`);
+          return;
+        }
+        myVotes[key] = { maxSeats, votes: [...currentVotes, candidate] };
+      }
+    }
+    renderBallot();
+  }
+
+  // Render ballot based on current election
+  function renderBallot() {
+    const data = candidatesData[currentElection];
+    if (!data) return;
+
+    let html = '';
+    
+    data.positions.forEach(position => {
+      const candidates = data.candidates[position] || [];
+      const maxSeats = position.includes('(') ? parseInt(position.match(/\((\d+)/)?.[1] || 1) : 1;
+      const positionKey = position.replace(/ \([^)]+\)/, '');
+      const key = `${currentElection}_${positionKey}`;
+      const myVote = myVotes[key]?.votes || [];
+      
+      html += `
+        <div class="ballot-card">
+          <div class="position-title">
+            🗳️ ${position} ${maxSeats > 1 ? `(Vote up to ${maxSeats})` : '(Vote 1)'}
+            <span style="float:right; font-size:12px;">${myVote.length}/${maxSeats} selected</span>
+          </div>
+          <div class="candidates-grid">
+      `;
+      
+      candidates.forEach(candidate => {
+        const isSelected = myVote.some(v => v.id === candidate.id);
+        html += `
+          <div class="candidate-item ${isSelected ? 'selected' : ''}" onclick="selectCandidate('${positionKey}', ${JSON.stringify(candidate).replace(/"/g, '&quot;')}, ${maxSeats})">
+            <div class="candidate-avatar">${candidate.avatar}</div>
+            <div class="candidate-info">
+              <div class="candidate-name">${candidate.name}</div>
+              <div class="candidate-party">${candidate.party}</div>
+            </div>
+            <div class="vote-shade">${isSelected ? '✓' : '○'}</div>
+          </div>
+        `;
+      });
+      
+      html += `
+          </div>
+        </div>
+      `;
+    });
+    
+    document.getElementById('ballotContainer').innerHTML = html;
+  }
+
+  // Clear all votes
+  function clearAll() {
+    if (confirm('⚠️ Are you sure you want to clear ALL your votes?')) {
+      myVotes = {};
+      renderBallot();
+      alert('✅ All votes cleared. You can start over.');
+    }
+  }
+
+  // Review votes
+  function reviewVotes() {
+    let reviewHtml = '';
+    let hasVotes = false;
+    
+    for (const [key, value] of Object.entries(myVotes)) {
+      if (value.votes.length > 0) {
+        hasVotes = true;
+        const positionName = key.split('_')[1];
+        reviewHtml += `<div class="review-item"><strong>${positionName}</strong><br>`;
+        value.votes.forEach(v => {
+          reviewHtml += `   • ${v.name} (${v.party})<br>`;
+        });
+        reviewHtml += `</div>`;
+      }
+    }
+    
+    if (!hasVotes) {
+      reviewHtml = '<p>You haven\'t voted for anyone yet.</p>';
+    }
+    
+    document.getElementById('reviewList').innerHTML = reviewHtml;
+    document.getElementById('reviewModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('reviewModal').style.display = 'none';
+  }
+
+  function confirmSubmit() {
+    closeModal();
+    submitVotes();
+  }
+
+  // Submit votes to backend
+  async function submitVotes() {
+    let totalVotes = 0;
+    for (const [key, value] of Object.entries(myVotes)) {
+      totalVotes += value.votes.length;
+    }
+    
+    if (totalVotes === 0) {
+      alert('⚠️ Please vote for at least one candidate before submitting.');
+      return;
+    }
+    
+    if (confirm('🗳️ Are you sure you want to submit your final ballot?\n\nYou cannot change your votes after submission!')) {
+      // Prepare data for backend
+      const votesData = [];
+      for (const [key, value] of Object.entries(myVotes)) {
+        for (const candidate of value.votes) {
+          votesData.push({
+            election_type: currentElection,
+            position: key.split('_')[1],
+            candidate_id: candidate.id,
+            candidate_name: candidate.name
+          });
+        }
+      }
+      
+      try {
+        const token = localStorage.getItem('voterToken');
+        const response = await fetch(`${API}/votes/submit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ votes: votesData, election: currentElection })
+        });
+        
+        if (response.ok) {
+          alert('✅ Your votes have been recorded!\n\nThank you for participating in the election.');
+          window.location.href = 'dashboard.html';
+        } else {
+          const data = await response.json();
+          alert('❌ Error: ' + (data.message || 'Failed to submit votes'));
+        }
+      } catch (error) {
+        // Demo mode - local only
+        localStorage.setItem('userVotes', JSON.stringify(myVotes));
+        localStorage.setItem('hasVoted', 'true');
+        alert('✅ (Demo) Your votes have been recorded!\n\nThank you for participating.');
+        window.location.href = 'dashboard.html';
+      }
+    }
+  }
+
+  // Election change handler
+  function setupElectionButtons() {
+    const buttons = document.querySelectorAll('.election-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentElection = btn.dataset.election;
+        renderBallot();
+      });
+    });
+  }
+
+  // Check if already voted
+  function checkAlreadyVoted() {
+    if (localStorage.getItem('hasVoted') === 'true') {
+      alert('⚠️ You have already voted in this election.\nYou will be redirected to dashboard.');
+      window.location.href = 'dashboard.html';
+    }
+  }
+
+  // Initialize
+  loadVoterInfo();
+  setupElectionButtons();
+  renderBallot();
+  checkAlreadyVoted();
+</script>
+</body>
+</html>

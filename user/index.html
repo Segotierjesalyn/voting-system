@@ -1,0 +1,563 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voter Portal | VoteSecure PH</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0038a8 0%, #fcdb30 50%, #ce1126 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      display: flex;
+      max-width: 1100px;
+      width: 100%;
+      background: white;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    }
+
+    /* LEFT SIDE */
+    .hero-section {
+      flex: 1;
+      background: linear-gradient(135deg, #0038a8 0%, #002266 100%);
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated Flag */
+    .flag-container {
+      margin-bottom: 2rem;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .waving-flag {
+      width: 220px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 3px solid #fcdb30;
+      animation: wave 3s ease-in-out infinite;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(2deg) scale(1.02); }
+      75% { transform: rotate(-2deg) scale(1.02); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero-section h2 {
+      color: #fcdb30;
+      font-size: 28px;
+      margin-bottom: 1rem;
+      font-weight: 800;
+    }
+
+    .hero-section p {
+      color: rgba(255,255,255,0.9);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .hero-features {
+      list-style: none;
+      text-align: left;
+      width: 100%;
+    }
+
+    .hero-features li {
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .hero-features li span {
+      font-size: 20px;
+    }
+
+    /* RIGHT SIDE */
+    .form-section {
+      flex: 1;
+      padding: 3rem;
+      background: white;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo .icon {
+      font-size: 48px;
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      color: #0038a8;
+      margin-top: 8px;
+      font-weight: 800;
+    }
+
+    .logo p {
+      font-size: 12px;
+      color: #ce1126;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      background: #0038a8;
+      color: white;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0038a8;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus { 
+      border-color: #fcdb30; 
+      box-shadow: 0 0 0 3px rgba(252,219,48,0.2);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #ce1126, #0038a8);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover { 
+      transform: translateY(-2px); 
+      background: linear-gradient(135deg, #0038a8, #ce1126);
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #0038a8;
+      cursor: pointer;
+    }
+
+    .link:hover { text-decoration: underline; }
+
+    .error-msg, .success-msg {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .error-msg { background: #fee2e2; color: #ce1126; border: 1px solid #fecaca; }
+    .success-msg { background: #dcfce7; color: #0038a8; border: 1px solid #bbf7d0; }
+
+    .hidden { display: none; }
+
+    .captcha {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 1rem;
+    }
+
+    .captcha span {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0038a8;
+      letter-spacing: 5px;
+      font-family: monospace;
+      flex: 1;
+    }
+
+    .captcha input {
+      border: none;
+      background: none;
+      flex: 1;
+      padding: 0;
+      margin: 0;
+    }
+
+    .refresh-cap { cursor: pointer; font-size: 18px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    @media (max-width: 768px) {
+      .login-container { flex-direction: column; max-width: 450px; }
+      .waving-flag { width: 150px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <!-- LEFT SIDE -->
+  <div class="hero-section">
+    <div class="flag-container">
+      <svg class="waving-flag" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="flagClip">
+            <rect x="0" y="0" width="1200" height="600" rx="10"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#flagClip)">
+          <rect x="0" y="0" width="1200" height="300" fill="#0038a8"/>
+          <rect x="0" y="300" width="1200" height="300" fill="#ce1126"/>
+          <polygon points="0,0 0,600 450,300" fill="white"/>
+          <g fill="#fcdb30">
+            <circle cx="225" cy="300" r="80"/>
+            <g id="stars">
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(-90,-50)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(0,-80)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(90,-50)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(-140,20)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(140,20)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(-90,90)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(0,60)"/>
+              <polygon points="225,230 232,248 252,248 236,260 242,280 225,268 208,280 214,260 198,248 218,248" transform="translate(90,90)"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <h2>VoteSecure PH</h2>
+    <p>Your trusted online voting system for fair and secure elections in the Philippines.</p>
+    <ul class="hero-features">
+      <li><span>✓</span> Secure & Transparent Voting</li>
+      <li><span>✓</span> Real-time Results</li>
+      <li><span>✓</span> Voter Privacy Protection</li>
+      <li><span>✓</span> Accessible Anywhere</li>
+    </ul>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="form-section">
+    <div class="logo">
+      <div class="icon">🗳️</div>
+      <h1>VoteSecure PH</h1>
+      <p>Official Online Voting Portal</p>
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="successMsg" class="success-msg"></div>
+
+    <!-- LOGIN -->
+    <div id="loginSection">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('login')">🔐 Login</button>
+        <button class="tab" onclick="switchTab('register')">📝 Register</button>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="yourname@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <div class="captcha">
+        <span id="captchaText"></span>
+        <input type="text" id="captchaInput" placeholder="Enter code">
+        <span class="refresh-cap" onclick="generateCaptcha()">🔄</span>
+      </div>
+      <button class="btn" onclick="handleLogin()">🔐 Login</button>
+      <div class="link" onclick="showForgotPassword()">Forgot Password?</div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerSection" class="hidden">
+      <div class="tabs">
+        <button class="tab" onclick="switchTab('login')">🔐 Login</button>
+        <button class="tab active" onclick="switchTab('register')">📝 Register</button>
+      </div>
+      <div class="grid-2">
+        <input type="text" id="regFirst" placeholder="First Name">
+        <input type="text" id="regLast" placeholder="Last Name">
+      </div>
+      <input type="email" id="regEmail" placeholder="Email Address">
+      <input type="password" id="regPassword" placeholder="Password (min. 8 chars)">
+      <input type="date" id="regBirth">
+      <input type="text" id="regPhone" placeholder="Phone Number">
+      <input type="text" id="regAddress" placeholder="Complete Address">
+      <button class="btn" onclick="handleRegister()">📝 Register</button>
+      <div class="link" onclick="switchTab('login')">Back to Login</div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="forgotSection" class="hidden">
+      <p style="margin-bottom: 15px; font-size: 14px; color: #64748b;">Enter your email to receive a reset code.</p>
+      <input type="email" id="resetEmail" placeholder="yourname@email.com">
+      <button class="btn" onclick="sendResetCode()">📧 Send Reset Code</button>
+      <div class="link" onclick="showLogin()">← Back to Login</div>
+    </div>
+
+    <!-- RESET PASSWORD -->
+    <div id="resetSection" class="hidden">
+      <p style="margin-bottom: 15px; font-size: 14px; color: #64748b;">Enter reset code and new password.</p>
+      <input type="text" id="resetCode" placeholder="6-digit code" maxlength="6">
+      <input type="password" id="newPassword" placeholder="New password (min. 8 chars)">
+      <input type="password" id="confirmPassword" placeholder="Confirm password">
+      <button class="btn" onclick="resetPassword()">🔄 Reset Password</button>
+      <div class="link" onclick="showLogin()">← Back to Login</div>
+    </div>
+
+    <!-- OTP -->
+    <div id="otpSection" class="hidden">
+      <p style="margin-bottom: 15px; font-size: 14px; color: #64748b;">Enter 6-digit OTP (check PowerShell)</p>
+      <input type="text" id="otpInput" placeholder="000000" maxlength="6" style="text-align:center; font-size:24px; letter-spacing:5px;">
+      <button class="btn" onclick="verifyOTP()">✅ Verify OTP</button>
+      <div class="link" onclick="backToLogin()">← Back to Login</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  let currentVoterId = null;
+  let resetEmail = '';
+  let captchaAnswer = '';
+
+  function generateCaptcha() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    captchaAnswer = Array.from({length:5}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    document.getElementById('captchaText').textContent = captchaAnswer;
+    document.getElementById('captchaInput').value = '';
+  }
+  generateCaptcha();
+
+  function switchTab(tab) {
+    const loginSection = document.getElementById('loginSection');
+    const registerSection = document.getElementById('registerSection');
+    if (tab === 'login') {
+      loginSection.classList.remove('hidden');
+      registerSection.classList.add('hidden');
+    } else {
+      loginSection.classList.add('hidden');
+      registerSection.classList.remove('hidden');
+    }
+    document.getElementById('forgotSection').classList.add('hidden');
+    document.getElementById('resetSection').classList.add('hidden');
+    document.getElementById('otpSection').classList.add('hidden');
+    generateCaptcha();
+  }
+
+  function showLogin() {
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('registerSection').classList.add('hidden');
+    document.getElementById('forgotSection').classList.add('hidden');
+    document.getElementById('resetSection').classList.add('hidden');
+    document.getElementById('otpSection').classList.add('hidden');
+    generateCaptcha();
+  }
+
+  function showForgotPassword() {
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('forgotSection').classList.remove('hidden');
+  }
+
+  function backToLogin() {
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('otpSection').classList.add('hidden');
+    generateCaptcha();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = '❌ ' + msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('successMsg');
+    el.textContent = '✅ ' + msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const captcha = document.getElementById('captchaInput').value.trim().toUpperCase();
+
+    if (!email || !password) return showError('Please enter email and password');
+    if (captcha !== captchaAnswer) {
+      generateCaptcha();
+      return showError('Wrong CAPTCHA');
+    }
+
+    try {
+      const res = await fetch(`${API}/auth/voter/login`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        currentVoterId = data.voter_id;
+        if (data.otp) document.getElementById('otpInput').value = data.otp;
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('otpSection').classList.remove('hidden');
+        console.log('OTP:', data.otp);
+      } else showError(data.message);
+    } catch (error) { showError('Cannot connect to server'); }
+  }
+
+  async function verifyOTP() {
+    const otp = document.getElementById('otpInput').value.trim();
+    if (!otp || otp.length !== 6) return showError('Enter 6-digit OTP');
+    try {
+      const res = await fetch(`${API}/auth/voter/verify-otp`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ voter_id: currentVoterId, otp })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('voterToken', data.token);
+        localStorage.setItem('voterData', JSON.stringify(data.voter));
+        window.location.href = 'dashboard.html';
+      } else showError(data.message);
+    } catch (error) { showError('Connection error'); }
+  }
+
+  async function handleRegister() {
+    const first_name = document.getElementById('regFirst').value.trim();
+    const last_name = document.getElementById('regLast').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const birthdate = document.getElementById('regBirth').value;
+    const phone = document.getElementById('regPhone').value.trim();
+    const address = document.getElementById('regAddress').value.trim();
+
+    if (!first_name || !last_name || !email || !password || !birthdate || !address) 
+      return showError('Fill all fields');
+    if (password.length < 8) return showError('Password must be 8+ chars');
+
+    try {
+      const res = await fetch(`${API}/auth/voter/register`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ first_name, last_name, email, password, birthdate, phone, address })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Registered! Voter ID: ' + data.voter_id + '\nWait for admin approval.');
+        switchTab('login');
+      } else showError(data.message);
+    } catch (error) { showError('Cannot connect'); }
+  }
+
+  async function sendResetCode() {
+    const email = document.getElementById('resetEmail').value.trim();
+    if (!email) return showError('Enter email');
+    try {
+      const res = await fetch(`${API}/auth/voter/forgot-password`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        resetEmail = email;
+        showSuccess('Reset code sent! Check PowerShell');
+        console.log('Reset code:', data.reset_code);
+        document.getElementById('forgotSection').classList.add('hidden');
+        document.getElementById('resetSection').classList.remove('hidden');
+      } else showError(data.message);
+    } catch (error) { showError('Cannot connect'); }
+  }
+
+  async function resetPassword() {
+    const resetCode = document.getElementById('resetCode').value.trim();
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (!resetCode || resetCode.length !== 6) return showError('Enter 6-digit code');
+    if (!newPassword || newPassword.length < 8) return showError('Password must be 8+ chars');
+    if (newPassword !== confirmPassword) return showError('Passwords do not match');
+
+    try {
+      const res = await fetch(`${API}/auth/voter/reset-password`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: resetEmail, reset_code: resetCode, new_password: newPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess('Password reset! You can now login.');
+        setTimeout(() => showLogin(), 2000);
+      } else showError(data.message);
+    } catch (error) { showError('Connection error'); }
+  }
+
+  if (localStorage.getItem('voterToken')) window.location.href = 'dashboard.html';
+</script>
+</body>
+</html>

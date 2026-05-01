@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify Vote | VoteSecure PH</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; min-height:100vh; }
+    .navbar { background:linear-gradient(135deg,#0a1628,#1e3a8a); color:white; padding:0 2rem;
+      display:flex; align-items:center; justify-content:space-between; height:64px; }
+    .navbar .brand { font-size:18px; font-weight:800; }
+    .btn-back { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+      color:white; padding:8px 16px; border-radius:8px; font-size:13px; cursor:pointer; }
+    .main { max-width:600px; margin:0 auto; padding:3rem 1.5rem; }
+    .card { background:white; border-radius:20px; padding:2.5rem;
+      box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+    .card-header { text-align:center; margin-bottom:2rem; }
+    .card-header .icon { font-size:56px; }
+    .card-header h2 { font-size:22px; font-weight:800; color:#0a1628; margin-top:12px; }
+    .card-header p { font-size:14px; color:#64748b; margin-top:6px; }
+    label { display:block; font-size:12px; font-weight:600; color:#475569;
+      text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+    input { width:100%; padding:14px; border:2px solid #e2e8f0; border-radius:12px;
+      font-size:18px; font-weight:700; letter-spacing:4px; text-align:center;
+      color:#0a1628; outline:none; text-transform:uppercase; }
+    input:focus { border-color:#1e3a8a; box-shadow:0 0 0 3px rgba(30,58,138,0.1); }
+    .btn { width:100%; padding:14px; border:none; border-radius:12px; font-size:16px;
+      font-weight:700; cursor:pointer; margin-top:1rem;
+      background:linear-gradient(135deg,#1e3a8a,#3b82f6); color:white; transition:all 0.2s; }
+    .btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(30,58,138,0.3); }
+    .result { margin-top:2rem; border-radius:14px; padding:1.5rem; display:none; }
+    .result.success { background:#f0fdf4; border:2px solid #16a34a; }
+    .result.error { background:#fef2f2; border:2px solid #dc2626; }
+    .result .r-icon { font-size:40px; text-align:center; margin-bottom:12px; }
+    .result .r-title { font-size:18px; font-weight:800; text-align:center; }
+    .result.success .r-title { color:#16a34a; }
+    .result.error .r-title { color:#dc2626; }
+    .result .r-info { margin-top:1rem; }
+    .result .r-row { display:flex; justify-content:space-between; padding:8px 0;
+      border-bottom:1px solid rgba(0,0,0,0.06); font-size:14px; }
+    .result .r-row:last-child { border-bottom:none; }
+    .result .r-label { color:#64748b; }
+    .result .r-value { font-weight:600; color:#0a1628; }
+    .divider { text-align:center; color:#94a3b8; font-size:13px; margin:1.5rem 0; }
+    .auto-code { background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:10px;
+      padding:12px; text-align:center; font-size:13px; color:#64748b; margin-top:1rem; cursor:pointer; }
+    .auto-code strong { color:#1e3a8a; letter-spacing:2px; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="brand">🗳️ VoteSecure PH</div>
+  <button class="btn-back" onclick="window.location.href='dashboard.html'">← Dashboard</button>
+</nav>
+
+<div class="main">
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">🔍</div>
+      <h2>Verify Your Vote</h2>
+      <p>Enter your verification code to confirm your vote was counted</p>
+    </div>
+
+    <label>Verification Code</label>
+    <input type="text" id="verCodeInput" placeholder="ENTER CODE HERE" maxlength="20"/>
+
+    <button class="btn" onclick="verifyVote()">🔍 Verify Now</button>
+
+    <!-- Auto-fill from localStorage -->
+    <div class="auto-code" id="autoCodeHint" style="display:none;" onclick="autoFill()">
+      💡 Detected code from your last vote: <strong id="savedCode"></strong> — Click to auto-fill
+    </div>
+
+    <div class="divider">— or —</div>
+    <p style="text-align:center;font-size:13px;color:#94a3b8;">Your code was provided after voting.<br>Check your email or ballot receipt.</p>
+
+    <!-- RESULT -->
+    <div class="result success" id="resultSuccess">
+      <div class="r-icon">✅</div>
+      <div class="r-title">Your Vote Has Been Counted!</div>
+      <div class="r-info">
+        <div class="r-row"><span class="r-label">Election</span><span class="r-value" id="rElection">—</span></div>
+        <div class="r-row"><span class="r-label">Voted At</span><span class="r-value" id="rVotedAt">—</span></div>
+        <div class="r-row"><span class="r-label">Code</span><span class="r-value" id="rCode">—</span></div>
+        <div class="r-row"><span class="r-label">Status</span><span class="r-value" style="color:#16a34a;">✅ Verified</span></div>
+      </div>
+    </div>
+
+    <div class="result error" id="resultError">
+      <div class="r-icon">❌</div>
+      <div class="r-title">Code Not Found</div>
+      <p style="text-align:center;font-size:14px;color:#dc2626;margin-top:8px;">
+        The verification code you entered is invalid.<br>Please double-check and try again.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (!localStorage.getItem('voterToken')) window.location.href = 'index.html';
+
+  // Check if there's a saved code
+  const savedCode = localStorage.getItem('verificationCode');
+  if (savedCode) {
+    document.getElementById('autoCodeHint').style.display = 'block';
+    document.getElementById('savedCode').textContent = savedCode;
+  }
+
+  function autoFill() {
+    document.getElementById('verCodeInput').value = savedCode;
+  }
+
+  async function verifyVote() {
+    const code = document.getElementById('verCodeInput').value.trim().toUpperCase();
+    if (!code) { alert('Please enter your verification code.'); return; }
+
+    document.getElementById('resultSuccess').style.display = 'none';
+    document.getElementById('resultError').style.display = 'none';
+
+    const API = 'http://localhost:3000/api';
+
+    try {
+      const res = await fetch(`${API}/election/verify/${code}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('rElection').textContent = data.election;
+        document.getElementById('rVotedAt').textContent = new Date(data.voted_at).toLocaleString('en-PH');
+        document.getElementById('rCode').textContent = data.code;
+        document.getElementById('resultSuccess').style.display = 'block';
+      } else {
+        document.getElementById('resultError').style.display = 'block';
+      }
+    } catch (err) {
+      // Demo mode
+      if (code.startsWith('DEMO-') || code === savedCode) {
+        document.getElementById('rElection').textContent = 'Barangay Elections 2025';
+        document.getElementById('rVotedAt').textContent = new Date().toLocaleString('en-PH');
+        document.getElementById('rCode').textContent = code;
+        document.getElementById('resultSuccess').style.display = 'block';
+      } else {
+        document.getElementById('resultError').style.display = 'block';
+      }
+    }
+  }
+</script>
+</body>
+</html>

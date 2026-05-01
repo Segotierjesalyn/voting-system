@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Announcements | VoteSecure PH</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#0a1628; color:white; display:flex; flex-direction:column; position:fixed; height:100vh; }
+    .sidebar-logo { padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); text-align:center; }
+    .sidebar-logo h2 { font-size:16px; font-weight:700; }
+    .sidebar-logo p { font-size:11px; color:#94a3b8; margin-top:2px; }
+    .menu-label { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:1px; padding:0.5rem 1.2rem; margin-top:0.5rem; }
+    .menu-item { display:flex; align-items:center; gap:10px; padding:10px 1.2rem; color:#94a3b8; text-decoration:none; font-size:14px; border-left:3px solid transparent; transition:all 0.2s; }
+    .menu-item:hover,.menu-item.active { background:rgba(255,255,255,0.07); color:white; border-left:3px solid #3b82f6; }
+    .sidebar-footer { padding:1rem 1.2rem; border-top:1px solid rgba(255,255,255,0.1); margin-top:auto; }
+    .btn-logout { width:100%; padding:9px; background:#ef4444; color:white; border:none; border-radius:8px; font-size:13px; cursor:pointer; font-weight:600; }
+    .main { margin-left:240px; flex:1; padding:2rem; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+    .topbar h1 { font-size:22px; color:#0a1628; font-weight:700; }
+    .topbar p { font-size:13px; color:#64748b; }
+    .card { background:white; border-radius:12px; padding:1.5rem; box-shadow:0 1px 4px rgba(0,0,0,0.07); margin-bottom:1.5rem; }
+    .card h3 { font-size:16px; font-weight:700; color:#0a1628; margin-bottom:1.2rem; border-bottom:2px solid #f1f5f9; padding-bottom:0.8rem; }
+    .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:1rem; }
+    label { font-size:12px; font-weight:600; color:#555; text-transform:uppercase; letter-spacing:0.5px; }
+    input,select,textarea { padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:8px; font-size:14px; color:#111; outline:none; font-family:inherit; }
+    input:focus,select:focus,textarea:focus { border-color:#1e3a8a; }
+    textarea { resize:vertical; min-height:100px; }
+    .btn { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-right:8px; }
+    .btn-primary { background:#1e3a8a; color:white; }
+    .btn-danger { background:#ef4444; color:white; }
+    .announcement-item { background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:1.2rem; margin-bottom:1rem; }
+    .announcement-item .ann-title { font-size:15px; font-weight:700; color:#0a1628; }
+    .announcement-item .ann-meta { font-size:12px; color:#94a3b8; margin-top:3px; margin-bottom:8px; }
+    .announcement-item .ann-body { font-size:14px; color:#475569; line-height:1.6; }
+    .announcement-item .ann-actions { margin-top:10px; display:flex; gap:8px; }
+    .badge-type { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; margin-left:8px; }
+    .badge-info { background:#dbeafe; color:#1e3a8a; }
+    .badge-urgent { background:#fee2e2; color:#991b1b; }
+    .badge-reminder { background:#fef3c7; color:#92400e; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><div style="font-size:28px;">🗳️</div><h2>VoteSecure PH</h2><p>Admin Panel</p></div>
+  <div style="padding:1rem 0;flex:1;">
+    <div class="menu-label">Main</div>
+    <a class="menu-item" href="dashboard.html"><span>📊</span> Dashboard</a>
+    <a class="menu-item" href="voters.html"><span>👥</span> Voter Management</a>
+    <a class="menu-item" href="candidates.html"><span>🧑‍💼</span> Candidates</a>
+    <a class="menu-item" href="election-setup.html"><span>⚙️</span> Election Setup</a>
+    <div class="menu-label">Reports</div>
+    <a class="menu-item" href="results.html"><span>📈</span> Results</a>
+    <a class="menu-item" href="audit-logs.html"><span>📋</span> Audit Logs</a>
+    <a class="menu-item active" href="announcements.html"><span>📢</span> Announcements</a>
+    <div class="menu-label">Security</div>
+    <a class="menu-item" href="#"><span>🔒</span> Security Monitor</a>
+  </div>
+  <div class="sidebar-footer"><button class="btn-logout" onclick="logout()">🚪 Logout</button></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>📢 Announcements</h1><p>Post updates and notices to all voters</p></div>
+    <span style="background:#dbeafe;color:#1e3a8a;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;">👤 Admin</span>
+  </div>
+
+  <div class="card">
+    <h3>✍️ Post New Announcement</h3>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="annTitle" placeholder="Announcement title..." />
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="annType">
+        <option value="info">📘 Info</option>
+        <option value="reminder">🔔 Reminder</option>
+        <option value="urgent">🚨 Urgent</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Message</label>
+      <textarea id="annBody" placeholder="Write your announcement here..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="postAnnouncement()">📢 Post Announcement</button>
+  </div>
+
+  <div class="card">
+    <h3>📋 Posted Announcements</h3>
+    <div id="announcementList">
+      <div class="announcement-item">
+        <div class="ann-title">Election Day Reminder <span class="badge-type badge-reminder">Reminder</span></div>
+        <div class="ann-meta">Posted by Admin · Apr 30, 2025 · 8:00 AM</div>
+        <div class="ann-body">The Barangay Elections 2025 will be held on May 12, 2025 from 8:00 AM to 5:00 PM. Please make sure your voter registration is approved before election day.</div>
+        <div class="ann-actions">
+          <button class="btn btn-danger" onclick="this.closest('.announcement-item').remove()">🗑️ Delete</button>
+        </div>
+      </div>
+      <div class="announcement-item">
+        <div class="ann-title">System Maintenance Notice <span class="badge-type badge-info">Info</span></div>
+        <div class="ann-meta">Posted by Admin · Apr 29, 2025 · 5:00 PM</div>
+        <div class="ann-body">The voting system will undergo maintenance on May 10, 2025 from 12:00 AM to 4:00 AM. The system will be temporarily unavailable during this period.</div>
+        <div class="ann-actions">
+          <button class="btn btn-danger" onclick="this.closest('.announcement-item').remove()">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (localStorage.getItem('adminLoggedIn') !== 'true') window.location.href = 'index.html';
+
+  function postAnnouncement() {
+    const title = document.getElementById('annTitle').value.trim();
+    const type = document.getElementById('annType').value;
+    const body = document.getElementById('annBody').value.trim();
+    if (!title || !body) { alert('Please fill in all fields.'); return; }
+    const badgeClass = { info: 'badge-info', reminder: 'badge-reminder', urgent: 'badge-urgent' }[type];
+    const badgeLabel = { info: '📘 Info', reminder: '🔔 Reminder', urgent: '🚨 Urgent' }[type];
+    const now = new Date().toLocaleString('en-PH');
+    const item = document.createElement('div');
+    item.className = 'announcement-item';
+    item.innerHTML = `
+      <div class="ann-title">${title} <span class="badge-type ${badgeClass}">${badgeLabel}</span></div>
+      <div class="ann-meta">Posted by Admin · ${now}</div>
+      <div class="ann-body">${body}</div>
+      <div class="ann-actions">
+        <button class="btn btn-danger" onclick="this.closest('.announcement-item').remove()">🗑️ Delete</button>
+      </div>`;
+    document.getElementById('announcementList').prepend(item);
+    document.getElementById('annTitle').value = '';
+    document.getElementById('annBody').value = '';
+    alert('✅ Announcement posted!');
+  }
+
+  function logout() {
+    if (confirm('Logout?')) { localStorage.removeItem('adminLoggedIn'); window.location.href = 'index.html'; }
+  }
+</script>
+</body>
+</html>

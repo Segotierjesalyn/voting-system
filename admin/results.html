@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Results | VoteSecure PH</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#0a1628; color:white; display:flex; flex-direction:column; position:fixed; height:100vh; }
+    .sidebar-logo { padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); text-align:center; }
+    .sidebar-logo h2 { font-size:16px; font-weight:700; }
+    .sidebar-logo p { font-size:11px; color:#94a3b8; margin-top:2px; }
+    .menu-label { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:1px; padding:0.5rem 1.2rem; margin-top:0.5rem; }
+    .menu-item { display:flex; align-items:center; gap:10px; padding:10px 1.2rem; color:#94a3b8; text-decoration:none; font-size:14px; border-left:3px solid transparent; transition:all 0.2s; }
+    .menu-item:hover,.menu-item.active { background:rgba(255,255,255,0.07); color:white; border-left:3px solid #3b82f6; }
+    .sidebar-footer { padding:1rem 1.2rem; border-top:1px solid rgba(255,255,255,0.1); margin-top:auto; }
+    .btn-logout { width:100%; padding:9px; background:#ef4444; color:white; border:none; border-radius:8px; font-size:13px; cursor:pointer; font-weight:600; }
+    .main { margin-left:240px; flex:1; padding:2rem; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+    .topbar h1 { font-size:22px; color:#0a1628; font-weight:700; }
+    .topbar p { font-size:13px; color:#64748b; }
+    .card { background:white; border-radius:12px; padding:1.5rem; box-shadow:0 1px 4px rgba(0,0,0,0.07); margin-bottom:1.5rem; }
+    .card h3 { font-size:16px; font-weight:700; color:#0a1628; margin-bottom:1.2rem; border-bottom:2px solid #f1f5f9; padding-bottom:0.8rem; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    .btn { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; margin-right:8px; }
+    .btn-primary { background:#1e3a8a; color:white; }
+    .btn-success { background:#16a34a; color:white; }
+    .result-bar { margin-bottom:1rem; }
+    .result-bar .cand-name { display:flex; justify-content:space-between; font-size:14px; font-weight:600; color:#0a1628; margin-bottom:4px; }
+    .result-bar .bar-track { background:#f1f5f9; border-radius:20px; height:10px; overflow:hidden; }
+    .result-bar .bar-fill { height:100%; border-radius:20px; background:#1e3a8a; transition:width 1s; }
+    .result-bar.winner .bar-fill { background:#16a34a; }
+    .winner-badge { background:#dcfce7; color:#166534; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><div style="font-size:28px;">🗳️</div><h2>VoteSecure PH</h2><p>Admin Panel</p></div>
+  <div style="padding:1rem 0;flex:1;">
+    <div class="menu-label">Main</div>
+    <a class="menu-item" href="dashboard.html"><span>📊</span> Dashboard</a>
+    <a class="menu-item" href="voters.html"><span>👥</span> Voter Management</a>
+    <a class="menu-item" href="candidates.html"><span>🧑‍💼</span> Candidates</a>
+    <a class="menu-item" href="election-setup.html"><span>⚙️</span> Election Setup</a>
+    <div class="menu-label">Reports</div>
+    <a class="menu-item active" href="results.html"><span>📈</span> Results</a>
+    <a class="menu-item" href="audit-logs.html"><span>📋</span> Audit Logs</a>
+    <a class="menu-item" href="announcements.html"><span>📢</span> Announcements</a>
+    <div class="menu-label">Security</div>
+    <a class="menu-item" href="#"><span>🔒</span> Security Monitor</a>
+  </div>
+  <div class="sidebar-footer"><button class="btn-logout" onclick="logout()">🚪 Logout</button></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>📈 Results Management</h1><p>Live results and official tallies</p></div>
+    <span style="background:#dbeafe;color:#1e3a8a;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;">👤 Admin</span>
+  </div>
+
+  <div style="margin-bottom:1.5rem;">
+    <button class="btn btn-success" onclick="alert('Results finalized!')">✅ Finalize Results</button>
+    <button class="btn btn-primary" onclick="alert('PDF export will connect to backend.')">📄 Export PDF</button>
+    <button class="btn btn-primary" onclick="alert('Excel export will connect to backend.')">📊 Export Excel</button>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>🏆 President — Results</h3>
+      <div class="result-bar winner">
+        <div class="cand-name"><span>Jose Rizal II <span class="winner-badge">LEADING</span></span><span>542 votes</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:68%"></div></div>
+      </div>
+      <div class="result-bar">
+        <div class="cand-name"><span>Andres Bonifacio Jr.</span><span>256 votes</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:32%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🏆 Vice President — Results</h3>
+      <div class="result-bar winner">
+        <div class="cand-name"><span>Maria Clara Reyes <span class="winner-badge">LEADING</span></span><span>498 votes</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:62%"></div></div>
+      </div>
+      <div class="result-bar">
+        <div class="cand-name"><span>Gabriela Silang III</span><span>300 votes</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:38%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📊 Voter Turnout Overview</h3>
+    <canvas id="turnoutChart" height="100"></canvas>
+  </div>
+</div>
+
+<script>
+  if (localStorage.getItem('adminLoggedIn') !== 'true') window.location.href = 'index.html';
+
+  const ctx = document.getElementById('turnoutChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM'],
+      datasets: [{
+        label: 'Votes Cast',
+        data: [45,120,200,310,420,530,620,700,760,798],
+        backgroundColor: '#1e3a8a',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  function logout() {
+    if (confirm('Logout?')) { localStorage.removeItem('adminLoggedIn'); window.location.href = 'index.html'; }
+  }
+</script>
+</body>
+</html>

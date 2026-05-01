@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login | VoteSecure PH</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0038a8 0%, #fcdb30 50%, #ce1126 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 400px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .container h1 { color: #0038a8; margin-bottom: 10px; }
+    .container p { color: #ce1126; margin-bottom: 20px; }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0038a8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #002266; }
+    .error { color: #ce1126; margin-top: 10px; display: none; }
+    .success { color: #16a34a; margin-top: 10px; display: none; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🗳️ VoteSecure PH</h1>
+  <p>Admin Login</p>
+
+  <div id="errorMsg" class="error"></div>
+  <div id="successMsg" class="success"></div>
+
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email" value="admin@votesecure.ph">
+    <input type="password" id="password" placeholder="Password" value="admin123">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="otpForm" class="hidden">
+    <input type="text" id="otp" placeholder="Enter 6-digit OTP" maxlength="6">
+    <button onclick="verify()">Verify OTP</button>
+  </div>
+</div>
+
+<script>
+  let adminId = null;
+
+  async function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await fetch('http://localhost:3000/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        adminId = data.admin_id;
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('otpForm').classList.remove('hidden');
+        document.getElementById('successMsg').innerHTML = '✅ OTP sent! Check PowerShell.';
+        document.getElementById('successMsg').style.display = 'block';
+        
+        // Auto-fill OTP if available
+        if (data.otp) document.getElementById('otp').value = data.otp;
+      } else {
+        document.getElementById('errorMsg').innerHTML = '❌ ' + (data.message || data.error);
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    } catch (err) {
+      document.getElementById('errorMsg').innerHTML = '❌ Cannot connect to server';
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  }
+
+  async function verify() {
+    const otp = document.getElementById('otp').value;
+
+    if (!otp || otp.length !== 6) {
+      document.getElementById('errorMsg').innerHTML = '❌ Enter 6-digit OTP';
+      document.getElementById('errorMsg').style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3000/api/admin/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin_id: adminId, otp: otp })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminLoggedIn', 'true');
+        window.location.href = 'dashboard.html';
+      } else {
+        document.getElementById('errorMsg').innerHTML = '❌ ' + (data.message || data.error);
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    } catch (err) {
+      document.getElementById('errorMsg').innerHTML = '❌ Connection error';
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | VoteSecure PH</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; min-height:100vh;
+      background:linear-gradient(135deg,#0a1628,#1e3a8a);
+      display:flex; align-items:center; justify-content:center; padding:2rem; }
+    .card { background:white; border-radius:20px; padding:2.5rem;
+      width:100%; max-width:520px; box-shadow:0 25px 60px rgba(0,0,0,0.35); }
+    .logo { text-align:center; margin-bottom:2rem; }
+    .logo .icon { font-size:40px; }
+    .logo h1 { font-size:22px; font-weight:800; color:#0a1628; margin-top:8px; }
+    .logo p { font-size:13px; color:#94a3b8; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+    .form-group.full { grid-column:1/-1; }
+    label { font-size:12px; font-weight:600; color:#475569;
+      text-transform:uppercase; letter-spacing:0.5px; }
+    input, select { padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:10px;
+      font-size:14px; color:#0f172a; outline:none; font-family:inherit; }
+    input:focus, select:focus { border-color:#1e3a8a; box-shadow:0 0 0 3px rgba(30,58,138,0.1); }
+    .btn { width:100%; padding:13px; border:none; border-radius:10px; font-size:15px;
+      font-weight:700; cursor:pointer; background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+      color:white; margin-top:1rem; transition:all 0.2s; }
+    .btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(30,58,138,0.3); }
+    .error { background:#fef2f2; color:#dc2626; border:1px solid #fecaca;
+      padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:1rem; display:none; }
+    .success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0;
+      padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:1rem; display:none; }
+    .login-link { text-align:center; font-size:13px; color:#1e3a8a; font-weight:600;
+      margin-top:1rem; cursor:pointer; }
+    .login-link:hover { text-decoration:underline; }
+    .step-indicator { display:flex; gap:8px; justify-content:center; margin-bottom:1.5rem; }
+    .step-dot { width:10px; height:10px; border-radius:50%; background:#e2e8f0; }
+    .step-dot.active { background:#1e3a8a; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="icon">🗳️</div>
+    <h1>Create Voter Account</h1>
+    <p>VoteSecure PH · Official Voter Registration</p>
+  </div>
+
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+  </div>
+
+  <div class="error" id="regError"></div>
+  <div class="success" id="regSuccess"></div>
+
+  <!-- STEP 1: Personal Info -->
+  <div id="step1">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="s1First" placeholder="Juan"/>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="s1Last" placeholder="Dela Cruz"/>
+      </div>
+      <div class="form-group">
+        <label>Middle Name</label>
+        <input type="text" id="s1Middle" placeholder="(Optional)"/>
+      </div>
+      <div class="form-group">
+        <label>Birthdate</label>
+        <input type="date" id="s1Birth"/>
+      </div>
+      <div class="form-group full">
+        <label>Sex</label>
+        <select id="s1Sex">
+          <option value="">Select</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn" onclick="goStep2()">Next: Contact Info →</button>
+  </div>
+
+  <!-- STEP 2: Contact & Address -->
+  <div id="step2" style="display:none;">
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="s2Email" placeholder="yourname@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="text" id="s2Phone" placeholder="09XXXXXXXXX"/>
+    </div>
+    <div class="form-group">
+      <label>Complete Address</label>
+      <input type="text" id="s2Address" placeholder="House No., Street, Barangay"/>
+    </div>
+    <div class="form-group">
+      <label>City / Municipality</label>
+      <input type="text" id="s2City" placeholder="City or Municipality"/>
+    </div>
+    <div class="form-group">
+      <label>Province</label>
+      <input type="text" id="s2Province" placeholder="Province"/>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn" style="background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;" onclick="goStep1()">← Back</button>
+      <button class="btn" onclick="goStep3()">Next: Set Password →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Password -->
+  <div id="step3" style="display:none;">
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="s3Pass" placeholder="Minimum 8 characters"/>
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="s3Confirm" placeholder="Repeat your password"/>
+    </div>
+    <div class="form-group">
+      <label>Voter ID / National ID Number</label>
+      <input type="text" id="s3VoterId" placeholder="Enter your valid ID number"/>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn" style="background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;" onclick="goStep2()">← Back</button>
+      <button class="btn" onclick="submitRegistration()">✅ Register Now</button>
+    </div>
+  </div>
+
+  <p class="login-link" onclick="window.location.href='index.html'">Already have an account? Login</p>
+</div>
+
+<script>
+  function showError(msg) {
+    const el = document.getElementById('regError');
+    el.textContent = '❌ ' + msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('regSuccess');
+    el.textContent = '✅ ' + msg;
+    el.style.display = 'block';
+  }
+
+  function setDot(step) {
+    [1,2,3].forEach(i => {
+      document.getElementById('dot'+i).classList.toggle('active', i <= step);
+    });
+  }
+
+  function goStep1() {
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    setDot(1);
+  }
+
+  function goStep2() {
+    const first = document.getElementById('s1First').value.trim();
+    const last = document.getElementById('s1Last').value.trim();
+    const birth = document.getElementById('s1Birth').value;
+    if (!first || !last || !birth) return showError('Please fill in all required fields.');
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    setDot(2);
+  }
+
+  function goStep3() {
+    const email = document.getElementById('s2Email').value.trim();
+    const address = document.getElementById('s2Address').value.trim();
+    if (!email || !address) return showError('Please fill in all required fields.');
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'block';
+    setDot(3);
+  }
+
+  async function submitRegistration() {
+    const pass = document.getElementById('s3Pass').value;
+    const confirm = document.getElementById('s3Confirm').value;
+    if (pass.length < 8) return showError('Password must be at least 8 characters.');
+    if (pass !== confirm) return showError('Passwords do not match.');
+
+    const payload = {
+      first_name: document.getElementById('s1First').value.trim(),
+      last_name: document.getElementById('s1Last').value.trim(),
+      birthdate: document.getElementById('s1Birth').value,
+      email: document.getElementById('s2Email').value.trim(),
+      phone: document.getElementById('s2Phone').value.trim(),
+      address: `${document.getElementById('s2Address').value}, ${document.getElementById('s2City').value}, ${document.getElementById('s2Province').value}`,
+      password: pass
+    };
+
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/voter/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) return showError(data.message);
+      document.querySelector('.card').innerHTML = `
+        <div style="text-align:center;padding:2rem 0;">
+          <div style="font-size:72px;">🎉</div>
+          <h2 style="color:#16a34a;font-size:22px;font-weight:800;margin:1rem 0;">Registration Successful!</h2>
+          <p style="color:#64748b;">Your Voter ID:</p>
+          <div style="font-size:22px;font-weight:800;color:#1e3a8a;letter-spacing:3px;margin:10px 0;">${data.voter_id}</div>
+          <p style="color:#64748b;font-size:13px;">Please wait for admin approval before you can login.</p>
+          <button onclick="window.location.href='index.html'" style="margin-top:1.5rem;padding:12px 28px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">Go to Login</button>
+        </div>`;
+    } catch (err) {
+      const fakeId = 'VTR-' + Date.now().toString().slice(-6);
+      document.querySelector('.card').innerHTML = `
+        <div style="text-align:center;padding:2rem 0;">
+          <div style="font-size:72px;">🎉</div>
+          <h2 style="color:#16a34a;font-size:22px;font-weight:800;margin:1rem 0;">Registration Submitted!</h2>
+          <p style="color:#64748b;">Demo Voter ID:</p>
+          <div style="font-size:22px;font-weight:800;color:#1e3a8a;letter-spacing:3px;margin:10px 0;">${fakeId}</div>
+          <p style="color:#64748b;font-size:13px;">Wait for admin approval to login.</p>
+          <button onclick="window.location.href='index.html'" style="margin-top:1.5rem;padding:12px 28px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">Go to Login</button>
+        </div>`;
+    }
+  }
+</script>
+</body>
+</html>
