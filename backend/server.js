@@ -20,7 +20,7 @@ app.use('/api/election', require('./election'));
 app.use('/api/results', require('./results'));
 app.use('/api/admin', require('./routes/admin'));
 
-// Redirect root to admin login
+// Default route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'admin', 'index.html'));
 });
@@ -28,4 +28,5 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`📁 Admin: http://localhost:${PORT}/admin/index.html`);
 });
