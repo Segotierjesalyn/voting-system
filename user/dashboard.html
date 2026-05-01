@@ -30,11 +30,6 @@
       gap: 15px;
     }
 
-    .logo-img {
-      height: 50px;
-      width: auto;
-    }
-
     .logo-item {
       text-align: center;
     }
@@ -69,7 +64,6 @@
       margin-top: 5px;
     }
 
-    /* Main Container */
     .container {
       max-width: 1200px;
       margin: 20px auto;
@@ -100,7 +94,7 @@
       font-size: 16px;
     }
 
-    /* Stats Grid */
+    /* Stats */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -132,10 +126,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      margin-bottom: 30px;
     }
 
-    /* Cards */
     .card {
       background: white;
       border-radius: 15px;
@@ -152,43 +144,7 @@
       padding-left: 12px;
     }
 
-    /* Voter Guide List */
-    .guide-list {
-      list-style: none;
-    }
-
-    .guide-list li {
-      padding: 8px 0;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .guide-list li:before {
-      content: "✓";
-      color: #16a34a;
-      font-weight: bold;
-    }
-
-    /* Announcements */
-    .announcement-item {
-      padding: 10px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .announcement-title {
-      font-weight: bold;
-      color: #0f172a;
-    }
-
-    .announcement-date {
-      font-size: 10px;
-      color: #64748b;
-      margin-top: 4px;
-    }
-
-    /* Election Calendar (Clickable) */
+    /* Election list (clickable) */
     .election-list {
       display: flex;
       flex-direction: column;
@@ -229,19 +185,85 @@
       font-weight: bold;
     }
 
-    .status-upcoming {
-      background: #fef3c7;
-      color: #92400e;
+    .status-upcoming { background: #fef3c7; color: #92400e; }
+    .status-active   { background: #dcfce7; color: #16a34a; }
+    .status-ended    { background: #fee2e2; color: #ce1126; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 15px;
     }
 
-    .status-active {
-      background: #dcfce7;
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .tab-btn.active {
+      color: #1e3a8a;
+      border-bottom: 2px solid #1e3a8a;
+      margin-bottom: -2px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .guide-list {
+      list-style: none;
+    }
+
+    .guide-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .guide-list li::before {
+      content: "✓";
       color: #16a34a;
+      font-weight: bold;
     }
 
-    .status-ended {
-      background: #fee2e2;
-      color: #ce1126;
+    .announcement-item, .education-item {
+      padding: 10px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .announcement-title, .education-title {
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .announcement-date, .education-meta {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .clickable {
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .clickable:hover {
+      background: #f1f5f9;
+      padding-left: 5px;
     }
 
     .no-data {
@@ -254,8 +276,7 @@
       .two-columns {
         grid-template-columns: 1fr;
       }
-      .logos { gap: 8px; }
-      .logo-img { height: 35px; }
+      .logo-item img { height: 35px; }
     }
   </style>
 </head>
@@ -264,15 +285,15 @@
 <div class="header">
   <div class="logos">
     <div class="logo-item">
-      <img src="PILIPINAS.png" alt="Republika ng Pilipinas" class="logo-img" onerror="this.src='https://via.placeholder.com/50?text=RP'">
+      <img src="PILIPINAS.png" alt="Republika ng Pilipinas" onerror="this.src='https://via.placeholder.com/45?text=RP'">
       <p>REPUBLIKA NG<br>PILIPINAS</p>
     </div>
     <div class="logo-item">
-      <img src="Bagong Pilipinas.png" alt="Bagong Pilipinas" class="logo-img" onerror="this.src='https://via.placeholder.com/50?text=BP'">
+      <img src="Bagong Pilipinas.png" alt="Bagong Pilipinas" onerror="this.src='https://via.placeholder.com/45?text=BP'">
       <p>BAGONG<br>PILIPINAS</p>
     </div>
     <div class="logo-item">
-      <img src="COMELEC.png" alt="COMELEC" class="logo-img" onerror="this.src='https://via.placeholder.com/50?text=COMELEC'">
+      <img src="COMELEC.png" alt="COMELEC" onerror="this.src='https://via.placeholder.com/45?text=COMELEC'">
       <p>COMELEC</p>
     </div>
   </div>
@@ -284,7 +305,6 @@
 </div>
 
 <div class="container">
-  <!-- Welcome Card -->
   <div class="welcome-card">
     <div>
       <h2>Welcome, <span id="welcomeName">Voter</span>! 🎉</h2>
@@ -293,7 +313,6 @@
     <button class="vote-now-btn" onclick="goToBallot()">🗳️ VOTE NOW</button>
   </div>
 
-  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-number" id="totalVoters">0</div>
@@ -309,50 +328,80 @@
     </div>
   </div>
 
-  <!-- Two Columns: Voter Guide + Announcements -->
   <div class="two-columns">
-    <!-- Voter Guide -->
+    <!-- LEFT: ELECTION CALENDAR (clickable) -->
     <div class="card">
-      <div class="card-title">📖 Voter's Guide</div>
-      <ul class="guide-list">
-        <li>Only registered and approved voters can vote.</li>
-        <li>Shade the oval completely beside your chosen candidate.</li>
-        <li>You may vote for up to the indicated number of seats per position.</li>
-        <li>Do not write anything outside the designated areas.</li>
-        <li>Review your ballot before final submission.</li>
-        <li>Once submitted, votes cannot be changed.</li>
-        <li>Each voter can vote only once per election.</li>
-      </ul>
-    </div>
-
-    <!-- Announcements -->
-    <div class="card">
-      <div class="card-title">📢 Announcements</div>
-      <div id="announcementsList">
-        <div class="announcement-item">
-          <div class="announcement-title">🗳️ Barangay & SK Elections 2025</div>
-          <div class="announcement-date">May 12, 2025</div>
-          <p style="font-size: 12px; margin-top: 5px;">Election day is on May 12, 2025. Please prepare your valid IDs.</p>
-        </div>
-        <div class="announcement-item">
-          <div class="announcement-title">✅ Voter Registration Extended</div>
-          <div class="announcement-date">April 30, 2025</div>
-          <p style="font-size: 12px; margin-top: 5px;">Last day of registration is May 5, 2025. Register now!</p>
-        </div>
-        <div class="announcement-item">
-          <div class="announcement-title">🔒 Security Reminder</div>
-          <div class="announcement-date">April 28, 2025</div>
-          <p style="font-size: 12px; margin-top: 5px;">Always keep your login credentials confidential.</p>
-        </div>
+      <div class="card-title">📅 ELECTION CALENDAR (Click to Vote)</div>
+      <div id="electionList" class="election-list">
+        <div class="no-data">Loading elections...</div>
       </div>
     </div>
-  </div>
 
-  <!-- Clickable Election Calendar -->
-  <div class="card">
-    <div class="card-title">📅 ELECTION CALENDAR (Click to Vote)</div>
-    <div id="electionList" class="election-list">
-      <div class="no-data">Loading elections...</div>
+    <!-- RIGHT: TABBED CONTENT (Voter Guide, Announcements, Voter Education) -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="guide">📖 Voter's Guide</button>
+        <button class="tab-btn" data-tab="announcements">📢 Announcements</button>
+        <button class="tab-btn" data-tab="education">🎓 Voter Education</button>
+      </div>
+
+      <!-- Voter Guide Tab -->
+      <div id="tab-guide" class="tab-content active">
+        <ul class="guide-list">
+          <li>Only registered and approved voters can vote.</li>
+          <li>Shade the oval completely beside your chosen candidate.</li>
+          <li>You may vote for up to the indicated number of seats per position.</li>
+          <li>Do not write anything outside the designated areas.</li>
+          <li>Review your ballot before final submission.</li>
+          <li>Once submitted, votes cannot be changed.</li>
+          <li>Each voter can vote only once per election.</li>
+        </ul>
+      </div>
+
+      <!-- Announcements Tab -->
+      <div id="tab-announcements" class="tab-content">
+        <div id="announcementsList">
+          <div class="announcement-item">
+            <div class="announcement-title">🗳️ Barangay & SK Elections 2025</div>
+            <div class="announcement-date">May 12, 2025</div>
+            <p style="font-size: 12px; margin-top: 5px;">Election day is on May 12, 2025. Please prepare your valid IDs.</p>
+          </div>
+          <div class="announcement-item">
+            <div class="announcement-title">✅ Voter Registration Extended</div>
+            <div class="announcement-date">April 30, 2025</div>
+            <p style="font-size: 12px; margin-top: 5px;">Last day of registration is May 5, 2025. Register now!</p>
+          </div>
+          <div class="announcement-item">
+            <div class="announcement-title">🔒 Security Reminder</div>
+            <div class="announcement-date">April 28, 2025</div>
+            <p style="font-size: 12px; margin-top: 5px;">Always keep your login credentials confidential.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voter Education Tab (clickable links to education.html) -->
+      <div id="tab-education" class="tab-content">
+        <div class="education-item clickable" onclick="openEducationPage()">
+          <div class="education-title">📌 How to Vote Guide</div>
+          <div class="education-meta">Step-by-step instruction</div>
+          <p style="font-size: 12px; margin-top: 5px;">Learn the proper way to shade and submit your ballot.</p>
+        </div>
+        <div class="education-item clickable" onclick="openEducationPage()">
+          <div class="education-title">⚖️ Voter's Rights and Responsibilities</div>
+          <div class="education-meta">Know your rights</div>
+          <p style="font-size: 12px; margin-top: 5px;">Every Filipino voter has rights protected by law.</p>
+        </div>
+        <div class="education-item clickable" onclick="openEducationPage()">
+          <div class="education-title">🗳️ Sample Ballot</div>
+          <div class="education-meta">Practice voting</div>
+          <p style="font-size: 12px; margin-top: 5px;">View a sample ballot to familiarize yourself.</p>
+        </div>
+        <div class="education-item clickable" onclick="openEducationPage()">
+          <div class="education-title">❓ Frequently Asked Questions</div>
+          <div class="education-meta">Common questions answered</div>
+          <p style="font-size: 12px; margin-top: 5px;">Get answers about the voting process.</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -392,7 +441,7 @@
       document.getElementById('totalVotes').innerText = votesCast.toLocaleString();
       document.getElementById('turnout').innerText = turnoutPercent + '%';
     } catch (err) {
-      // Demo data fallback
+      // Demo fallback
       document.getElementById('totalVoters').innerText = '0';
       document.getElementById('totalVotes').innerText = '0';
       document.getElementById('turnout').innerText = '0%';
@@ -402,16 +451,16 @@
   async function loadElections() {
     const electionList = document.getElementById('electionList');
     try {
-      const electionsRes = await fetch(`${API}/election`);
-      let elections = await electionsRes.json();
+      const res = await fetch(`${API}/election`);
+      let elections = await res.json();
       if (!Array.isArray(elections) || elections.length === 0) {
         elections = [
-          { id: 1, name: 'Barangay & SK Elections 2025', start_date: '2025-05-12', end_date: '2025-05-12', status: 'upcoming' },
-          { id: 2, name: 'Municipal/City Elections 2025', start_date: '2025-10-25', end_date: '2025-10-25', status: 'upcoming' }
+          { id: 1, name: 'Barangay & SK Elections 2025', start_date: '2025-05-12', end_date: '2025-05-12' },
+          { id: 2, name: 'Municipal/City Elections 2025', start_date: '2025-10-25', end_date: '2025-10-25' }
         ];
       }
       if (elections.length === 0) {
-        electionList.innerHTML = '<div class="no-data">No elections available. Please check back later.</div>';
+        electionList.innerHTML = '<div class="no-data">No elections available.</div>';
         return;
       }
       let html = '';
@@ -440,7 +489,7 @@
       });
       electionList.innerHTML = html;
     } catch (err) {
-      electionList.innerHTML = '<div class="no-data">Unable to load elections. Please try again later.</div>';
+      electionList.innerHTML = '<div class="no-data">Unable to load elections.</div>';
     }
   }
 
@@ -451,11 +500,13 @@
 
   function goToBallot() {
     const firstElection = document.querySelector('.election-item');
-    if (firstElection) {
-      firstElection.click();
-    } else {
-      alert('No elections available at the moment.');
-    }
+    if (firstElection) firstElection.click();
+    else alert('No elections available.');
+  }
+
+  function openEducationPage() {
+    // Open the full voter education page (education.html)
+    window.location.href = 'education.html';
   }
 
   function logout() {
@@ -465,6 +516,21 @@
     window.location.href = 'index.html';
   }
 
+  // Tab switching logic
+  function initTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-tab');
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById(`tab-${target}`).classList.add('active');
+      });
+    });
+  }
+
   if (!localStorage.getItem('voterToken')) {
     window.location.href = 'index.html';
   }
@@ -472,6 +538,7 @@
   loadUserData();
   loadStats();
   loadElections();
+  initTabs();
 </script>
 </body>
 </html>
