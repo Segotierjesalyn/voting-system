@@ -4,84 +4,128 @@ const db = require('./db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// ADMIN LOGIN
-router.post('/admin/login', async (req, res) => {
-  const { email, password } = req.body;
-  console.log('1. Login attempt:', email);
+// VOTER REGISTER
+router.post('/voter/register', async (req, res) => {
+  const { first_name, last_name, birthdate, address, email, password, phone } = req.body;
 
   try {
-    // Check if admin exists
-    const [rows] = await db.query('SELECT * FROM admins WHERE email = ?', [email]);
-    
-    if (rows.length === 0) {
-      console.log('2. Admin not found');
-      return res.status(401).json({ error: 'Invalid email or password' });
+    const [existing] = await db.query('SELECT id FROM voters WHERE email = ?', [email]);
+    if (existing.length > 0) {
+      return res.status(400).json({ message: 'Email already registered.' });
     }
 
-    const admin = rows[0];
-    console.log('3. Admin found, comparing password...');
-    
-    // Compare password
-    const isMatch = await bcrypt.compare(password, admin.password);
-    console.log('4. Password match:', isMatch);
+    const voter_id = 'VTR-' + Date.now().toString().slice(-6);
+    const hashed = await bcrypt.hash(password, 10);
 
-    if (!isMatch) {
-      console.log('5. Password mismatch');
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+    await db.query(
+      `INSERT INTO voters (voter_id, first_name, last_name, birthdate, address, email, password, phone, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+      [voter_id, first_name, last_name, birthdate, address, email, hashed, phone]
+    );
 
-    // Generate OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log('6. Generated OTP:', otp);
-    
-    // Save OTP to database
-    await db.query('UPDATE admins SET otp_code = ?, otp_expires = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = ?', [otp, admin.id]);
-    console.log('7. OTP saved to database');
-
-    res.json({ 
-      message: 'OTP sent', 
-      otp: otp, 
-      admin_id: admin.id 
-    });
+    res.json({ message: 'Registration successful! Wait for admin approval.', voter_id: voter_id });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Server error: ' + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// ADMIN VERIFY OTP
-router.post('/admin/verify-otp', async (req, res) => {
-  const { admin_id, otp } = req.body;
-  console.log('Verify OTP for admin_id:', admin_id, 'OTP:', otp);
+// VOTER LOGIN
+router.post('/voter/login', async (req, res) => {
+  const { email, password } = req.body;
+  console.log('Voter login:', email);
 
   try {
-    const [rows] = await db.query('SELECT * FROM admins WHERE id = ? AND otp_code = ? AND otp_expires > NOW()', [admin_id, otp]);
+    const [rows] = await db.query('SELECT * FROM voters WHERE email = ?', [email]);
 
     if (rows.length === 0) {
-      console.log('OTP invalid or expired');
-      return res.status(401).json({ error: 'Invalid or expired OTP' });
+      return res.status(401).json({ message: 'Voter not found.' });
     }
 
-    console.log('OTP verified for:', rows[0].email);
+    const voter = rows[0];
 
-    // Clear OTP
-    await db.query('UPDATE admins SET otp_code = NULL, otp_expires = NULL WHERE id = ?', [admin_id]);
+    if (voter.status !== 'approved') {
+      return res.status(403).json({ message: `Account is ${voter.status}. Contact admin.` });
+    }
 
-    // Generate JWT token
+    const isMatch = await bcrypt.compare(password, voter.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid password.' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await db.query('UPDATE voters SET otp = ?, otp_expires = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = ?', [otp, voter.id]);
+
+    console.log(`🔐 Voter OTP for ${email}: ${otp}`);
+
+    res.json({ message: 'OTP sent', otp: otp, voter_id: voter.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// VOTER VERIFY OTP
+router.post('/voter/verify-otp', async (req, res) => {
+  const { voter_id, otp } = req.body;
+
+  try {
+    const [rows] = await db.query('SELECT * FROM voters WHERE id = ? AND otp = ? AND otp_expires > NOW()', [voter_id, otp]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid or expired OTP.' });
+    }
+
+    await db.query('UPDATE voters SET otp = NULL, otp_expires = NULL WHERE id = ?', [voter_id]);
+
     const token = jwt.sign(
-      { id: rows[0].id, email: rows[0].email, role: 'admin' },
+      { id: rows[0].id, email: rows[0].email, role: 'voter' },
       'secretkey123',
-      { expiresIn: '8h' }
+      { expiresIn: '4h' }
     );
 
-    res.json({ 
-      message: 'Login successful', 
-      token: token,
-      admin: { id: rows[0].id, email: rows[0].email }
-    });
+    res.json({ token, voter: { id: rows[0].id, name: `${rows[0].first_name} ${rows[0].last_name}`, email: rows[0].email } });
   } catch (err) {
-    console.error('Verify error:', err);
-    res.status(500).json({ error: 'Server error: ' + err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// FORGOT PASSWORD
+router.post('/voter/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  console.log('Forgot password:', email);
+
+  try {
+    const [rows] = await db.query('SELECT id FROM voters WHERE email = ?', [email]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Email not found' });
+    }
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    await db.query('UPDATE voters SET reset_code = ?, reset_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE) WHERE id = ?', [resetCode, rows[0].id]);
+
+    console.log(`🔐 Reset code for ${email}: ${resetCode}`);
+
+    res.json({ message: 'Reset code sent', reset_code: resetCode });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// RESET PASSWORD
+router.post('/voter/reset-password', async (req, res) => {
+  const { email, reset_code, new_password } = req.body;
+
+  try {
+    const [rows] = await db.query('SELECT id FROM voters WHERE email = ? AND reset_code = ? AND reset_expires > NOW()', [email, reset_code]);
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid or expired reset code' });
+    }
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    await db.query('UPDATE voters SET password = ?, reset_code = NULL, reset_expires = NULL WHERE id = ?', [hashed, rows[0].id]);
+
+    res.json({ message: 'Password reset successful' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

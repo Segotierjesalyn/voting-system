@@ -36,14 +36,35 @@
       position: relative;
     }
 
+    .logos-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .logo-item {
+      text-align: center;
+    }
+
+    .logo-item p {
+      font-size: 9px;
+      margin-top: 5px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
     .ballot-header h1 {
       font-size: 18px;
       letter-spacing: 2px;
       font-weight: bold;
+      margin: 5px 0;
     }
 
     .ballot-header p {
-      font-size: 12px;
+      font-size: 11px;
       margin-top: 5px;
       color: #555;
     }
@@ -57,7 +78,7 @@
       padding-left: 10px;
     }
 
-    /* Election Type Selector (Parang perforated) */
+    /* Election Type Selector */
     .election-selector {
       background: #f1f5f1;
       padding: 15px;
@@ -120,14 +141,14 @@
       font-weight: normal;
     }
 
-    /* Candidates Grid - Parang balota */
+    /* Candidates List */
     .candidates-list {
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
 
-    /* Candidate Row - Parang shade oval */
+    /* Candidate Row */
     .candidate-row {
       display: flex;
       align-items: center;
@@ -146,7 +167,7 @@
       border-color: #1e3a8a;
     }
 
-    /* Shade Oval - Parang sa manual voting */
+    /* Shade Oval */
     .shade-oval {
       width: 30px;
       height: 30px;
@@ -163,7 +184,6 @@
     .candidate-row.selected .shade-oval {
       background: #1e3a8a;
       border-color: #1e3a8a;
-      position: relative;
     }
 
     .candidate-row.selected .shade-oval::after {
@@ -187,7 +207,6 @@
       margin-top: 2px;
     }
 
-    /* Multiple seats indicator */
     .multi-seat-info {
       font-size: 11px;
       color: #16a34a;
@@ -219,6 +238,7 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 14px;
+      border-radius: 5px;
     }
 
     .btn-review {
@@ -294,9 +314,55 @@
 
 <div class="ballot-paper">
   <div class="ballot-header">
+    <div class="logos-container">
+      <!-- Logo 1: Philippine Coat of Arms -->
+      <div class="logo-item">
+        <svg width="65" height="65" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="45" fill="#0038a8" stroke="#fcdb30" stroke-width="2"/>
+          <polygon points="50,20 58,40 78,40 62,53 68,73 50,60 32,73 38,53 22,40 42,40" fill="#fcdb30"/>
+          <circle cx="50" cy="50" r="15" fill="#ce1126"/>
+          <polygon points="50,45 53,55 63,55 55,61 58,71 50,65 42,71 45,61 37,55 47,55" fill="#fcdb30"/>
+        </svg>
+        <p>REPUBLIC OF THE<br>PHILIPPINES</p>
+      </div>
+      
+      <!-- Logo 2: Philippine Flag -->
+      <div class="logo-item">
+        <svg width="75" height="50" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="120" height="40" fill="#0038a8"/>
+          <rect x="0" y="40" width="120" height="40" fill="#ce1126"/>
+          <polygon points="0,0 0,80 45,40" fill="white"/>
+          <circle cx="22" cy="40" r="12" fill="#fcdb30"/>
+          <polygon points="22,32 24,37 30,37 25,41 27,46 22,43 17,46 19,41 14,37 20,37" fill="#fcdb30"/>
+          <polygon points="60,20 63,30 73,30 65,37 68,47 60,41 52,47 55,37 47,30 57,30" fill="#fcdb30"/>
+          <polygon points="60,50 63,60 73,60 65,67 68,77 60,71 52,77 55,67 47,60 57,60" fill="#fcdb30"/>
+          <polygon points="90,35 92,40 97,40 93,44 95,49 90,46 85,49 87,44 83,40 88,40" fill="#fcdb30"/>
+        </svg>
+        <p>PHILIPPINE<br>FLAG</p>
+      </div>
+      
+      <!-- Logo 3: Bagong Pilipinas -->
+      <div class="logo-item">
+        <svg width="65" height="65" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="80" height="80" rx="15" fill="url(#grad1)" stroke="#fcdb30" stroke-width="2"/>
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#0038a8;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#fcdb30;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ce1126;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <text x="50" y="42" text-anchor="middle" fill="white" font-size="22" font-weight="bold">🇵🇭</text>
+          <text x="50" y="62" text-anchor="middle" fill="white" font-size="7" font-weight="bold">BAGONG</text>
+          <text x="50" y="72" text-anchor="middle" fill="white" font-size="7" font-weight="bold">PILIPINAS</text>
+        </svg>
+        <p>BAGONG<br>PILIPINAS</p>
+      </div>
+    </div>
+    
     <h1>🇵🇭 REPUBLIC OF THE PHILIPPINES 🇵🇭</h1>
     <h1>OFFICIAL BALLOT</h1>
-    <p>VoteSecure PH - Automated Election System</p>
+    <p>VoteSecure PH - Automated Election System | Bagong Pilipinas</p>
     <div class="stub">
       <small>Ballot No: <span id="ballotNo">XXXXXX</span></small>
     </div>
@@ -319,6 +385,7 @@
   <div class="ballot-footer">
     <p>⚠️ INSTRUCTIONS: Shade the oval (●) completely beside the candidate of your choice.</p>
     <p>Do not write anything outside the designated areas. This ballot is official and confidential.</p>
+    <p>🇵🇭 "Bagong Pilipinas" - Isang bansa, isang pangarap, isang kinabukasan. 🇵🇭</p>
   </div>
 </div>
 
@@ -334,7 +401,7 @@
   <div class="modal-content">
     <h3>📋 Review Your Ballot</h3>
     <div id="reviewList"></div>
-    <div style="margin-top: 15px;">
+    <div style="margin-top: 15px; display: flex; gap: 10px;">
       <button class="btn btn-clear" onclick="closeModal()">Continue Voting</button>
       <button class="btn btn-submit" onclick="confirmSubmit()">Confirm & Submit</button>
     </div>
@@ -581,6 +648,5 @@
   renderBallot();
   checkAlreadyVoted();
 </script>
-
 </body>
 </html>

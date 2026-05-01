@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken');
 // ADMIN LOGIN
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  
+  console.log('Admin login:', email);
+
   try {
     const [rows] = await db.query('SELECT * FROM admins WHERE email = ?', [email]);
     
@@ -25,20 +26,19 @@ router.post('/login', async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await db.query('UPDATE admins SET otp_code = ?, otp_expires = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = ?', [otp, admin.id]);
     
-    console.log(`📧 OTP for ${email}: ${otp}`);
+    console.log(`🔐 Admin OTP for ${email}: ${otp}`);
     
-    // Use admin_id (not adminId) para match sa frontend
-    res.json({ message: 'OTP sent successfully', admin_id: admin.id, otp: otp });
+    res.json({ message: 'OTP sent', admin_id: admin.id, otp: otp });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// VERIFY OTP
+// ADMIN VERIFY OTP
 router.post('/verify-otp', async (req, res) => {
   const { admin_id, otp } = req.body;
-  console.log('Verifying:', admin_id, otp);
-  
+  console.log('Verify admin OTP:', admin_id, otp);
+
   try {
     const [rows] = await db.query('SELECT * FROM admins WHERE id = ? AND otp_code = ? AND otp_expires > NOW()', [admin_id, otp]);
     
@@ -50,7 +50,7 @@ router.post('/verify-otp', async (req, res) => {
     
     const token = jwt.sign(
       { id: admin_id, email: rows[0].email, role: 'admin' },
-      process.env.JWT_SECRET || 'secretkey123',
+      'secretkey123',
       { expiresIn: '8h' }
     );
     
