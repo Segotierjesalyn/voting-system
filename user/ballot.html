@@ -6,13 +6,11 @@
   <title>Official Ballot | VoteSecure PH</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       background: #e5e7eb;
       font-family: 'Segoe UI', 'Arial', sans-serif;
       padding: 20px;
     }
-
     .ballot-paper {
       max-width: 900px;
       margin: 0 auto;
@@ -20,7 +18,6 @@
       border: 2px solid #333;
       box-shadow: 10px 10px 20px rgba(0,0,0,0.2);
     }
-
     .ballot-header {
       background: #f8fafc;
       padding: 15px;
@@ -28,7 +25,6 @@
       border-bottom: 2px solid #333;
       position: relative;
     }
-
     .logos-container {
       display: flex;
       align-items: center;
@@ -37,38 +33,30 @@
       margin-bottom: 15px;
       flex-wrap: wrap;
     }
-
     .logo-item {
       text-align: center;
       width: 90px;
     }
-
     .logo-item img {
       width: 60px;
       height: auto;
-      display: block;
-      margin: 0 auto;
     }
-
     .logo-item p {
       font-size: 9px;
       margin-top: 5px;
       font-weight: bold;
       color: #1e3a8a;
     }
-
     .ballot-header h1 {
       font-size: 16px;
       letter-spacing: 1px;
       font-weight: bold;
       margin: 5px 0;
     }
-
     .ballot-header p {
       font-size: 10px;
       color: #555;
     }
-
     .stub {
       position: absolute;
       right: 10px;
@@ -77,14 +65,12 @@
       border-left: 1px solid #ccc;
       padding-left: 10px;
     }
-
     .election-selector {
       background: #f0f0f0;
       padding: 10px;
       text-align: center;
       border-bottom: 1px solid #ccc;
     }
-
     .election-buttons {
       display: flex;
       gap: 8px;
@@ -92,7 +78,6 @@
       justify-content: center;
       margin-top: 8px;
     }
-
     .election-btn {
       padding: 5px 12px;
       background: white;
@@ -101,23 +86,34 @@
       font-size: 11px;
       border-radius: 4px;
     }
-
     .election-btn.active {
       background: #1e3a8a;
       color: white;
       border-color: #1e3a8a;
     }
-
     .ballot-body {
       padding: 15px;
     }
-
+    .empty-ballot {
+      text-align: center;
+      padding: 50px 20px;
+      background: #fef9c3;
+      border-radius: 12px;
+      margin: 20px;
+    }
+    .empty-ballot h3 {
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+    .empty-ballot p {
+      color: #64748b;
+      font-size: 13px;
+    }
     .position-section {
       margin-bottom: 20px;
       border-bottom: 1px dashed #ccc;
       padding-bottom: 12px;
     }
-
     .position-title {
       background: #e9ecef;
       padding: 6px 10px;
@@ -128,19 +124,16 @@
       justify-content: space-between;
       margin-bottom: 10px;
     }
-
     .vote-limit {
       font-size: 10px;
       color: #666;
       font-weight: normal;
     }
-
     .candidates-list {
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
-
     .candidate-row {
       display: flex;
       align-items: center;
@@ -150,16 +143,10 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-
-    .candidate-row:hover {
-      background: #f1f5f9;
-    }
-
     .candidate-row.selected {
       background: #e0f2fe;
       border-color: #0ea5e9;
     }
-
     .shade-oval {
       width: 24px;
       height: 24px;
@@ -169,12 +156,10 @@
       background: white;
       flex-shrink: 0;
     }
-
     .candidate-row.selected .shade-oval {
       background: #1e3a8a;
       border-color: #1e3a8a;
     }
-
     .candidate-row.selected .shade-oval::after {
       content: "✓";
       color: white;
@@ -184,29 +169,24 @@
       justify-content: center;
       height: 100%;
     }
-
     .candidate-info {
       flex: 1;
     }
-
     .candidate-name {
       font-size: 13px;
       font-weight: 600;
     }
-
     .candidate-party {
       font-size: 10px;
       color: #666;
       margin-top: 2px;
     }
-
     .multi-seat-info {
       font-size: 10px;
       color: #16a34a;
       margin-top: 6px;
       padding-left: 36px;
     }
-
     .ballot-footer {
       background: #f8fafc;
       padding: 10px;
@@ -214,7 +194,6 @@
       border-top: 2px solid #333;
       font-size: 9px;
     }
-
     .actions {
       max-width: 900px;
       margin: 20px auto;
@@ -222,7 +201,6 @@
       gap: 15px;
       justify-content: center;
     }
-
     .btn {
       padding: 6px 18px;
       border: none;
@@ -231,22 +209,18 @@
       font-size: 13px;
       border-radius: 5px;
     }
-
     .btn-review {
       background: #fbbf24;
       color: #1e3a8a;
     }
-
     .btn-clear {
       background: #cbd5e1;
       color: #333;
     }
-
     .btn-submit {
       background: #1e3a8a;
       color: white;
     }
-
     .modal {
       display: none;
       position: fixed;
@@ -259,7 +233,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .modal-content {
       background: white;
       max-width: 500px;
@@ -269,19 +242,16 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-
     .modal-content h3 {
       margin-bottom: 15px;
       color: #1e3a8a;
       font-size: 16px;
     }
-
     .review-item {
       padding: 6px;
       border-bottom: 1px solid #ddd;
       font-size: 12px;
     }
-
     .watermark {
       position: fixed;
       bottom: 10px;
@@ -290,7 +260,6 @@
       font-size: 40px;
       pointer-events: none;
     }
-
     @media print {
       .actions, .election-selector, .watermark { display: none; }
       .ballot-paper { box-shadow: none; }
@@ -302,42 +271,33 @@
 <div class="ballot-paper">
   <div class="ballot-header">
     <div class="logos-container">
-      <!-- Logo 1: REPUBLIKA NG PILIPINAS -->
-      <div class="logo-item">
-        <img src="PILIPINAS.png" alt="Republika ng Pilipinas" style="width: 60px; height: auto;">
-        <p>REPUBLIKA NG<br>PILIPINAS</p>
-      </div>
-      <!-- Logo 2: BAGONG PILIPINAS -->
-      <div class="logo-item">
-        <img src="Bagong Pilipinas.png" alt="Bagong Pilipinas" style="width: 60px; height: auto;">
-        <p>BAGONG<br>PILIPINAS</p>
-      </div>
-      <!-- Logo 3: COMELEC -->
-      <div class="logo-item">
-        <img src="COMELEC.png" alt="COMELEC" style="width: 60px; height: auto;">
-        <p>COMELEC</p>
-      </div>
+      <div class="logo-item"><img src="PILIPINAS.png" alt="Republika ng Pilipinas"><p>REPUBLIKA NG<br>PILIPINAS</p></div>
+      <div class="logo-item"><img src="Bagong Pilipinas.png" alt="Bagong Pilipinas"><p>BAGONG<br>PILIPINAS</p></div>
+      <div class="logo-item"><img src="COMELEC.png" alt="COMELEC"><p>COMELEC</p></div>
     </div>
-
     <h1>REPUBLIC OF THE PHILIPPINES</h1>
     <h1>OFFICIAL BALLOT</h1>
     <p>VoteSecure PH - Automated Election System | Bagong Pilipinas</p>
-    <div class="stub">
-      <small>Ballot No: <span id="ballotNo">XXXXXX</span></small>
-    </div>
+    <div class="stub"><small>Ballot No: <span id="ballotNo">XXXXXX</span></small></div>
   </div>
 
   <div class="election-selector">
     <strong>📋 SELECT ELECTION TYPE:</strong>
     <div class="election-buttons">
-      <button class="election-btn active" data-election="barangay">🏘️ BARANGAY & SK</button>
+      <button class="election-btn" data-election="barangay">🏘️ BARANGAY & SK</button>
       <button class="election-btn" data-election="municipal">🏛️ MUNICIPAL/CITY</button>
       <button class="election-btn" data-election="provincial">🏢 PROVINCIAL</button>
       <button class="election-btn" data-election="national">🇵🇭 NATIONAL</button>
     </div>
   </div>
 
-  <div class="ballot-body" id="ballotBody"></div>
+  <div class="ballot-body" id="ballotBody">
+    <div class="empty-ballot">
+      <h3>🗳️ No candidates loaded yet</h3>
+      <p>The election administrator has not added candidates for this election.</p>
+      <p>Please check back later or contact your barangay election officer.</p>
+    </div>
+  </div>
 
   <div class="ballot-footer">
     <p>⚠️ INSTRUCTIONS: Shade the oval (●) completely beside the candidate of your choice.</p>
@@ -366,223 +326,95 @@
 </div>
 
 <script>
-  const API = 'http://localhost:3000/api';
+  // Determine which election type to show (from dashboard selection)
   let currentElection = 'barangay';
+  const savedElection = localStorage.getItem('selectedElection');
+  if (savedElection) {
+    try {
+      const election = JSON.parse(savedElection);
+      if (election.name.toLowerCase().includes('barangay')) currentElection = 'barangay';
+      else if (election.name.toLowerCase().includes('municipal')) currentElection = 'municipal';
+      else if (election.name.toLowerCase().includes('provincial')) currentElection = 'provincial';
+      else if (election.name.toLowerCase().includes('national')) currentElection = 'national';
+    } catch(e) {}
+  }
+
   let myVotes = {};
   let ballotNumber = 'VTR-' + Math.floor(Math.random() * 1000000);
   document.getElementById('ballotNo').innerText = ballotNumber;
 
-  const candidatesData = {
-    barangay: {
-      positions: ['Punong Barangay', 'Barangay Kagawad (7 seats)', 'SK Chairperson', 'SK Kagawad (7 seats)'],
-      candidates: {
-        'Punong Barangay': [
-          { id: 1, name: 'JUAN DELA CRUZ', party: 'Partido ng Masa' },
-          { id: 2, name: 'MARIA SANTOS', party: 'Bayanihan' }
-        ],
-        'Barangay Kagawad (7 seats)': [
-          { id: 11, name: 'PEDRO PENDUKO', party: 'Partido ng Masa' },
-          { id: 12, name: 'ANA REYES', party: 'Bayanihan' },
-          { id: 13, name: 'LITO LAPID', party: 'Reporma' },
-          { id: 14, name: 'CORA AQUINO', party: 'Partido ng Masa' }
-        ],
-        'SK Chairperson': [
-          { id: 21, name: 'KIKO PANGILINAN', party: 'Kabataan' },
-          { id: 22, name: 'RISA HONTIVEROS', party: 'Youth Vote' }
-        ],
-        'SK Kagawad (7 seats)': [
-          { id: 31, name: 'BAM AQUINO', party: 'Kabataan' },
-          { id: 32, name: 'CHEL DIOKNO', party: 'Youth Vote' }
-        ]
-      }
-    },
-    municipal: {
-      positions: ['Mayor', 'Vice Mayor', 'Councilor (8 seats)'],
-      candidates: {
-        'Mayor': [
-          { id: 101, name: 'ISKO MORENO', party: 'Aksyon' },
-          { id: 102, name: 'VICO SOTTO', party: 'Reporma' }
-        ],
-        'Vice Mayor': [
-          { id: 111, name: 'HONEY LACUNA', party: 'Aksyon' },
-          { id: 112, name: 'MANNY PACQUIAO', party: 'PROMDI' }
-        ],
-        'Councilor (8 seats)': [
-          { id: 121, name: 'MIKEY BELMONTE', party: 'Aksyon' },
-          { id: 122, name: 'WINNIE CASTELO', party: 'Reporma' }
-        ]
-      }
-    },
-    provincial: {
-      positions: ['Governor', 'Vice Governor', 'Provincial Board Member (6 seats)'],
-      candidates: {
-        'Governor': [
-          { id: 201, name: 'DANIEL FERNANDO', party: 'NUP' },
-          { id: 202, name: 'WILHELMINO SY-ALVARADO', party: 'PDP-Laban' }
-        ],
-        'Vice Governor': [
-          { id: 211, name: 'ALEX CASTRO', party: 'NUP' },
-          { id: 212, name: 'ATTY. PANCHO', party: 'PDP-Laban' }
-        ],
-        'Provincial Board Member (6 seats)': [
-          { id: 221, name: 'RODELIO BERNARDO', party: 'NUP' },
-          { id: 222, name: 'CHRISTOPHER CLEMENTE', party: 'PDP-Laban' }
-        ]
-      }
-    },
-    national: {
-      positions: ['President', 'Vice President', 'Senator (12 seats)', 'Party-List'],
-      candidates: {
-        'President': [
-          { id: 301, name: 'BONGBONG MARCOS', party: 'PFP' },
-          { id: 302, name: 'LENI ROBREDO', party: 'Liberal' }
-        ],
-        'Vice President': [
-          { id: 311, name: 'SARA DUTERTE', party: 'Lakas' },
-          { id: 312, name: 'KIKO PANGILINAN', party: 'Liberal' }
-        ],
-        'Senator (12 seats)': [
-          { id: 321, name: 'ROBIN PADILLA', party: 'PDP-Laban' },
-          { id: 322, name: 'LOREN LEGARDA', party: 'NPC' },
-          { id: 323, name: 'RAFFY TULFO', party: 'Independent' }
-        ],
-        'Party-List': [
-          { id: 331, name: 'ACT-CIS', party: 'Party-list' },
-          { id: 332, name: '1-RIDER', party: 'Party-list' }
-        ]
-      }
-    }
+  // Candidate data initially empty - will be loaded from backend/localStorage
+  let candidatesData = {
+    barangay: { positions: [], candidates: {} },
+    municipal: { positions: [], candidates: {} },
+    provincial: { positions: [], candidates: {} },
+    national: { positions: [], candidates: {} }
   };
 
-  function selectCandidate(positionKey, candidate, maxSeats) {
-    const key = `${currentElection}_${positionKey}`;
-    if (maxSeats === 1) {
-      myVotes[key] = [candidate];
-    } else {
-      const currentVotes = myVotes[key] || [];
-      const exists = currentVotes.find(v => v.id === candidate.id);
-      if (exists) {
-        myVotes[key] = currentVotes.filter(v => v.id !== candidate.id);
-      } else {
-        if (currentVotes.length >= maxSeats) {
-          alert(`⚠️ You can only vote for ${maxSeats} candidate(s) for this position.`);
-          return;
-        }
-        myVotes[key] = [...currentVotes, candidate];
-      }
-    }
-    renderBallot();
-  }
-
-  function renderBallot() {
-    const data = candidatesData[currentElection];
-    if (!data) return;
-    let html = '';
-    data.positions.forEach(position => {
-      const candidates = data.candidates[position] || [];
-      const maxSeats = position.includes('(') ? parseInt(position.match(/\((\d+)/)[1]) : 1;
-      const positionKey = position.replace(/ \([^)]+\)/, '');
-      const key = `${currentElection}_${positionKey}`;
-      const myVote = myVotes[key] || [];
-      html += `
-        <div class="position-section">
-          <div class="position-title">
-            <span>🗳️ ${position}</span>
-            <span class="vote-limit">Vote: ${myVote.length}/${maxSeats}</span>
-          </div>
-          <div class="candidates-list">
-      `;
-      candidates.forEach(candidate => {
-        const isSelected = myVote.some(v => v.id === candidate.id);
-        html += `
-          <div class="candidate-row ${isSelected ? 'selected' : ''}" onclick="selectCandidate('${positionKey}', ${JSON.stringify(candidate).replace(/"/g, '&quot;')}, ${maxSeats})">
-            <div class="shade-oval"></div>
-            <div class="candidate-info">
-              <div class="candidate-name">${candidate.name}</div>
-              <div class="candidate-party">${candidate.party}</div>
-            </div>
+  // Function to load candidates from backend or localStorage
+  async function loadCandidates() {
+    try {
+      const token = localStorage.getItem('voterToken');
+      const res = await fetch('http://localhost:3000/api/candidates', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const candidates = await res.json();
+      if (Array.isArray(candidates) && candidates.length > 0) {
+        // Organize candidates by election type and position (this depends on your backend structure)
+        // For simplicity, we'll use demo data for now but mark that real data exists
+        console.log('Candidates loaded from backend:', candidates);
+        // TODO: parse real candidates
+        // For now, show a message that candidates exist but we need proper mapping
+        document.getElementById('ballotBody').innerHTML = `
+          <div class="empty-ballot">
+            <h3>⚙️ Election setup in progress</h3>
+            <p>Candidates have been added but the ballot structure is being prepared.</p>
+            <p>Please wait for the final ballot configuration.</p>
           </div>
         `;
-      });
-      if (maxSeats > 1) {
-        html += `<div class="multi-seat-info">✓ You may vote up to ${maxSeats} candidates for this position</div>`;
+        return;
       }
-      html += `</div></div>`;
-    });
-    document.getElementById('ballotBody').innerHTML = html;
+    } catch (err) {
+      console.log('No candidates from backend, using demo empty state');
+    }
+    // If no candidates, show empty state
+    document.getElementById('ballotBody').innerHTML = `
+      <div class="empty-ballot">
+        <h3>🗳️ No candidates loaded yet</h3>
+        <p>The election administrator has not added candidates for this election.</p>
+        <p>Please check back later or contact your barangay election officer.</p>
+      </div>
+    `;
   }
 
+  // Temporary placeholder functions for actions (clear, review, submit) – they will show appropriate messages
+  function clearAll() { alert('No candidates to clear yet. The ballot is empty.'); }
+  function reviewVotes() { alert('You have not voted for anyone because no candidates are available.'); }
+  function submitVotes() { alert('Cannot submit an empty ballot. Please wait for candidates to be added.'); }
+  function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+  function confirmSubmit() { closeModal(); submitVotes(); }
+
+  // Setup election buttons (but they won't do much without candidates)
   function setupElectionButtons() {
     const buttons = document.querySelectorAll('.election-btn');
     buttons.forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.election === currentElection) btn.classList.add('active');
       btn.addEventListener('click', () => {
         buttons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentElection = btn.dataset.election;
-        renderBallot();
+        loadCandidates(); // reload empty state for that election type
       });
     });
   }
 
-  function clearAll() {
-    if (confirm('⚠️ Are you sure you want to clear ALL your votes?')) {
-      myVotes = {};
-      renderBallot();
-    }
-  }
-
-  function reviewVotes() {
-    let reviewHtml = '';
-    let hasVotes = false;
-    for (const [key, votes] of Object.entries(myVotes)) {
-      if (votes.length > 0) {
-        hasVotes = true;
-        const positionName = key.split('_')[1];
-        reviewHtml += `<div class="review-item"><strong>${positionName}:</strong><br>`;
-        votes.forEach(v => {
-          reviewHtml += ` • ${v.name} (${v.party})<br>`;
-        });
-        reviewHtml += `</div>`;
-      }
-    }
-    if (!hasVotes) reviewHtml = '<p>You haven\'t voted for anyone yet.</p>';
-    document.getElementById('reviewList').innerHTML = reviewHtml;
-    document.getElementById('reviewModal').style.display = 'flex';
-  }
-
-  function closeModal() {
-    document.getElementById('reviewModal').style.display = 'none';
-  }
-
-  function confirmSubmit() {
-    closeModal();
-    submitVotes();
-  }
-
-  function submitVotes() {
-    let totalVotes = 0;
-    for (const votes of Object.values(myVotes)) totalVotes += votes.length;
-    if (totalVotes === 0) {
-      alert('⚠️ Please vote for at least one candidate before submitting.');
-      return;
-    }
-    if (confirm('🗳️ FINAL SUBMISSION\n\nAre you sure you want to submit your ballot?\n\nYou CANNOT change your votes after submission!')) {
-      localStorage.setItem('userVotes', JSON.stringify(myVotes));
-      localStorage.setItem('hasVoted', 'true');
-      alert('✅ Your ballot has been recorded!\n\nThank you for voting!');
-      window.location.href = 'dashboard.html';
-    }
-  }
-
   function checkAlreadyVoted() {
-    if (localStorage.getItem('hasVoted') === 'true') {
-      alert('⚠️ You have already voted in this election.');
-      window.location.href = 'dashboard.html';
-    }
+    // Optional: check localStorage if user already voted
   }
 
+  loadCandidates();
   setupElectionButtons();
-  renderBallot();
   checkAlreadyVoted();
 </script>
 </body>

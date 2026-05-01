@@ -144,6 +144,41 @@
       padding-left: 12px;
     }
 
+    /* Next Election Tracker */
+    .next-election-card {
+      background: linear-gradient(135deg, #fef3c7, #fffbeb);
+      border-left: 5px solid #d97706;
+      margin-bottom: 20px;
+    }
+
+    .next-election-title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #92400e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .next-election-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin: 5px 0;
+    }
+
+    .countdown {
+      font-size: 24px;
+      font-weight: 800;
+      color: #d97706;
+      font-family: monospace;
+      margin: 8px 0;
+    }
+
+    .countdown-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+
     /* Election list (clickable) */
     .election-list {
       display: flex;
@@ -329,15 +364,26 @@
   </div>
 
   <div class="two-columns">
-    <!-- LEFT: ELECTION CALENDAR (clickable) -->
-    <div class="card">
-      <div class="card-title">📅 ELECTION CALENDAR (Click to Vote)</div>
-      <div id="electionList" class="election-list">
-        <div class="no-data">Loading elections...</div>
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- Next Election Tracker Card -->
+      <div class="card next-election-card" id="nextElectionCard" style="display: none;">
+        <div class="next-election-title">⏳ NEXT ELECTION TRACKER</div>
+        <div class="next-election-name" id="nextElectionName">--</div>
+        <div class="countdown" id="countdownTimer">--:--:--</div>
+        <div class="countdown-label" id="countdownLabel">days | hours | minutes | seconds</div>
+      </div>
+
+      <!-- Election Calendar (clickable) -->
+      <div class="card">
+        <div class="card-title">📅 ELECTION CALENDAR (Click to Vote)</div>
+        <div id="electionList" class="election-list">
+          <div class="no-data">Loading elections...</div>
+        </div>
       </div>
     </div>
 
-    <!-- RIGHT: TABBED CONTENT (Voter Guide, Announcements, Voter Education) -->
+    <!-- RIGHT COLUMN: Tabbed Content -->
     <div class="card">
       <div class="tabs">
         <button class="tab-btn active" data-tab="guide">📖 Voter's Guide</button>
@@ -345,7 +391,6 @@
         <button class="tab-btn" data-tab="education">🎓 Voter Education</button>
       </div>
 
-      <!-- Voter Guide Tab -->
       <div id="tab-guide" class="tab-content active">
         <ul class="guide-list">
           <li>Only registered and approved voters can vote.</li>
@@ -358,48 +403,36 @@
         </ul>
       </div>
 
-      <!-- Announcements Tab -->
       <div id="tab-announcements" class="tab-content">
         <div id="announcementsList">
           <div class="announcement-item">
             <div class="announcement-title">🗳️ Barangay & SK Elections 2025</div>
             <div class="announcement-date">May 12, 2025</div>
-            <p style="font-size: 12px; margin-top: 5px;">Election day is on May 12, 2025. Please prepare your valid IDs.</p>
+            <p style="font-size: 12px;">Election day is on May 12, 2025. Prepare your valid IDs.</p>
           </div>
           <div class="announcement-item">
             <div class="announcement-title">✅ Voter Registration Extended</div>
             <div class="announcement-date">April 30, 2025</div>
-            <p style="font-size: 12px; margin-top: 5px;">Last day of registration is May 5, 2025. Register now!</p>
-          </div>
-          <div class="announcement-item">
-            <div class="announcement-title">🔒 Security Reminder</div>
-            <div class="announcement-date">April 28, 2025</div>
-            <p style="font-size: 12px; margin-top: 5px;">Always keep your login credentials confidential.</p>
+            <p style="font-size: 12px;">Last day of registration is May 5, 2025.</p>
           </div>
         </div>
       </div>
 
-      <!-- Voter Education Tab (clickable links to education.html) -->
       <div id="tab-education" class="tab-content">
-        <div class="education-item clickable" onclick="openEducationPage()">
+        <div class="education-item clickable" onclick="window.location.href='education.html'">
           <div class="education-title">📌 How to Vote Guide</div>
           <div class="education-meta">Step-by-step instruction</div>
-          <p style="font-size: 12px; margin-top: 5px;">Learn the proper way to shade and submit your ballot.</p>
+          <p style="font-size: 12px;">Learn the proper way to shade and submit your ballot.</p>
         </div>
-        <div class="education-item clickable" onclick="openEducationPage()">
+        <div class="education-item clickable" onclick="window.location.href='education.html'">
           <div class="education-title">⚖️ Voter's Rights and Responsibilities</div>
           <div class="education-meta">Know your rights</div>
-          <p style="font-size: 12px; margin-top: 5px;">Every Filipino voter has rights protected by law.</p>
+          <p style="font-size: 12px;">Every Filipino voter has rights protected by law.</p>
         </div>
-        <div class="education-item clickable" onclick="openEducationPage()">
-          <div class="education-title">🗳️ Sample Ballot</div>
-          <div class="education-meta">Practice voting</div>
-          <p style="font-size: 12px; margin-top: 5px;">View a sample ballot to familiarize yourself.</p>
-        </div>
-        <div class="education-item clickable" onclick="openEducationPage()">
+        <div class="education-item clickable" onclick="window.location.href='education.html'">
           <div class="education-title">❓ Frequently Asked Questions</div>
           <div class="education-meta">Common questions answered</div>
-          <p style="font-size: 12px; margin-top: 5px;">Get answers about the voting process.</p>
+          <p style="font-size: 12px;">Get answers about the voting process.</p>
         </div>
       </div>
     </div>
@@ -409,6 +442,9 @@
 <script>
   const API = 'http://localhost:3000/api';
   let voterData = null;
+  let elections = [];
+  let electionSettings = {};      // from admin
+  let countdownInterval = null;
 
   function loadUserData() {
     const data = localStorage.getItem('voterData');
@@ -441,56 +477,120 @@
       document.getElementById('totalVotes').innerText = votesCast.toLocaleString();
       document.getElementById('turnout').innerText = turnoutPercent + '%';
     } catch (err) {
-      // Demo fallback
+      console.log('Stats error, using demo:', err);
       document.getElementById('totalVoters').innerText = '0';
       document.getElementById('totalVotes').innerText = '0';
       document.getElementById('turnout').innerText = '0%';
     }
   }
 
+  async function loadElectionSettings() {
+    try {
+      const res = await fetch(`${API}/election-settings`);
+      electionSettings = await res.json();
+    } catch(e) {
+      console.log('No election settings, using defaults');
+      electionSettings = {};
+    }
+  }
+
   async function loadElections() {
-    const electionList = document.getElementById('electionList');
+    const electionListDiv = document.getElementById('electionList');
     try {
       const res = await fetch(`${API}/election`);
-      let elections = await res.json();
-      if (!Array.isArray(elections) || elections.length === 0) {
-        elections = [
-          { id: 1, name: 'Barangay & SK Elections 2025', start_date: '2025-05-12', end_date: '2025-05-12' },
-          { id: 2, name: 'Municipal/City Elections 2025', start_date: '2025-10-25', end_date: '2025-10-25' }
+      let data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        // demo elections with proper dates
+        data = [
+          { id: 1, key: 'barangay', name: 'Barangay & SK Elections 2025', start_date: '2025-05-12', end_date: '2025-05-12' },
+          { id: 2, key: 'municipal', name: 'Municipal/City Elections 2025', start_date: '2025-10-25', end_date: '2025-10-25' }
         ];
       }
+      // Apply election settings (disable if admin disabled)
+      elections = data.filter(e => {
+        const setting = electionSettings[e.key];
+        return setting ? setting.enabled !== false : true;
+      });
       if (elections.length === 0) {
-        electionList.innerHTML = '<div class="no-data">No elections available.</div>';
+        electionListDiv.innerHTML = '<div class="no-data">No active elections at this time.</div>';
+        document.getElementById('nextElectionCard').style.display = 'none';
         return;
       }
+      // Build election list HTML
       let html = '';
+      const today = new Date();
+      today.setHours(0,0,0,0);
       elections.forEach(election => {
+        const startDate = new Date(election.start_date);
+        const endDate = new Date(election.end_date);
         let statusClass = 'status-upcoming';
         let statusText = 'Upcoming';
-        const today = new Date();
-        const start = new Date(election.start_date);
-        const end = new Date(election.end_date);
-        if (today >= start && today <= end) {
+        if (today >= startDate && today <= endDate) {
           statusClass = 'status-active';
           statusText = 'ACTIVE';
-        } else if (today > end) {
+        } else if (today > endDate) {
           statusClass = 'status-ended';
           statusText = 'Ended';
         }
+        const startFormatted = startDate.toLocaleDateString('en-PH');
+        const endFormatted = endDate.toLocaleDateString('en-PH');
         html += `
           <div class="election-item" onclick="selectElection(${election.id}, '${election.name.replace(/'/g, "\\'")}')">
             <div class="election-info">
               <h4>🗳️ ${election.name}</h4>
-              <p>📅 ${new Date(election.start_date).toLocaleDateString()} - ${new Date(election.end_date).toLocaleDateString()}</p>
+              <p>📅 ${startFormatted} - ${endFormatted}</p>
             </div>
             <span class="election-status ${statusClass}">${statusText}</span>
           </div>
         `;
       });
-      electionList.innerHTML = html;
+      electionListDiv.innerHTML = html;
+      updateNextElectionTracker();
     } catch (err) {
-      electionList.innerHTML = '<div class="no-data">Unable to load elections.</div>';
+      console.log('Election fetch error:', err);
+      electionListDiv.innerHTML = '<div class="no-data">Unable to load elections. Please try again later.</div>';
     }
+  }
+
+  function updateNextElectionTracker() {
+    if (!elections || elections.length === 0) {
+      document.getElementById('nextElectionCard').style.display = 'none';
+      return;
+    }
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const upcoming = elections.filter(e => new Date(e.start_date) > today);
+    if (upcoming.length === 0) {
+      document.getElementById('nextElectionCard').style.display = 'none';
+      return;
+    }
+    upcoming.sort((a,b) => new Date(a.start_date) - new Date(b.start_date));
+    const next = upcoming[0];
+    document.getElementById('nextElectionName').innerText = next.name;
+    document.getElementById('nextElectionCard').style.display = 'block';
+    
+    const targetDate = new Date(next.start_date);
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+      if (diff <= 0) {
+        document.getElementById('countdownTimer').innerHTML = 'ELECTION DAY!';
+        document.getElementById('countdownLabel').innerHTML = 'Voting is ongoing';
+        if (countdownInterval) clearInterval(countdownInterval);
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (86400000)) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      document.getElementById('countdownTimer').innerHTML = 
+        `${days}d ${hours.toString().padStart(2,'0')}h ${minutes.toString().padStart(2,'0')}m ${seconds.toString().padStart(2,'0')}s`;
+      document.getElementById('countdownLabel').innerHTML = 'until next election';
+    }
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 1000);
   }
 
   function selectElection(electionId, electionName) {
@@ -501,12 +601,7 @@
   function goToBallot() {
     const firstElection = document.querySelector('.election-item');
     if (firstElection) firstElection.click();
-    else alert('No elections available.');
-  }
-
-  function openEducationPage() {
-    // Open the full voter education page (education.html)
-    window.location.href = 'education.html';
+    else alert('No active elections available.');
   }
 
   function logout() {
@@ -516,7 +611,6 @@
     window.location.href = 'index.html';
   }
 
-  // Tab switching logic
   function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -537,7 +631,10 @@
 
   loadUserData();
   loadStats();
-  loadElections();
+  (async () => {
+    await loadElectionSettings();
+    await loadElections();
+  })();
   initTabs();
 </script>
 </body>

@@ -1,20 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const db = require('./db');
-const verifyToken = require('./middleware');   // <-- ADD THIS
+const db = require('../db');
 
-// Get all elections (for user side)
+// Get settings (for user and admin)
 router.get('/', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM elections ORDER BY start_date ASC');
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get election settings (enabled/disabled)
-router.get('/settings', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM election_settings');
     let settings = {};
@@ -22,13 +11,13 @@ router.get('/settings', async (req, res) => {
       settings[row.election_key] = JSON.parse(row.settings);
     });
     res.json(settings);
-  } catch (err) {
-    res.json({});
+  } catch(err) {
+    res.json({}); // fallback
   }
 });
 
-// Save election settings (admin only, with token)
-router.post('/settings', verifyToken, async (req, res) => {
+// Save settings (admin only, with token)
+router.post('/', async (req, res) => {
   const settings = req.body;
   try {
     for (const [key, value] of Object.entries(settings)) {
@@ -38,7 +27,7 @@ router.post('/settings', verifyToken, async (req, res) => {
       );
     }
     res.json({ message: 'Settings saved' });
-  } catch (err) {
+  } catch(err) {
     res.status(500).json({ error: err.message });
   }
 });

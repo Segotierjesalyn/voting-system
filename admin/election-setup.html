@@ -2,735 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Election Setup | VoteSecure PH Admin</title>
+  <title>Election Setup | Admin</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f1f5f9;
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 260px;
-      background: linear-gradient(180deg, #0038a8 0%, #002266 100%);
-      color: white;
-      position: fixed;
-      height: 100vh;
-    }
-
-    .sidebar-logo {
-      padding: 1.5rem;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .sidebar-logo h2 { font-size: 1.2rem; }
-    .sidebar-logo p { font-size: 11px; opacity: 0.8; margin-top: 5px; }
-
-    .sidebar-menu { padding: 1rem 0; }
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 1.5rem;
-      color: #cbd5e1;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-    .menu-item:hover, .menu-item.active {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border-left: 4px solid #fcdb30;
-    }
-
-    .sidebar-footer {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      padding: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .btn-logout {
-      width: 100%;
-      padding: 10px;
-      background: #ce1126;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    /* Main Content */
-    .main {
-      margin-left: 260px;
-      flex: 1;
-      padding: 2rem;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .topbar h1 { color: #0038a8; }
-    .date { color: #64748b; font-size: 14px; }
-
-    /* Cards */
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    .card-header h3 {
-      color: #0038a8;
-      font-size: 1.2rem;
-    }
-
-    /* Toggle Switch */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 55px;
-      height: 28px;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #cbd5e1;
-      transition: 0.3s;
-      border-radius: 28px;
-    }
-
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
-      border-radius: 50%;
-    }
-
-    input:checked + .toggle-slider {
-      background-color: #16a34a;
-    }
-
-    input:checked + .toggle-slider:before {
-      transform: translateX(27px);
-    }
-
-    /* Status Badge */
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .status-active {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-
-    .status-inactive {
-      background: #fee2e2;
-      color: #ce1126;
-    }
-
-    /* Positions Grid */
-    .positions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .position-item {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #e2e8f0;
-    }
-
-    .position-info h4 {
-      font-size: 1rem;
-      color: #0a1628;
-      font-weight: 600;
-    }
-
-    .position-info p {
-      font-size: 11px;
-      color: #64748b;
-      margin-top: 4px;
-    }
-
-    .position-seats {
-      font-size: 10px;
-      background: #e2e8f0;
-      padding: 2px 8px;
-      border-radius: 20px;
-    }
-
-    /* Buttons */
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-
-    .btn-primary {
-      background: #0038a8;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #002266;
-    }
-
-    .btn-success {
-      background: #16a34a;
-      color: white;
-    }
-
-    .btn-danger {
-      background: #ce1126;
-      color: white;
-    }
-
-    .btn-sm {
-      padding: 4px 12px;
-      font-size: 12px;
-    }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      width: 450px;
-      max-width: 90%;
-    }
-
-    .modal-content h3 {
-      color: #0038a8;
-      margin-bottom: 1rem;
-    }
-
-    .modal-content label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #475569;
-      margin-top: 10px;
-      margin-bottom: 5px;
-    }
-
-    .modal-content input, .modal-content select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 1.5rem;
-    }
-
-    /* Alert */
-    .alert {
-      background: #fef3c7;
-      border-left: 4px solid #fcdb30;
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-      font-size: 14px;
-    }
-
-    /* Election Card */
-    .election-card {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #e2e8f0;
-    }
-
-    .election-info h4 {
-      font-size: 1rem;
-      color: #0a1628;
-    }
-
-    .election-info p {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 4px;
-    }
-
-    .election-actions {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar { width: 200px; }
-      .main { margin-left: 200px; padding: 1rem; }
-      .positions-grid { grid-template-columns: 1fr; }
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
+    .sidebar { width:260px; background:#0038a8; color:white; min-height:100vh; }
+    .sidebar-menu a { display:block; padding:12px 1.5rem; color:#cbd5e1; text-decoration:none; }
+    .sidebar-menu a.active { background:rgba(255,255,255,0.2); color:white; }
+    .main { flex:1; padding:2rem; }
+    .card { background:white; border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+    .toggle-switch { position:relative; display:inline-block; width:50px; height:24px; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; border-radius:24px; }
+    .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.2s; }
+    input:checked + .slider { background:#16a34a; }
+    input:checked + .slider:before { transform:translateX(26px); }
+    .election-item { display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #e2e8f0; }
+    .save-btn { background:#1e3a8a; color:white; padding:8px 20px; border:none; border-radius:8px; cursor:pointer; margin-top:1rem; }
   </style>
 </head>
 <body>
-
 <div class="sidebar">
-  <div class="sidebar-logo">
-    <div style="font-size: 32px;">🗳️</div>
-    <h2>VoteSecure PH</h2>
-    <p>Admin Panel</p>
-  </div>
+  <div class="sidebar-logo"><h2>🗳️ VoteSecure PH</h2><p>Admin Panel</p></div>
   <div class="sidebar-menu">
-    <a class="menu-item" href="dashboard.html">📊 Dashboard</a>
-    <a class="menu-item" href="voters.html">👥 Voter Management</a>
-    <a class="menu-item" href="candidates.html">🧑‍💼 Candidates</a>
-    <a class="menu-item active" href="election-setup.html">⚙️ Ballot Setup</a>
-    <a class="menu-item" href="results.html">📈 Results</a>
-  </div>
-  <div class="sidebar-footer">
-    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="voters.html">👥 Voter Management</a>
+    <a href="candidates.html">🧑‍💼 Candidates</a>
+    <a href="election-setup.html" class="active">⚙️ Election Setup</a>
+    <a href="results.html">📈 Results</a>
   </div>
 </div>
-
 <div class="main">
-  <div class="topbar">
-    <div>
-      <h1>⚙️ Ballot & Election Setup</h1>
-      <p class="date" id="dateToday"></p>
-    </div>
-    <button class="btn btn-success btn-sm" onclick="saveAllSettings()">💾 Save All Settings</button>
-  </div>
-
-  <div class="alert" id="alertMessage">
-    ℹ️ Configure which elections are active and enable/disable specific positions.
-  </div>
-
-  <!-- Election Types -->
-  <div class="card">
-    <div class="card-header">
-      <h3>🗳️ Election Types</h3>
-      <span style="font-size: 12px; color: #64748b;">Toggle to enable/disable entire election</span>
-    </div>
-    <div id="electionsContainer"></div>
-  </div>
-
-  <!-- Positions per Election -->
-  <div id="positionsContainer"></div>
+  <h1>Election Setup</h1>
+  <div class="card" id="electionsCard"></div>
+  <button class="save-btn" onclick="saveSettings()">💾 Save All Settings</button>
 </div>
-
-<!-- Add Position Modal -->
-<div id="positionModal" class="modal">
-  <div class="modal-content">
-    <h3>➕ Add New Position</h3>
-    <input type="hidden" id="modalElectionType">
-    <label>Position Name</label>
-    <input type="text" id="positionName" placeholder="e.g., Punong Barangay, Mayor, Senator">
-    <label>Number of Seats</label>
-    <select id="positionSeats">
-      <option value="1">1 Seat (Single position)</option>
-      <option value="2">2 Seats</option>
-      <option value="3">3 Seats</option>
-      <option value="4">4 Seats</option>
-      <option value="5">5 Seats</option>
-      <option value="6">6 Seats</option>
-      <option value="7">7 Seats</option>
-      <option value="8">8 Seats</option>
-      <option value="12">12 Seats (Senators)</option>
-    </select>
-    <label>Display Order</label>
-    <input type="number" id="positionOrder" value="1" min="1" max="99">
-    <div class="modal-buttons">
-      <button class="btn btn-primary" onclick="savePosition()">✅ Save Position</button>
-      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  let electionSettings = {};
+  const API = 'http://localhost:3000/api';
+  let token = localStorage.getItem('adminToken');
+  if(!token) window.location.href='index.html';
 
-  // Load settings from localStorage
-  function loadSettings() {
-    const saved = localStorage.getItem('electionSettings');
-    if (saved) {
-      electionSettings = JSON.parse(saved);
-    } else {
-      // Default settings
-      electionSettings = {
-        barangay: { 
-          enabled: true, 
-          name: '🏘️ Barangay & SK Election',
-          positions: [
-            { name: 'Punong Barangay', seats: 1, order: 1, enabled: true },
-            { name: 'Barangay Kagawad', seats: 7, order: 2, enabled: true },
-            { name: 'SK Chairperson', seats: 1, order: 3, enabled: true },
-            { name: 'SK Kagawad', seats: 7, order: 4, enabled: true }
-          ]
-        },
-        municipal: { 
-          enabled: true,
-          name: '🏛️ Municipal/City Election',
-          positions: [
-            { name: 'Mayor', seats: 1, order: 1, enabled: true },
-            { name: 'Vice Mayor', seats: 1, order: 2, enabled: true },
-            { name: 'Councilor', seats: 8, order: 3, enabled: true }
-          ]
-        },
-        provincial: { 
-          enabled: true,
-          name: '🏢 Provincial Election',
-          positions: [
-            { name: 'Governor', seats: 1, order: 1, enabled: true },
-            { name: 'Vice Governor', seats: 1, order: 2, enabled: true },
-            { name: 'Provincial Board Member', seats: 6, order: 3, enabled: true }
-          ]
-        },
-        national: { 
-          enabled: true,
-          name: '🇵🇭 National Election',
-          positions: [
-            { name: 'President', seats: 1, order: 1, enabled: true },
-            { name: 'Vice President', seats: 1, order: 2, enabled: true },
-            { name: 'Senator', seats: 12, order: 3, enabled: true },
-            { name: 'Party-List', seats: 1, order: 4, enabled: true }
-          ]
-        }
-      };
-    }
-    renderElections();
+  let settings = {};
+
+  async function loadSettings() {
+    const res = await fetch(`${API}/election-settings`, { headers:{'Authorization':`Bearer ${token}`} });
+    settings = await res.json();
+    render();
   }
 
-  function renderElections() {
+  function render() {
     const elections = [
-      { key: 'barangay' },
-      { key: 'municipal' },
-      { key: 'provincial' },
-      { key: 'national' }
+      { key:'barangay', name:'Barangay & SK Elections' },
+      { key:'municipal', name:'Municipal/City Elections' },
+      { key:'provincial', name:'Provincial Elections' },
+      { key:'national', name:'National Elections' }
     ];
-
-    let html = '<div class="positions-grid">';
-    elections.forEach(election => {
-      const settings = electionSettings[election.key];
-      const isEnabled = settings?.enabled ?? true;
-      const name = settings?.name || getElectionName(election.key);
-      const desc = getElectionDesc(election.key);
-      
+    let html = '';
+    elections.forEach(e => {
+      let enabled = settings[e.key]?.enabled !== false;
       html += `
-        <div class="election-card">
-          <div class="election-info">
-            <h4>${name}</h4>
-            <p>${desc}</p>
-          </div>
-          <div class="election-actions">
-            <span class="status-badge ${isEnabled ? 'status-active' : 'status-inactive'}">
-              ${isEnabled ? 'ACTIVE' : 'DISABLED'}
-            </span>
-            <label class="toggle-switch">
-              <input type="checkbox" class="election-toggle" data-election="${election.key}" ${isEnabled ? 'checked' : ''} onchange="toggleElection('${election.key}', this.checked)">
-              <span class="toggle-slider"></span>
-            </label>
-            <button class="btn btn-primary btn-sm" onclick="showPositions('${election.key}')">⚙️ Positions</button>
-          </div>
+        <div class="election-item">
+          <div><strong>${e.name}</strong><br><small>Users can vote if enabled</small></div>
+          <label class="toggle-switch">
+            <input type="checkbox" data-key="${e.key}" ${enabled ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
         </div>
       `;
     });
-    html += '</div>';
-    document.getElementById('electionsContainer').innerHTML = html;
-  }
-
-  function getElectionName(key) {
-    const names = {
-      barangay: '🏘️ Barangay & SK Election',
-      municipal: '🏛️ Municipal/City Election',
-      provincial: '🏢 Provincial Election',
-      national: '🇵🇭 National Election'
-    };
-    return names[key] || key;
-  }
-
-  function getElectionDesc(key) {
-    const descs = {
-      barangay: 'Barangay Captain, Kagawad, SK Officials',
-      municipal: 'Mayor, Vice Mayor, Councilors',
-      provincial: 'Governor, Vice Governor, Board Members',
-      national: 'President, VP, Senators, Party-List'
-    };
-    return descs[key] || '';
-  }
-
-  function toggleElection(electionKey, isEnabled) {
-    if (electionSettings[electionKey]) {
-      electionSettings[electionKey].enabled = isEnabled;
-    } else {
-      electionSettings[electionKey] = { enabled: isEnabled, positions: [] };
-    }
-    saveToLocal();
-    renderElections();
-    
-    if (isEnabled) {
-      showAlert(`${getElectionName(electionKey)} has been ENABLED`, 'success');
-    } else {
-      showAlert(`${getElectionName(electionKey)} has been DISABLED. Voters cannot access this ballot.`, 'warning');
-    }
-    
-    // Refresh positions view if open
-    const positionsContainer = document.getElementById('positionsContainer');
-    if (positionsContainer.innerHTML !== '') {
-      showPositions(electionKey);
-    }
-  }
-
-  function showPositions(electionKey) {
-    const settings = electionSettings[electionKey];
-    if (!settings) return;
-
-    let positionsHtml = `
-      <div class="card">
-        <div class="card-header">
-          <h3>${settings.name || getElectionName(electionKey)} - Positions</h3>
-          <button class="btn btn-primary btn-sm" onclick="openAddPositionModal('${electionKey}')">➕ Add Position</button>
-        </div>
-    `;
-
-    const sortedPositions = [...(settings.positions || [])].sort((a,b) => a.order - b.order);
-    
-    if (sortedPositions.length === 0) {
-      positionsHtml += '<p style="color: #64748b; padding: 1rem; text-align: center;">No positions added yet. Click "Add Position" to create.</p>';
-    } else {
-      positionsHtml += '<div class="positions-grid">';
-      sortedPositions.forEach((pos, idx) => {
-        const isActive = pos.enabled !== false;
-        positionsHtml += `
-          <div class="position-item">
-            <div class="position-info">
-              <h4>${pos.name}</h4>
-              <p><span class="position-seats">${pos.seats} seat(s)</span> | Order: ${pos.order}</p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
-                ${isActive ? 'ACTIVE' : 'DISABLED'}
-              </span>
-              <label class="toggle-switch">
-                <input type="checkbox" class="position-toggle" data-election="${electionKey}" data-position="${idx}" ${isActive ? 'checked' : ''} onchange="togglePosition('${electionKey}', ${idx}, this.checked)">
-                <span class="toggle-slider"></span>
-              </label>
-              <button class="btn btn-danger btn-sm" onclick="deletePosition('${electionKey}', ${idx})">🗑️</button>
-            </div>
-          </div>
-        `;
+    document.getElementById('electionsCard').innerHTML = html;
+    // attach event listeners
+    document.querySelectorAll('.toggle-switch input').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const key = e.target.dataset.key;
+        if(!settings[key]) settings[key] = {};
+        settings[key].enabled = e.target.checked;
       });
-      positionsHtml += '</div>';
-    }
-
-    positionsHtml += `</div>`;
-    document.getElementById('positionsContainer').innerHTML = positionsHtml;
-    document.getElementById('positionsContainer').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  function togglePosition(electionKey, positionIndex, isEnabled) {
-    if (electionSettings[electionKey] && electionSettings[electionKey].positions[positionIndex]) {
-      electionSettings[electionKey].positions[positionIndex].enabled = isEnabled;
-      saveToLocal();
-      showPositions(electionKey);
-      const status = isEnabled ? 'enabled' : 'disabled';
-      showAlert(`Position has been ${status}`, 'info');
-    }
-  }
-
-  function openAddPositionModal(electionKey) {
-    document.getElementById('modalElectionType').value = electionKey;
-    document.getElementById('positionName').value = '';
-    document.getElementById('positionSeats').value = '1';
-    const nextOrder = (electionSettings[electionKey]?.positions?.length || 0) + 1;
-    document.getElementById('positionOrder').value = nextOrder;
-    document.getElementById('positionModal').style.display = 'flex';
-  }
-
-  function savePosition() {
-    const electionKey = document.getElementById('modalElectionType').value;
-    const name = document.getElementById('positionName').value.trim();
-    const seats = parseInt(document.getElementById('positionSeats').value);
-    const order = parseInt(document.getElementById('positionOrder').value);
-
-    if (!name) {
-      alert('Please enter position name');
-      return;
-    }
-
-    if (!electionSettings[electionKey]) {
-      electionSettings[electionKey] = { enabled: true, positions: [] };
-    }
-
-    // Check if position already exists
-    const exists = electionSettings[electionKey].positions.some(p => p.name.toLowerCase() === name.toLowerCase());
-    if (exists) {
-      alert('Position already exists!');
-      return;
-    }
-
-    electionSettings[electionKey].positions.push({
-      name: name,
-      seats: seats,
-      order: order,
-      enabled: true
     });
-
-    // Sort by order
-    electionSettings[electionKey].positions.sort((a,b) => a.order - b.order);
-
-    saveToLocal();
-    closeModal();
-    showPositions(electionKey);
-    showAlert(`Position "${name}" added successfully!`, 'success');
   }
 
-  function deletePosition(electionKey, positionIndex) {
-    if (confirm('⚠️ Are you sure you want to delete this position? This will remove all votes for this position.')) {
-      electionSettings[electionKey].positions.splice(positionIndex, 1);
-      saveToLocal();
-      showPositions(electionKey);
-      showAlert('Position deleted', 'warning');
-    }
-  }
-
-  function saveAllSettings() {
-    saveToLocal();
-    showAlert('All election settings saved successfully!', 'success');
-  }
-
-  function saveToLocal() {
-    localStorage.setItem('electionSettings', JSON.stringify(electionSettings));
-    console.log('Settings saved:', electionSettings);
-    // Sync to backend
-    syncToBackend();
-  }
-
-  async function syncToBackend() {
+  async function saveSettings() {
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:3000/api/election/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(electionSettings)
+      const res = await fetch(`${API}/election-settings`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+        body:JSON.stringify(settings)
       });
-      if (response.ok) {
-        console.log('✅ Settings synced to backend');
-      }
-    } catch (error) {
-      console.log('Backend sync failed, using local storage only');
-    }
-  }
-
-  function showAlert(message, type) {
-    const alertDiv = document.getElementById('alertMessage');
-    alertDiv.innerHTML = `ℹ️ ${message}`;
-    if (type === 'success') {
-      alertDiv.style.background = '#dcfce7';
-      alertDiv.style.borderLeftColor = '#16a34a';
-    } else if (type === 'warning') {
-      alertDiv.style.background = '#fee2e2';
-      alertDiv.style.borderLeftColor = '#ce1126';
-    } else {
-      alertDiv.style.background = '#fef3c7';
-      alertDiv.style.borderLeftColor = '#fcdb30';
-    }
-    
-    setTimeout(() => {
-      alertDiv.style.background = '#fef3c7';
-      alertDiv.style.borderLeftColor = '#fcdb30';
-      alertDiv.innerHTML = 'ℹ️ Configure which elections are active and enable/disable specific positions.';
-    }, 3000);
-  }
-
-  function closeModal() {
-    document.getElementById('positionModal').style.display = 'none';
-  }
-
-  function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminLoggedIn');
-      window.location.href = 'index.html';
-    }
-  }
-
-  // Date today
-  document.getElementById('dateToday').textContent = new Date().toLocaleDateString('en-PH', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
-
-  // Auth check
-  if (!localStorage.getItem('adminToken') && !localStorage.getItem('adminLoggedIn')) {
-    window.location.href = 'index.html';
+      if(res.ok) alert('Settings saved. User side will update automatically.');
+      else alert('Failed to save');
+    } catch(e) { alert('Error saving'); }
   }
 
   loadSettings();
