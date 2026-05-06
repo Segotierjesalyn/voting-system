@@ -70,7 +70,6 @@
       padding: 0 20px;
     }
 
-    /* Welcome Card */
     .welcome-card {
       background: linear-gradient(135deg, #0038a8, #002266);
       color: white;
@@ -94,7 +93,6 @@
       font-size: 16px;
     }
 
-    /* Stats */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -121,7 +119,6 @@
       font-size: 14px;
     }
 
-    /* Two column layout */
     .two-columns {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -144,7 +141,6 @@
       padding-left: 12px;
     }
 
-    /* Next Election Tracker */
     .next-election-card {
       background: linear-gradient(135deg, #fef3c7, #fffbeb);
       border-left: 5px solid #d97706;
@@ -179,7 +175,6 @@
       color: #64748b;
     }
 
-    /* Election list (clickable) */
     .election-list {
       display: flex;
       flex-direction: column;
@@ -224,7 +219,6 @@
     .status-active   { background: #dcfce7; color: #16a34a; }
     .status-ended    { background: #fee2e2; color: #ce1126; }
 
-    /* Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -320,15 +314,15 @@
 <div class="header">
   <div class="logos">
     <div class="logo-item">
-      <img src="PILIPINAS.png" alt="Republika ng Pilipinas" onerror="this.src='https://via.placeholder.com/45?text=RP'">
+      <img src="image-logo/PILIPINAS.png" alt="Republika ng Pilipinas" onerror="this.src='https://via.placeholder.com/45?text=RP'">
       <p>REPUBLIKA NG<br>PILIPINAS</p>
     </div>
     <div class="logo-item">
-      <img src="Bagong Pilipinas.png" alt="Bagong Pilipinas" onerror="this.src='https://via.placeholder.com/45?text=BP'">
+      <img src="image-logo/Bagong Pilipinas.png" alt="Bagong Pilipinas" onerror="this.src='https://via.placeholder.com/45?text=BP'">
       <p>BAGONG<br>PILIPINAS</p>
     </div>
     <div class="logo-item">
-      <img src="COMELEC.png" alt="COMELEC" onerror="this.src='https://via.placeholder.com/45?text=COMELEC'">
+      <img src="image-logo/COMELEC.png" alt="COMELEC" onerror="this.src='https://via.placeholder.com/45?text=COMELEC'">
       <p>COMELEC</p>
     </div>
   </div>
@@ -366,7 +360,6 @@
   <div class="two-columns">
     <!-- LEFT COLUMN -->
     <div>
-      <!-- Next Election Tracker Card -->
       <div class="card next-election-card" id="nextElectionCard" style="display: none;">
         <div class="next-election-title">⏳ NEXT ELECTION TRACKER</div>
         <div class="next-election-name" id="nextElectionName">--</div>
@@ -374,7 +367,6 @@
         <div class="countdown-label" id="countdownLabel">days | hours | minutes | seconds</div>
       </div>
 
-      <!-- Election Calendar (clickable) -->
       <div class="card">
         <div class="card-title">📅 ELECTION CALENDAR (Click to Vote)</div>
         <div id="electionList" class="election-list">
@@ -404,18 +396,7 @@
       </div>
 
       <div id="tab-announcements" class="tab-content">
-        <div id="announcementsList">
-          <div class="announcement-item">
-            <div class="announcement-title">🗳️ Barangay & SK Elections 2025</div>
-            <div class="announcement-date">May 12, 2025</div>
-            <p style="font-size: 12px;">Election day is on May 12, 2025. Prepare your valid IDs.</p>
-          </div>
-          <div class="announcement-item">
-            <div class="announcement-title">✅ Voter Registration Extended</div>
-            <div class="announcement-date">April 30, 2025</div>
-            <p style="font-size: 12px;">Last day of registration is May 5, 2025.</p>
-          </div>
-        </div>
+        <div id="announcementsList"></div>
       </div>
 
       <div id="tab-education" class="tab-content">
@@ -443,7 +424,6 @@
   const API = 'http://localhost:3000/api';
   let voterData = null;
   let elections = [];
-  let electionSettings = {};      // from admin
   let countdownInterval = null;
 
   function loadUserData() {
@@ -477,20 +457,32 @@
       document.getElementById('totalVotes').innerText = votesCast.toLocaleString();
       document.getElementById('turnout').innerText = turnoutPercent + '%';
     } catch (err) {
-      console.log('Stats error, using demo:', err);
-      document.getElementById('totalVoters').innerText = '0';
-      document.getElementById('totalVotes').innerText = '0';
-      document.getElementById('turnout').innerText = '0%';
+      console.log('Stats error, using 0:', err);
     }
   }
 
-  async function loadElectionSettings() {
+  async function loadAnnouncements() {
     try {
-      const res = await fetch(`${API}/election-settings`);
-      electionSettings = await res.json();
-    } catch(e) {
-      console.log('No election settings, using defaults');
-      electionSettings = {};
+      const res = await fetch(`${API}/announcements`);
+      const announcements = await res.json();
+      const container = document.getElementById('announcementsList');
+      if (announcements.length === 0) {
+        container.innerHTML = '<div class="no-data">No announcements yet.</div>';
+        return;
+      }
+      let html = '';
+      announcements.forEach(a => {
+        html += `
+          <div class="announcement-item">
+            <div class="announcement-title">📢 ${a.title}</div>
+            <div class="announcement-date">${new Date(a.created_at).toLocaleDateString()}</div>
+            <p style="font-size: 12px; margin-top: 5px;">${a.content}</p>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    } catch (err) {
+      console.log('Announcements error:', err);
     }
   }
 
@@ -498,24 +490,15 @@
     const electionListDiv = document.getElementById('electionList');
     try {
       const res = await fetch(`${API}/election`);
-      let data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        // demo elections with proper dates
-        data = [
-          { id: 1, key: 'barangay', name: 'Barangay & SK Elections 2025', start_date: '2025-05-12', end_date: '2025-05-12' },
-          { id: 2, key: 'municipal', name: 'Municipal/City Elections 2025', start_date: '2025-10-25', end_date: '2025-10-25' }
-        ];
-      }
-      // Apply election settings (disable if admin disabled)
-      elections = data.filter(e => {
-        const setting = electionSettings[e.key];
-        return setting ? setting.enabled !== false : true;
-      });
-      if (elections.length === 0) {
-        electionListDiv.innerHTML = '<div class="no-data">No active elections at this time.</div>';
+      if (!res.ok) throw new Error('Failed to fetch');
+      elections = await res.json();
+      
+      if (!Array.isArray(elections) || elections.length === 0) {
+        electionListDiv.innerHTML = '<div class="no-data">No elections available. Please check back later.</div>';
         document.getElementById('nextElectionCard').style.display = 'none';
         return;
       }
+      
       // Build election list HTML
       let html = '';
       const today = new Date();
@@ -547,7 +530,7 @@
       electionListDiv.innerHTML = html;
       updateNextElectionTracker();
     } catch (err) {
-      console.log('Election fetch error:', err);
+      console.error('Election fetch error:', err);
       electionListDiv.innerHTML = '<div class="no-data">Unable to load elections. Please try again later.</div>';
     }
   }
@@ -605,9 +588,7 @@
   }
 
   function logout() {
-    localStorage.removeItem('voterToken');
-    localStorage.removeItem('voterData');
-    localStorage.removeItem('selectedElection');
+    localStorage.clear();
     window.location.href = 'index.html';
   }
 
@@ -631,10 +612,8 @@
 
   loadUserData();
   loadStats();
-  (async () => {
-    await loadElectionSettings();
-    await loadElections();
-  })();
+  loadElections();
+  loadAnnouncements();
   initTabs();
 </script>
 </body>

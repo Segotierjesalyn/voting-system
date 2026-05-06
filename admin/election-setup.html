@@ -2,98 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Election Setup | Admin</title>
+  <title>Election Setup</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
-    .sidebar { width:260px; background:#0038a8; color:white; min-height:100vh; }
-    .sidebar-menu a { display:block; padding:12px 1.5rem; color:#cbd5e1; text-decoration:none; }
-    .sidebar-menu a.active { background:rgba(255,255,255,0.2); color:white; }
-    .main { flex:1; padding:2rem; }
-    .card { background:white; border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
-    .toggle-switch { position:relative; display:inline-block; width:50px; height:24px; }
-    .toggle-switch input { opacity:0; width:0; height:0; }
-    .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; border-radius:24px; }
-    .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:0.2s; }
-    input:checked + .slider { background:#16a34a; }
-    input:checked + .slider:before { transform:translateX(26px); }
-    .election-item { display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #e2e8f0; }
-    .save-btn { background:#1e3a8a; color:white; padding:8px 20px; border:none; border-radius:8px; cursor:pointer; margin-top:1rem; }
+    .sidebar { width:240px; background:#0038a8; color:white; min-height:100vh; }
+    .sidebar a { display:block; padding:12px 20px; color:#cbd5e1; text-decoration:none; }
+    .sidebar a.active { background:#1e3a8a; color:white; }
+    .main { flex:1; padding:20px; }
+    .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:8px; text-align:left; border-bottom:1px solid #ddd; }
+    button { margin:2px; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; }
+    .add { background:#16a34a; color:white; }
+    .edit { background:#3b82f6; color:white; }
+    .delete { background:#dc2626; color:white; }
+    .refresh { background:#fcdb30; color:#0038a8; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    .modal-content { background:white; padding:20px; border-radius:12px; width:450px; }
+    input, select { width:100%; padding:8px; margin:8px 0; }
   </style>
 </head>
 <body>
 <div class="sidebar">
-  <div class="sidebar-logo"><h2>🗳️ VoteSecure PH</h2><p>Admin Panel</p></div>
-  <div class="sidebar-menu">
-    <a href="dashboard.html">📊 Dashboard</a>
-    <a href="voters.html">👥 Voter Management</a>
-    <a href="candidates.html">🧑‍💼 Candidates</a>
-    <a href="election-setup.html" class="active">⚙️ Election Setup</a>
-    <a href="results.html">📈 Results</a>
-  </div>
+  <h2 style="padding:20px;">🗳️ VoteSecure</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="voters.html">Voter Management</a>
+  <a href="candidates.html">Candidates</a>
+  <a href="election-setup.html" class="active">Election Setup</a>
+  <a href="positions.html">Positions</a>
+  <a href="announcements.html">Announcements</a>
+  <a href="results.html">Results</a>
 </div>
 <div class="main">
   <h1>Election Setup</h1>
-  <div class="card" id="electionsCard"></div>
-  <button class="save-btn" onclick="saveSettings()">💾 Save All Settings</button>
+  <div class="card">
+    <button class="add" onclick="openModal()">➕ New Election</button>
+    <button class="refresh" onclick="fetchElections()" style="margin-left:10px;">🔄 Refresh</button>
+    <table id="electionTable">
+      <thead><tr><th>ID</th><th>Name</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Add Election</h3>
+    <input type="hidden" id="electionId">
+    <label>Name</label><input type="text" id="ename">
+    <label>Start Date</label><input type="date" id="startDate">
+    <label>End Date</label><input type="date" id="endDate">
+    <label>Status</label><select id="status"><option>upcoming</option><option>active</option><option>ended</option></select>
+    <button class="add" onclick="saveElection()">Save</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
 </div>
 <script>
-  const API = 'http://localhost:3000/api';
-  let token = localStorage.getItem('adminToken');
-  if(!token) window.location.href='index.html';
+  const token = localStorage.getItem('adminToken');
+  if (!token) window.location.href = 'index.html';
 
-  let settings = {};
-
-  async function loadSettings() {
-    const res = await fetch(`${API}/election-settings`, { headers:{'Authorization':`Bearer ${token}`} });
-    settings = await res.json();
-    render();
-  }
-
-  function render() {
-    const elections = [
-      { key:'barangay', name:'Barangay & SK Elections' },
-      { key:'municipal', name:'Municipal/City Elections' },
-      { key:'provincial', name:'Provincial Elections' },
-      { key:'national', name:'National Elections' }
-    ];
-    let html = '';
-    elections.forEach(e => {
-      let enabled = settings[e.key]?.enabled !== false;
-      html += `
-        <div class="election-item">
-          <div><strong>${e.name}</strong><br><small>Users can vote if enabled</small></div>
-          <label class="toggle-switch">
-            <input type="checkbox" data-key="${e.key}" ${enabled ? 'checked' : ''}>
-            <span class="slider"></span>
-          </label>
-        </div>
-      `;
-    });
-    document.getElementById('electionsCard').innerHTML = html;
-    // attach event listeners
-    document.querySelectorAll('.toggle-switch input').forEach(cb => {
-      cb.addEventListener('change', (e) => {
-        const key = e.target.dataset.key;
-        if(!settings[key]) settings[key] = {};
-        settings[key].enabled = e.target.checked;
-      });
-    });
-  }
-
-  async function saveSettings() {
+  async function fetchElections() {
     try {
-      const res = await fetch(`${API}/election-settings`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-        body:JSON.stringify(settings)
+      const res = await fetch('/api/election', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to fetch');
+      const elections = await res.json();
+      const tbody = document.querySelector('#electionTable tbody');
+      tbody.innerHTML = '';
+      elections.forEach(e => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = e.id;
+        row.insertCell(1).innerText = e.name;
+        row.insertCell(2).innerText = e.start_date;
+        row.insertCell(3).innerText = e.end_date;
+        row.insertCell(4).innerText = e.status;
+        const cell = row.insertCell(5);
+        cell.innerHTML = `<button class="edit" onclick="editElection(${e.id})">Edit</button>
+                          <button class="delete" onclick="deleteElection(${e.id})">Delete</button>`;
       });
-      if(res.ok) alert('Settings saved. User side will update automatically.');
-      else alert('Failed to save');
-    } catch(e) { alert('Error saving'); }
+    } catch(e) {
+      alert('Error loading elections: ' + e.message);
+    }
   }
 
-  loadSettings();
+  async function saveElection() {
+    const id = document.getElementById('electionId').value;
+    const data = {
+      name: document.getElementById('ename').value,
+      start_date: document.getElementById('startDate').value,
+      end_date: document.getElementById('endDate').value,
+      status: document.getElementById('status').value
+    };
+    if (!data.name || !data.start_date || !data.end_date) {
+      alert('Please fill all fields');
+      return;
+    }
+    const url = id ? `/api/election/${id}` : '/api/election';
+    const method = id ? 'PUT' : 'POST';
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      closeModal();
+      await fetchElections(); // refresh table
+    } catch(e) {
+      alert('Save failed: ' + e.message);
+    }
+  }
+
+  async function editElection(id) {
+    try {
+      const res = await fetch(`/api/election/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const e = await res.json();
+      document.getElementById('electionId').value = e.id;
+      document.getElementById('ename').value = e.name;
+      document.getElementById('startDate').value = e.start_date ? e.start_date.slice(0,10) : '';
+      document.getElementById('endDate').value = e.end_date ? e.end_date.slice(0,10) : '';
+      document.getElementById('status').value = e.status;
+      document.getElementById('modalTitle').innerText = 'Edit Election';
+      document.getElementById('modal').style.display = 'flex';
+    } catch(e) {
+      alert('Error loading election details');
+    }
+  }
+
+  async function deleteElection(id) {
+    if (!confirm('Delete this election? All positions and candidates will be removed.')) return;
+    try {
+      await fetch(`/api/election/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      await fetchElections();
+    } catch(e) {
+      alert('Delete failed');
+    }
+  }
+
+  function openModal() {
+    document.getElementById('electionId').value = '';
+    document.getElementById('ename').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    document.getElementById('status').value = 'upcoming';
+    document.getElementById('modalTitle').innerText = 'Add Election';
+    document.getElementById('modal').style.display = 'flex';
+  }
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+  fetchElections();
 </script>
 </body>
 </html>

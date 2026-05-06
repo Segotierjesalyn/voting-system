@@ -8,8 +8,6 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from the parent folder (where 'admin' and 'user' reside)
 app.use(express.static(path.join(__dirname, '..')));
 
 // API routes
@@ -18,9 +16,10 @@ app.use('/api/voters', require('./voters'));
 app.use('/api/candidates', require('./candidates'));
 app.use('/api/election', require('./election'));
 app.use('/api/results', require('./results'));
+app.use('/api/announcements', require('./announcements'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/positions', require('./positions'));
 
-// Default route – admin login page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'admin', 'index.html'));
 });

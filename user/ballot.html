@@ -65,49 +65,8 @@
       border-left: 1px solid #ccc;
       padding-left: 10px;
     }
-    .election-selector {
-      background: #f0f0f0;
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #ccc;
-    }
-    .election-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 8px;
-    }
-    .election-btn {
-      padding: 5px 12px;
-      background: white;
-      border: 1px solid #666;
-      cursor: pointer;
-      font-size: 11px;
-      border-radius: 4px;
-    }
-    .election-btn.active {
-      background: #1e3a8a;
-      color: white;
-      border-color: #1e3a8a;
-    }
     .ballot-body {
       padding: 15px;
-    }
-    .empty-ballot {
-      text-align: center;
-      padding: 50px 20px;
-      background: #fef9c3;
-      border-radius: 12px;
-      margin: 20px;
-    }
-    .empty-ballot h3 {
-      color: #92400e;
-      margin-bottom: 10px;
-    }
-    .empty-ballot p {
-      color: #64748b;
-      font-size: 13px;
     }
     .position-section {
       margin-bottom: 20px;
@@ -260,8 +219,13 @@
       font-size: 40px;
       pointer-events: none;
     }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
     @media print {
-      .actions, .election-selector, .watermark { display: none; }
+      .actions, .watermark { display: none; }
       .ballot-paper { box-shadow: none; }
     }
   </style>
@@ -271,32 +235,18 @@
 <div class="ballot-paper">
   <div class="ballot-header">
     <div class="logos-container">
-      <div class="logo-item"><img src="PILIPINAS.png" alt="Republika ng Pilipinas"><p>REPUBLIKA NG<br>PILIPINAS</p></div>
-      <div class="logo-item"><img src="Bagong Pilipinas.png" alt="Bagong Pilipinas"><p>BAGONG<br>PILIPINAS</p></div>
-      <div class="logo-item"><img src="COMELEC.png" alt="COMELEC"><p>COMELEC</p></div>
+      <div class="logo-item"><img src="image-logo/PILIPINAS.png" alt="Republika ng Pilipinas"><p>REPUBLIKA NG<br>PILIPINAS</p></div>
+      <div class="logo-item"><img src="image-logo/Bagong Pilipinas.png" alt="Bagong Pilipinas"><p>BAGONG<br>PILIPINAS</p></div>
+      <div class="logo-item"><img src="image-logo/COMELEC.png" alt="COMELEC"><p>COMELEC</p></div>
     </div>
-    <h1>REPUBLIC OF THE PHILIPPINES</h1>
+    <h1>GLITCH</h1>
     <h1>OFFICIAL BALLOT</h1>
     <p>VoteSecure PH - Automated Election System | Bagong Pilipinas</p>
     <div class="stub"><small>Ballot No: <span id="ballotNo">XXXXXX</span></small></div>
   </div>
 
-  <div class="election-selector">
-    <strong>📋 SELECT ELECTION TYPE:</strong>
-    <div class="election-buttons">
-      <button class="election-btn" data-election="barangay">🏘️ BARANGAY & SK</button>
-      <button class="election-btn" data-election="municipal">🏛️ MUNICIPAL/CITY</button>
-      <button class="election-btn" data-election="provincial">🏢 PROVINCIAL</button>
-      <button class="election-btn" data-election="national">🇵🇭 NATIONAL</button>
-    </div>
-  </div>
-
   <div class="ballot-body" id="ballotBody">
-    <div class="empty-ballot">
-      <h3>🗳️ No candidates loaded yet</h3>
-      <p>The election administrator has not added candidates for this election.</p>
-      <p>Please check back later or contact your barangay election officer.</p>
-    </div>
+    <div class="loading">Loading ballot...</div>
   </div>
 
   <div class="ballot-footer">
@@ -307,9 +257,9 @@
 </div>
 
 <div class="actions">
-  <button class="btn btn-clear" onclick="clearAll()">🗑️ CLEAR ALL</button>
-  <button class="btn btn-review" onclick="reviewVotes()">📋 REVIEW VOTES</button>
-  <button class="btn btn-submit" onclick="submitVotes()">✅ SUBMIT BALLOT</button>
+  <button class="btn btn-clear" onclick="clearAll()"> CLEAR ALL</button>
+  <button class="btn btn-review" onclick="reviewVotes()"> REVIEW VOTES</button>
+  <button class="btn btn-submit" onclick="submitVotes()"> SUBMIT BALLOT</button>
 </div>
 
 <div class="watermark">🗳️</div>
@@ -326,96 +276,272 @@
 </div>
 
 <script>
-  // Determine which election type to show (from dashboard selection)
-  let currentElection = 'barangay';
-  const savedElection = localStorage.getItem('selectedElection');
-  if (savedElection) {
-    try {
-      const election = JSON.parse(savedElection);
-      if (election.name.toLowerCase().includes('barangay')) currentElection = 'barangay';
-      else if (election.name.toLowerCase().includes('municipal')) currentElection = 'municipal';
-      else if (election.name.toLowerCase().includes('provincial')) currentElection = 'provincial';
-      else if (election.name.toLowerCase().includes('national')) currentElection = 'national';
-    } catch(e) {}
+  // ---- Helper: get token and voter ID ----
+  const token = localStorage.getItem('voterToken');
+  if (!token) {
+    window.location.href = 'index.html';
   }
 
-  let myVotes = {};
+  // ---- Get selected election from dashboard ----
+  const selectedElection = JSON.parse(localStorage.getItem('selectedElection'));
+  if (!selectedElection || !selectedElection.id) {
+    alert('No election selected. Returning to dashboard.');
+    window.location.href = 'dashboard.html';
+  }
+
   let ballotNumber = 'VTR-' + Math.floor(Math.random() * 1000000);
   document.getElementById('ballotNo').innerText = ballotNumber;
 
-  // Candidate data initially empty - will be loaded from backend/localStorage
-  let candidatesData = {
-    barangay: { positions: [], candidates: {} },
-    municipal: { positions: [], candidates: {} },
-    provincial: { positions: [], candidates: {} },
-    national: { positions: [], candidates: {} }
-  };
+  // ---- Global state ----
+  let positions = [];           // array of position objects { id, title, max_seats, display_order }
+  let candidatesByPosition = {}; // { position_id: [ {id, name, party} ] }
+  let myVotes = {};            // { position_id: [candidate_id] }
 
-  // Function to load candidates from backend or localStorage
-  async function loadCandidates() {
+  // ---- Load positions and candidates for this election ----
+  async function loadBallot() {
+    const ballotBody = document.getElementById('ballotBody');
+    ballotBody.innerHTML = '<div class="loading">Loading ballot data...</div>';
+
     try {
-      const token = localStorage.getItem('voterToken');
-      const res = await fetch('http://localhost:3000/api/candidates', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const candidates = await res.json();
-      if (Array.isArray(candidates) && candidates.length > 0) {
-        // Organize candidates by election type and position (this depends on your backend structure)
-        // For simplicity, we'll use demo data for now but mark that real data exists
-        console.log('Candidates loaded from backend:', candidates);
-        // TODO: parse real candidates
-        // For now, show a message that candidates exist but we need proper mapping
-        document.getElementById('ballotBody').innerHTML = `
+      // 1. Fetch positions for this election
+      const posRes = await fetch(`/api/positions?election_id=${selectedElection.id}`);
+      if (!posRes.ok) throw new Error('Failed to load positions');
+      positions = await posRes.json();
+
+      if (positions.length === 0) {
+        ballotBody.innerHTML = `
           <div class="empty-ballot">
-            <h3>⚙️ Election setup in progress</h3>
-            <p>Candidates have been added but the ballot structure is being prepared.</p>
-            <p>Please wait for the final ballot configuration.</p>
+            <h3>📋 No positions configured</h3>
+            <p>The election administrator has not set up positions for this election.</p>
+            <p>Please check back later.</p>
           </div>
         `;
         return;
       }
+
+      // 2. For each position, fetch its candidates
+      for (let pos of positions) {
+        const candRes = await fetch(`/api/candidates/position/${pos.id}`);
+        if (candRes.ok) {
+          const candidates = await candRes.json();
+          candidatesByPosition[pos.id] = candidates;
+        } else {
+          candidatesByPosition[pos.id] = [];
+        }
+      }
+
+      // 3. Initialise myVotes for each position (empty arrays)
+      positions.forEach(pos => {
+        if (!myVotes[pos.id]) myVotes[pos.id] = [];
+      });
+
+      // 4. Render the ballot
+      renderBallot();
     } catch (err) {
-      console.log('No candidates from backend, using demo empty state');
+      console.error(err);
+      ballotBody.innerHTML = '<div class="empty-ballot"><h3>⚠️ Error loading ballot</h3><p>Please try again later.</p></div>';
     }
-    // If no candidates, show empty state
-    document.getElementById('ballotBody').innerHTML = `
-      <div class="empty-ballot">
-        <h3>🗳️ No candidates loaded yet</h3>
-        <p>The election administrator has not added candidates for this election.</p>
-        <p>Please check back later or contact your barangay election officer.</p>
-      </div>
-    `;
   }
 
-  // Temporary placeholder functions for actions (clear, review, submit) – they will show appropriate messages
-  function clearAll() { alert('No candidates to clear yet. The ballot is empty.'); }
-  function reviewVotes() { alert('You have not voted for anyone because no candidates are available.'); }
-  function submitVotes() { alert('Cannot submit an empty ballot. Please wait for candidates to be added.'); }
-  function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
-  function confirmSubmit() { closeModal(); submitVotes(); }
+  // ---- Render the ballot using the current votes ----
+  function renderBallot() {
+    const ballotBody = document.getElementById('ballotBody');
+    if (!positions.length) {
+      ballotBody.innerHTML = '<div class="empty-ballot"><h3>No positions available</h3></div>';
+      return;
+    }
 
-  // Setup election buttons (but they won't do much without candidates)
-  function setupElectionButtons() {
-    const buttons = document.querySelectorAll('.election-btn');
-    buttons.forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.dataset.election === currentElection) btn.classList.add('active');
-      btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentElection = btn.dataset.election;
-        loadCandidates(); // reload empty state for that election type
+    let html = '';
+    for (let pos of positions) {
+      const candidates = candidatesByPosition[pos.id] || [];
+      const maxSeats = pos.max_seats || 1;
+      const currentVotes = myVotes[pos.id] || [];
+      const voteCount = currentVotes.length;
+
+      html += `
+        <div class="position-section">
+          <div class="position-title">
+            <span>🗳️ ${pos.title}</span>
+            <span class="vote-limit">Vote: ${voteCount}/${maxSeats}</span>
+          </div>
+          <div class="candidates-list">
+      `;
+
+      if (candidates.length === 0) {
+        html += `<div style="padding: 8px; color: #64748b;">No candidates have been added for this position.</div>`;
+      } else {
+        for (let cand of candidates) {
+          const isSelected = currentVotes.includes(cand.id);
+          html += `
+            <div class="candidate-row ${isSelected ? 'selected' : ''}" data-position="${pos.id}" data-candidate="${cand.id}" onclick="toggleCandidate(${pos.id}, ${cand.id}, ${maxSeats})">
+              <div class="shade-oval"></div>
+              <div class="candidate-info">
+                <div class="candidate-name">${escapeHtml(cand.name)}</div>
+                <div class="candidate-party">${escapeHtml(cand.party || 'Independent')}</div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      if (maxSeats > 1) {
+        html += `<div class="multi-seat-info">✓ You may vote for up to ${maxSeats} candidates for this position</div>`;
+      }
+      html += `</div></div>`;
+    }
+    ballotBody.innerHTML = html;
+  }
+
+  // ---- Toggle candidate selection (respect max seats) ----
+  window.toggleCandidate = function(positionId, candidateId, maxSeats) {
+    let current = myVotes[positionId] || [];
+    const index = current.indexOf(candidateId);
+    if (index !== -1) {
+      // Remove
+      current.splice(index, 1);
+    } else {
+      // Add only if under limit
+      if (current.length >= maxSeats) {
+        alert(`You can only vote for ${maxSeats} candidate(s) for this position.`);
+        return;
+      }
+      current.push(candidateId);
+    }
+    myVotes[positionId] = current;
+    renderBallot();
+  };
+
+  // ---- Clear all votes ----
+  window.clearAll = function() {
+    if (!confirm('⚠️ Are you sure you want to clear ALL your votes?')) return;
+    positions.forEach(pos => {
+      myVotes[pos.id] = [];
+    });
+    renderBallot();
+  };
+
+  // ---- Review votes before submission ----
+  window.reviewVotes = function() {
+    let reviewHtml = '';
+    let hasVotes = false;
+    for (let pos of positions) {
+      const votes = myVotes[pos.id] || [];
+      if (votes.length > 0) {
+        hasVotes = true;
+        reviewHtml += `<div class="review-item"><strong>${pos.title}:</strong><br>`;
+        for (let candId of votes) {
+          const cand = (candidatesByPosition[pos.id] || []).find(c => c.id === candId);
+          if (cand) {
+            reviewHtml += ` • ${escapeHtml(cand.name)} (${escapeHtml(cand.party || 'Independent')})<br>`;
+          }
+        }
+        reviewHtml += `</div>`;
+      }
+    }
+    if (!hasVotes) {
+      reviewHtml = '<p>You haven\'t voted for anyone yet.</p>';
+    }
+    document.getElementById('reviewList').innerHTML = reviewHtml;
+    document.getElementById('reviewModal').style.display = 'flex';
+  };
+
+  window.closeModal = function() {
+    document.getElementById('reviewModal').style.display = 'none';
+  };
+  window.confirmSubmit = function() {
+    closeModal();
+    submitVotes();
+  };
+
+  // ---- Submit votes to backend ----
+  window.submitVotes = async function() {
+    // Count total votes
+    let total = 0;
+    for (let pos of positions) {
+      total += (myVotes[pos.id] || []).length;
+    }
+    if (total === 0) {
+      alert('⚠️ Please vote for at least one candidate before submitting.');
+      return;
+    }
+
+    if (!confirm('🗳️ FINAL SUBMISSION\n\nAre you sure you want to submit your ballot?\n\nYou CANNOT change your votes after submission!')) return;
+
+    // Prepare payload: array of { candidate_id, position_id, election_id }
+    const votesToSubmit = [];
+    for (let pos of positions) {
+      const candidateIds = myVotes[pos.id] || [];
+      for (let candId of candidateIds) {
+        votesToSubmit.push({
+          candidate_id: candId,
+          position_id: pos.id,
+          election_id: selectedElection.id
+        });
+      }
+    }
+
+    try {
+      const res = await fetch('/api/votes/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ votes: votesToSubmit })
       });
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Your ballot has been recorded!\n\nThank you for voting!');
+        localStorage.setItem('hasVoted', 'true');
+        window.location.href = 'dashboard.html';
+      } else {
+        alert('❌ Error: ' + (data.message || 'Failed to submit votes'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Connection error. Please try again.');
+    }
+  };
+
+  // ---- Helper to escape HTML ----
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
     });
   }
 
-  function checkAlreadyVoted() {
-    // Optional: check localStorage if user already voted
+  // ---- Also check if user has already voted ----
+  async function checkAlreadyVoted() {
+    try {
+      const res = await fetch(`/api/votes/has-voted?election_id=${selectedElection.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.hasVoted) {
+        alert('You have already voted in this election. Redirecting to dashboard.');
+        window.location.href = 'dashboard.html';
+      }
+    } catch(e) {
+      // If endpoint doesn't exist yet, we skip (but we still need to avoid double voting)
+      // For now we rely on client-side flag (not secure, but prevents accidental double submit)
+      if (localStorage.getItem('hasVotedFor_' + selectedElection.id) === 'true') {
+        alert('You have already submitted your ballot for this election.');
+        window.location.href = 'dashboard.html';
+      }
+    }
   }
 
-  loadCandidates();
-  setupElectionButtons();
-  checkAlreadyVoted();
+  // ---- Start ----
+  loadBallot();
+  // Optional: clear localStorage vote flag for this election when page loads
+  // (better to rely on backend, but we'll remove client flag after successful submit)
+  if (localStorage.getItem('hasVotedFor_' + selectedElection.id)) {
+    // but we still check backend
+  }
 </script>
 </body>
 </html>

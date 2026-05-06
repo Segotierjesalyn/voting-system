@@ -2,40 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Election Results | Admin</title>
+  <title>Results</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
-    .sidebar { width:260px; background:#0038a8; color:white; min-height:100vh; }
-    .sidebar-logo { padding:1.5rem; text-align:center; }
-    .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:12px 1.5rem; color:#cbd5e1; text-decoration:none; }
-    .sidebar-menu a.active { background:rgba(255,255,255,0.2); color:white; }
-    .main { flex:1; padding:2rem; }
-    .card { background:white; border-radius:16px; padding:2rem; text-align:center; }
-    .empty-icon { font-size:80px; margin-bottom:1rem; }
+    .sidebar { width:240px; background:#0038a8; color:white; min-height:100vh; }
+    .sidebar a { display:block; padding:12px 20px; color:#cbd5e1; text-decoration:none; }
+    .sidebar a.active { background:#1e3a8a; color:white; }
+    .main { flex:1; padding:20px; }
+    .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; }
+    select { padding:5px; margin-bottom:10px; width:100%; max-width:300px; }
+    .position-card { margin-bottom:20px; border:1px solid #e2e8f0; border-radius:8px; padding:10px; }
+    .candidate { display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee; }
   </style>
 </head>
 <body>
 <div class="sidebar">
-  <div class="sidebar-logo"><h2>🗳️ VoteSecure PH</h2><p>Admin Panel</p></div>
-  <div class="sidebar-menu">
-    <a href="dashboard.html">📊 Dashboard</a>
-    <a href="voters.html">👥 Voter Management</a>
-    <a href="candidates.html">🧑‍💼 Candidates</a>
-    <a href="election-setup.html">⚙️ Election Setup</a>
-    <a href="results.html" class="active">📈 Results</a>
-  </div>
+  <h2 style="padding:20px;">🗳️ VoteSecure</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="voters.html">Voter Management</a>
+  <a href="candidates.html">Candidates</a>
+  <a href="election-setup.html">Election Setup</a>
+  <a href="positions.html">Positions</a>
+  <a href="announcements.html">Announcements</a>
+  <a href="results.html" class="active">Results</a>
 </div>
 <div class="main">
   <h1>Election Results</h1>
   <div class="card">
-    <div class="empty-icon">🗳️📊</div>
-    <h2>No votes have been cast yet</h2>
-    <p>Results will appear here once voting starts and ballots are submitted.</p>
+    <label>Select Election</label>
+    <select id="electionSelect"></select>
+    <div id="resultsContainer"></div>
   </div>
 </div>
 <script>
-  if(!localStorage.getItem('adminToken')) window.location.href='index.html';
+  const token = localStorage.getItem('adminToken');
+  if (!token) window.location.href = 'index.html';
+  let elections = [];
+
+  async function loadElections() {
+    const res = await fetch('/api/election', { headers: { 'Authorization': `Bearer ${token}` } });
+    elections = await res.json();
+    const select = document.getElementById('electionSelect');
+    select.innerHTML = '';
+    elections.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.name;
+      select.appendChild(opt);
+    });
+    if (elections.length) loadResults(elections[0].id);
+    select.addEventListener('change', () => loadResults(select.value));
+  }
+  async function loadResults(electionId) {
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = 'Loading...';
+    try {
+      const res = await fetch(`/api/results/details/${electionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      if (!data.length) { container.innerHTML = '<p>No results yet.</p>'; return; }
+      let html = '';
+      data.forEach(pos => {
+        html += `<div class="position-card"><h3>${pos.position}</h3>`;
+        pos.candidates.forEach(cand => {
+          html += `<div class="candidate"><span>${cand.name} (${cand.party || 'Independent'})</span><strong>${cand.vote_count} votes</strong></div>`;
+        });
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    } catch(e) { container.innerHTML = '<p>Error loading results</p>'; }
+  }
+  loadElections();
 </script>
 </body>
 </html>

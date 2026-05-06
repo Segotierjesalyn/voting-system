@@ -2,45 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Voter Management | Admin</title>
+  <title>Voter Management</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; display: flex; }
-    .sidebar { width: 240px; background: #0038a8; color: white; min-height: 100vh; }
-    .sidebar h2 { padding: 20px; }
-    .sidebar a { display: block; padding: 12px 20px; color: #cbd5e1; text-decoration: none; }
-    .sidebar a.active { background: #1e3a8a; color: white; }
-    .main { flex: 1; padding: 20px; }
-    .card { background: white; border-radius: 12px; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-    .status-pending { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 20px; }
-    .status-approved { background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 20px; }
-    button { margin: 2px; padding: 4px 8px; cursor: pointer; border: none; border-radius: 4px; }
-    .btn-approve { background: #16a34a; color: white; }
-    .btn-edit { background: #3b82f6; color: white; }
-    .btn-delete { background: #dc2626; color: white; }
-    .tabs button { background: #e2e8f0; border: none; padding: 8px 16px; margin-right: 8px; cursor: pointer; }
-    .tabs button.active { background: #1e3a8a; color: white; }
-    .search { margin: 10px 0; padding: 8px; width: 300px; border: 1px solid #ccc; border-radius: 5px; }
-    .loading { text-align: center; padding: 20px; color: #64748b; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
+    .sidebar { width:240px; background:#0038a8; color:white; min-height:100vh; }
+    .sidebar a { display:block; padding:12px 20px; color:#cbd5e1; text-decoration:none; }
+    .sidebar a.active { background:#1e3a8a; color:white; }
+    .main { flex:1; padding:20px; }
+    .card { background:white; border-radius:12px; padding:20px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:8px; text-align:left; border-bottom:1px solid #ddd; }
+    .status-pending { background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:20px; }
+    .status-approved { background:#dcfce7; color:#16a34a; padding:2px 8px; border-radius:20px; }
+    button { margin:2px; padding:4px 8px; border:none; border-radius:4px; cursor:pointer; }
+    .approve { background:#16a34a; color:white; }
+    .edit { background:#3b82f6; color:white; }
+    .delete { background:#dc2626; color:white; }
+    .tabs button { background:#e2e8f0; border:none; padding:6px 12px; margin-right:8px; cursor:pointer; }
+    .tabs button.active { background:#0038a8; color:white; }
+    .search { margin:10px 0; padding:8px; width:300px; }
   </style>
 </head>
 <body>
 <div class="sidebar">
-  <h2>🗳️ VoteSecure</h2>
+  <h2 style="padding:20px;">🗳️ VoteSecure</h2>
   <a href="dashboard.html">Dashboard</a>
-  <a href="voters.html" class="active">Voters</a>
+  <a href="voters.html" class="active">Voter Management</a>
   <a href="candidates.html">Candidates</a>
   <a href="election-setup.html">Election Setup</a>
+  <a href="positions.html">Positions</a>
+  <a href="announcements.html">Announcements</a>
   <a href="results.html">Results</a>
 </div>
 <div class="main">
   <h1>Voter Management</h1>
   <div class="card">
-    <div class="tabs" id="tabButtons"></div>
-    <input type="text" id="search" class="search" placeholder="Search...">
-    <div id="voterList" class="loading">Loading...</div>
+    <div class="tabs" id="tabs"></div>
+    <input type="text" id="search" class="search" placeholder="🔍 Search name or email...">
+    <div id="voterList">Loading...</div>
   </div>
 </div>
 <script>
@@ -53,49 +53,42 @@
   async function fetchVoters() {
     try {
       const res = await fetch('/api/voters', { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Unauthorized');
+      if (!res.ok) throw new Error();
       allVoters = await res.json();
       render();
-    } catch(e) {
-      document.getElementById('voterList').innerHTML = '<div class="loading">❌ Error loading voters. Please login again.</div>';
-      if(e.message === 'Unauthorized') setTimeout(() => window.location.href = 'index.html', 1500);
-    }
+    } catch(e) { document.getElementById('voterList').innerHTML = '<p>Error loading voters</p>'; }
   }
-
   function render() {
     let filtered = allVoters.filter(v => currentFilter === 'all' ? true : v.status === currentFilter);
-    const search = document.getElementById('search').value.toLowerCase();
-    if(search) filtered = filtered.filter(v => (v.first_name+' '+v.last_name).toLowerCase().includes(search) || v.email.toLowerCase().includes(search));
-    if(!filtered.length) { document.getElementById('voterList').innerHTML = '<div class="loading">No voters found.</div>'; return; }
+    const searchTerm = document.getElementById('search').value.toLowerCase();
+    if (searchTerm) filtered = filtered.filter(v => (v.first_name+' '+v.last_name).toLowerCase().includes(searchTerm) || v.email.toLowerCase().includes(searchTerm));
+    if (!filtered.length) { document.getElementById('voterList').innerHTML = '<p>No voters found</p>'; return; }
     let html = `<table><thead><tr><th>ID</th><th>Voter ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
     filtered.forEach(v => {
-      html += `
-        <tr>
-          <td>${v.id}</td>
-          <td>${v.voter_id || 'N/A'}</td>
-          <td>${v.first_name} ${v.last_name}</td>
-          <td>${v.email}</td>
-          <td><span class="status-${v.status}">${v.status}</span></td>
-          <td>
-            ${v.status === 'pending' ? `<button class="btn-approve" onclick="approve(${v.id})">Approve</button>` : ''}
-            <button class="btn-edit" onclick="editVoter(${v.id})">Edit</button>
-            <button class="btn-delete" onclick="deleteVoter(${v.id})">Delete</button>
-          </td>
-        </tr>
-      `;
+      html += `<tr>
+        <td>${v.id}</td>
+        <td>${v.voter_id || 'N/A'}</td>
+        <td>${v.first_name} ${v.last_name}</td>
+        <td>${v.email}</td>
+        <td><span class="status-${v.status}">${v.status}</span></td>
+        <td>
+          ${v.status === 'pending' ? `<button class="approve" onclick="approveVoter(${v.id})">Approve</button>` : ''}
+          <button class="edit" onclick="editVoter(${v.id})">Edit</button>
+          <button class="delete" onclick="deleteVoter(${v.id})">Delete</button>
+        </td>
+      </tr>`;
     });
     html += '</tbody></table>';
     document.getElementById('voterList').innerHTML = html;
   }
-
-  async function approve(id) {
+  async function approveVoter(id) {
     await fetch(`/api/voters/approve/${id}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
     fetchVoters();
   }
   async function editVoter(id) {
     const v = allVoters.find(v => v.id === id);
     const newName = prompt('Edit name (First Last):', `${v.first_name} ${v.last_name}`);
-    if(newName) {
+    if (newName) {
       const [first, ...last] = newName.split(' ');
       await fetch(`/api/voters/${id}`, {
         method: 'PUT',
@@ -106,19 +99,18 @@
     }
   }
   async function deleteVoter(id) {
-    if(!confirm('Delete permanently?')) return;
+    if (!confirm('Delete permanently?')) return;
     await fetch(`/api/voters/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
     fetchVoters();
   }
-
   function setupTabs() {
-    const tabsDiv = document.getElementById('tabButtons');
+    const div = document.getElementById('tabs');
     ['pending','approved','all'].forEach(f => {
       const btn = document.createElement('button');
       btn.textContent = f.toUpperCase();
       btn.onclick = () => { currentFilter = f; render(); document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
-      if(f === 'pending') btn.classList.add('active');
-      tabsDiv.appendChild(btn);
+      if (f === 'pending') btn.classList.add('active');
+      div.appendChild(btn);
     });
   }
   document.getElementById('search').addEventListener('input', render);

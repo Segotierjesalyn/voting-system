@@ -1,33 +1,30 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Voter Login | VoteSecure PH</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voter Portal | VoteSecure PH</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0038a8, #fcdb30, #ce1126);
       min-height: 100vh;
-      background: linear-gradient(135deg, #0038a8 0%, #fcdb30 50%, #ce1126 100%);
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       padding: 20px;
     }
-
     .login-container {
       display: flex;
       max-width: 1000px;
       width: 100%;
       background: white;
-      border-radius: 20px;
+      border-radius: 30px;
       overflow: hidden;
       box-shadow: 0 25px 50px rgba(0,0,0,0.3);
     }
-
-    /* LEFT SIDE - FLAG */
+    /* LEFT SIDE – FLAG */
     .flag-side {
       flex: 1;
       background: linear-gradient(135deg, #0038a8, #002266);
@@ -38,479 +35,412 @@
       align-items: center;
       text-align: center;
     }
-
-    .ph-flag {
+    .waving-flag {
       width: 180px;
-      margin-bottom: 20px;
-      animation: float 4s ease-in-out infinite;
+      animation: wave 3s ease-in-out infinite;
     }
-
-    @keyframes float {
-      0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}
+    @keyframes wave {
+      0%,100% { transform: rotate(0deg); }
+      25% { transform: rotate(2deg); }
+      75% { transform: rotate(-2deg); }
     }
-
-    .flag-side h2 { color: #fcdb30; margin-bottom: 10px; }
-    .flag-side p { color: white; font-size: 13px; line-height: 1.5; }
-
-    .features {
+    .badge {
+      background: #ce1126;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 50px;
+      font-size: 12px;
+      margin: 20px 0 10px;
+    }
+    .flag-side h2 { color: #fcdb30; font-size: 24px; }
+    .flag-side p { color: white; font-size: 13px; margin-top: 10px; }
+    .hero-features {
+      list-style: none;
       margin-top: 20px;
       text-align: left;
+      width: 100%;
     }
-
-    .features li {
+    .hero-features li {
       color: white;
-      padding: 5px 0;
-      list-style: none;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
     }
-
-    /* RIGHT SIDE - LOGIN */
-    .login-side {
+    /* RIGHT SIDE – FORMS */
+    .form-side {
       flex: 1;
       padding: 40px;
       background: white;
     }
-
-    .login-side h1 { color: #0038a8; margin-bottom: 5px; font-size: 24px; }
-    .login-side p { color: #ce1126; margin-bottom: 20px; font-size: 13px; }
-
+    .logo { text-align: center; margin-bottom: 30px; }
+    .logo h1 { color: #0038a8; font-size: 24px; }
+    .logo p { color: #ce1126; font-size: 12px; }
     .tabs {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
-      background: #f1f5f9;
-      padding: 5px;
-      border-radius: 10px;
+      border-bottom: 2px solid #e2e8f0;
     }
-
     .tab {
       flex: 1;
       padding: 10px;
       text-align: center;
-      border: none;
       background: none;
+      border: none;
       cursor: pointer;
-      border-radius: 8px;
       font-weight: 600;
+      color: #64748b;
     }
-
     .tab.active {
-      background: #0038a8;
-      color: white;
+      color: #0038a8;
+      border-bottom: 2px solid #0038a8;
     }
-
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0038a8;
+      margin-bottom: 5px;
+    }
     input {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
       font-size: 14px;
     }
-
     input:focus {
       outline: none;
-      border-color: #0038a8;
+      border-color: #fcdb30;
     }
-
-    .captcha {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      background: #f1f5f9;
-      padding: 5px 10px;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-
-    .captcha span {
-      font-size: 20px;
-      font-weight: bold;
-      letter-spacing: 5px;
-      background: white;
-      padding: 5px 10px;
-      border-radius: 5px;
-    }
-
-    button {
+    .btn {
       width: 100%;
       padding: 12px;
-      background: #0038a8;
+      background: linear-gradient(135deg, #ce1126, #0038a8);
       color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
     }
-
-    button:hover { background: #002266; }
-
+    .btn:hover {
+      transform: translateY(-1px);
+    }
     .link {
       text-align: center;
       margin-top: 15px;
+      font-size: 13px;
       color: #0038a8;
       cursor: pointer;
-      font-size: 13px;
     }
-
-    .error-msg, .success-msg {
+    .error-msg {
+      background: #fee2e2;
+      color: #ce1126;
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 15px;
       display: none;
-      font-size: 13px;
     }
-
-    .error-msg { background: #fee2e2; color: #ce1126; }
-    .success-msg { background: #dcfce7; color: #16a34a; }
-
     .hidden { display: none; }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
     @media (max-width: 768px) {
       .login-container { flex-direction: column; }
-      .ph-flag { width: 120px; }
+      .waving-flag { width: 120px; }
     }
   </style>
 </head>
 <body>
-
 <div class="login-container">
-  <!-- LEFT SIDE -->
+  <!-- LEFT SIDE – FLAG -->
   <div class="flag-side">
-    <svg class="ph-flag" viewBox="0 0 1200 600">
+    <svg class="waving-flag" viewBox="0 0 1200 600">
       <rect x="0" y="0" width="1200" height="300" fill="#0038a8"/>
       <rect x="0" y="300" width="1200" height="300" fill="#ce1126"/>
       <polygon points="0,0 0,600 450,300" fill="white"/>
       <circle cx="225" cy="300" r="80" fill="#fcdb30"/>
     </svg>
+    <div class="badge">🗳️ VOTER PORTAL</div>
     <h2>VoteSecure PH</h2>
-    <p>Your trusted online voting system for fair and secure elections.</p>
-    <ul class="features">
-      <li>✓ Secure & Transparent Voting</li>
-      <li>✓ Real-time Results</li>
-      <li>✓ Voter Privacy Protection</li>
-      <li>✓ Accessible Anywhere</li>
+    <p>Your voice matters. Vote wisely.</p>
+    <ul class="hero-features">
+      <li><span>✓</span> Secure & Transparent Voting</li>
+      <li><span>✓</span> Real-time Results</li>
+      <li><span>✓</span> Voter Privacy Protection</li>
     </ul>
   </div>
 
-  <!-- RIGHT SIDE -->
-  <div class="login-side">
-    <h1>🗳️ Voter Portal</h1>
-    <p>Official Online Voting System</p>
-
+  <!-- RIGHT SIDE – FORMS -->
+  <div class="form-side">
+    <div class="logo">
+      <h1>Voter Portal</h1>
+      <p>Official Online Voting System</p>
+    </div>
     <div id="errorMsg" class="error-msg"></div>
-    <div id="successMsg" class="success-msg"></div>
 
     <!-- LOGIN FORM -->
     <div id="loginForm">
       <div class="tabs">
-        <button class="tab active" onclick="showLoginTab()">🔐 Login</button>
-        <button class="tab" onclick="showRegisterTab()">📝 Register</button>
+        <button class="tab active" onclick="showLogin()">Login</button>
+        <button class="tab" onclick="showRegister()">Register</button>
       </div>
-      <input type="email" id="loginEmail" placeholder="Email Address" value="jesalynseidelsegotier@gmail.com">
-      <input type="password" id="loginPassword" placeholder="Password">
-      <div class="captcha">
-        <span id="captchaText"></span>
-        <input type="text" id="captchaInput" placeholder="Enter code" style="flex:1; margin:0;">
-        <span class="refresh-cap" onclick="generateCaptcha()" style="cursor:pointer;">🔄</span>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="your@email.com">
       </div>
-      <button onclick="handleLogin()">🔐 Login</button>
-      <div class="link" onclick="showForgotPassword()">Forgot Password?</div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="btn" onclick="handleLogin()">Login</button>
+      <div class="link" onclick="showForgot()">Forgot Password?</div>
     </div>
 
     <!-- REGISTER FORM -->
     <div id="registerForm" class="hidden">
       <div class="tabs">
-        <button class="tab" onclick="showLoginTab()">🔐 Login</button>
-        <button class="tab active">📝 Register</button>
+        <button class="tab" onclick="showLogin()">Login</button>
+        <button class="tab active" onclick="showRegister()">Register</button>
       </div>
-      <div class="grid-2">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <input type="text" id="regFirst" placeholder="First Name">
         <input type="text" id="regLast" placeholder="Last Name">
       </div>
-      <input type="email" id="regEmail" placeholder="Email Address">
-      <input type="password" id="regPassword" placeholder="Password (min. 8 chars)">
+      <input type="email" id="regEmail" placeholder="Email">
+      <input type="password" id="regPassword" placeholder="Password (min 8 chars)">
       <input type="date" id="regBirth">
-      <input type="text" id="regPhone" placeholder="Phone Number">
-      <input type="text" id="regAddress" placeholder="Complete Address">
-      <button onclick="handleRegister()">📝 Register</button>
-      <div class="link" onclick="showLoginTab()">Back to Login</div>
+      <input type="text" id="regPhone" placeholder="Phone">
+      <input type="text" id="regAddress" placeholder="Address">
+      <button class="btn" onclick="handleRegister()">Register</button>
+      <div class="link" onclick="showLogin()">Back to Login</div>
     </div>
 
     <!-- FORGOT PASSWORD FORM -->
     <div id="forgotForm" class="hidden">
       <div class="tabs">
-        <button class="tab" onclick="showLoginTab()">🔐 Login</button>
-        <button class="tab">📝 Register</button>
+        <button class="tab active" onclick="showLogin()">Login</button>
+        <button class="tab" onclick="showRegister()">Register</button>
       </div>
-      <p style="margin-bottom: 15px;">Enter your email to receive a reset code.</p>
-      <input type="email" id="resetEmail" placeholder="Email Address">
-      <button onclick="sendResetCode()">📧 Send Reset Code</button>
-      <div class="link" onclick="showLoginTab()">← Back to Login</div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="forgotEmail" placeholder="your@email.com">
+      </div>
+      <button class="btn" onclick="sendResetCode()">Send Reset Code</button>
+      <div id="resetSection" class="hidden" style="margin-top:15px;">
+        <input type="text" id="resetCode" placeholder="Reset Code">
+        <input type="password" id="newPassword" placeholder="New Password">
+        <button class="btn" onclick="resetPassword()">Reset Password</button>
+      </div>
+      <div class="link" onclick="showLogin()">Back to Login</div>
     </div>
 
-    <!-- RESET PASSWORD FORM -->
-    <div id="resetForm" class="hidden">
-      <div class="tabs">
-        <button class="tab" onclick="showLoginTab()">🔐 Login</button>
-        <button class="tab">📝 Register</button>
-      </div>
-      <p style="margin-bottom: 15px;">Enter reset code and new password.</p>
-      <input type="text" id="resetCode" placeholder="6-digit Reset Code" maxlength="6">
-      <input type="password" id="newPassword" placeholder="New Password (min. 8 chars)">
-      <input type="password" id="confirmPassword" placeholder="Confirm Password">
-      <button onclick="resetPassword()">🔄 Reset Password</button>
-      <div class="link" onclick="showLoginTab()">← Back to Login</div>
-    </div>
-
-    <!-- OTP FORM -->
+    <!-- OTP VERIFICATION (after login) -->
     <div id="otpForm" class="hidden">
       <div class="tabs">
-        <button class="tab" onclick="backToLogin()">🔐 Login</button>
+        <button class="tab active" onclick="backToLogin()">Login</button>
       </div>
-      <p style="margin-bottom: 15px;">Enter 6-digit OTP (check PowerShell)</p>
-      <input type="text" id="otpInput" placeholder="000000" maxlength="6" style="text-align:center; font-size:24px; letter-spacing:5px;">
-      <button onclick="verifyOTP()">✅ Verify OTP</button>
-      <div class="link" onclick="backToLogin()">← Back to Login</div>
+      <p style="margin-bottom:15px;">Enter the 6-digit OTP sent to your email (check PowerShell)</p>
+      <input type="text" id="otpCode" placeholder="000000" maxlength="6" style="text-align:center; font-size:24px; letter-spacing:5px;">
+      <button class="btn" onclick="verifyOTP()">Verify OTP</button>
+      <div class="link" onclick="backToLogin()">Cancel</div>
     </div>
   </div>
 </div>
 
 <script>
-  const API = 'http://localhost:3000/api';
-  let currentVoterId = null;
-  let resetEmail = '';
-  let captchaAnswer = '';
-
-  function generateCaptcha() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    captchaAnswer = Array.from({length:5}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-    document.getElementById('captchaText').textContent = captchaAnswer;
-    document.getElementById('captchaInput').value = '';
-  }
-  generateCaptcha();
-
-  function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    el.textContent = '❌ ' + msg;
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 4000);
-  }
-
-  function showSuccess(msg) {
-    const el = document.getElementById('successMsg');
-    el.textContent = '✅ ' + msg;
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 3000);
-  }
-
-  function showLoginTab() {
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('forgotForm').classList.add('hidden');
-    document.getElementById('resetForm').classList.add('hidden');
-    document.getElementById('otpForm').classList.add('hidden');
-    generateCaptcha();
-  }
-
-  function showRegisterTab() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('registerForm').classList.remove('hidden');
-    document.getElementById('forgotForm').classList.add('hidden');
-    document.getElementById('resetForm').classList.add('hidden');
-    document.getElementById('otpForm').classList.add('hidden');
-  }
-
-  function showForgotPassword() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('forgotForm').classList.remove('hidden');
-    document.getElementById('resetForm').classList.add('hidden');
-    document.getElementById('otpForm').classList.add('hidden');
-  }
-
-  function backToLogin() {
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('otpForm').classList.add('hidden');
-    currentVoterId = null;
-    generateCaptcha();
-  }
+  let tempVoterId = null;
+  let resetEmail = null;
 
   async function handleLogin() {
-    const email = document.getElementById('loginEmail').value.trim();
+    const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    const captcha = document.getElementById('captchaInput').value.trim().toUpperCase();
-
+    const errorDiv = document.getElementById('errorMsg');
     if (!email || !password) {
-      showError('Please enter email and password');
+      errorDiv.innerText = 'Please enter email and password';
+      errorDiv.style.display = 'block';
       return;
     }
-    if (captcha !== captchaAnswer) {
-      generateCaptcha();
-      showError('Wrong CAPTCHA');
-      return;
-    }
-
+    errorDiv.style.display = 'none';
     try {
-      const res = await fetch(`${API}/auth/voter/login`, {
+      const res = await fetch('/api/auth/voter/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-
       if (res.ok) {
-        currentVoterId = data.voter_id;
-        if (data.otp) document.getElementById('otpInput').value = data.otp;
+        tempVoterId = data.voter_id;
         document.getElementById('loginForm').classList.add('hidden');
         document.getElementById('otpForm').classList.remove('hidden');
         console.log('OTP:', data.otp);
+        if (data.otp) document.getElementById('otpCode').value = data.otp;
       } else {
-        showError(data.message || 'Invalid email or password');
-        generateCaptcha();
+        errorDiv.innerText = data.message || 'Login failed';
+        errorDiv.style.display = 'block';
       }
     } catch (err) {
-      showError('Cannot connect to server. Make sure backend is running.');
-      generateCaptcha();
+      errorDiv.innerText = 'Cannot connect to server. Make sure backend is running.';
+      errorDiv.style.display = 'block';
     }
   }
 
   async function verifyOTP() {
-    const otp = document.getElementById('otpInput').value.trim();
+    const otp = document.getElementById('otpCode').value;
+    const errorDiv = document.getElementById('errorMsg');
     if (!otp || otp.length !== 6) {
-      showError('Enter 6-digit OTP');
+      errorDiv.innerText = 'Enter 6-digit OTP';
+      errorDiv.style.display = 'block';
       return;
     }
-
+    errorDiv.style.display = 'none';
     try {
-      const res = await fetch(`${API}/auth/voter/verify-otp`, {
+      const res = await fetch('/api/auth/voter/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voter_id: currentVoterId, otp })
+        body: JSON.stringify({ voter_id: tempVoterId, otp })
       });
       const data = await res.json();
-
       if (res.ok) {
         localStorage.setItem('voterToken', data.token);
         localStorage.setItem('voterData', JSON.stringify(data.voter));
         window.location.href = 'dashboard.html';
       } else {
-        showError(data.message || 'Invalid OTP');
+        errorDiv.innerText = data.message || 'Invalid OTP';
+        errorDiv.style.display = 'block';
       }
     } catch (err) {
-      showError('Connection error');
+      errorDiv.innerText = 'Connection error';
+      errorDiv.style.display = 'block';
     }
   }
 
   async function handleRegister() {
-    const first_name = document.getElementById('regFirst').value.trim();
-    const last_name = document.getElementById('regLast').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
+    const first_name = document.getElementById('regFirst').value;
+    const last_name = document.getElementById('regLast').value;
+    const email = document.getElementById('regEmail').value;
     const password = document.getElementById('regPassword').value;
     const birthdate = document.getElementById('regBirth').value;
-    const phone = document.getElementById('regPhone').value.trim();
-    const address = document.getElementById('regAddress').value.trim();
-
+    const phone = document.getElementById('regPhone').value;
+    const address = document.getElementById('regAddress').value;
+    const errorDiv = document.getElementById('errorMsg');
     if (!first_name || !last_name || !email || !password || !birthdate || !address) {
-      showError('Please fill all fields');
+      errorDiv.innerText = 'Please fill all fields';
+      errorDiv.style.display = 'block';
       return;
     }
     if (password.length < 8) {
-      showError('Password must be at least 8 characters');
+      errorDiv.innerText = 'Password must be at least 8 characters';
+      errorDiv.style.display = 'block';
       return;
     }
-
+    errorDiv.style.display = 'none';
     try {
-      const res = await fetch(`${API}/auth/voter/register`, {
+      const res = await fetch('/api/auth/voter/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first_name, last_name, email, password, birthdate, phone, address })
       });
       const data = await res.json();
-
       if (res.ok) {
-        alert('✅ Registration successful! Voter ID: ' + data.voter_id + '\nWait for admin approval.');
-        showLoginTab();
+        alert('Registration successful! Voter ID: ' + data.voter_id + '\nWait for admin approval.');
+        showLogin();
       } else {
-        showError(data.message || 'Registration failed');
+        errorDiv.innerText = data.message || 'Registration failed';
+        errorDiv.style.display = 'block';
       }
     } catch (err) {
-      showError('Cannot connect to server');
+      errorDiv.innerText = 'Cannot connect to server';
+      errorDiv.style.display = 'block';
     }
   }
 
   async function sendResetCode() {
-    const email = document.getElementById('resetEmail').value.trim();
+    const email = document.getElementById('forgotEmail').value;
+    resetEmail = email;
+    const errorDiv = document.getElementById('errorMsg');
     if (!email) {
-      showError('Enter your email');
+      errorDiv.innerText = 'Enter your email';
+      errorDiv.style.display = 'block';
       return;
     }
-
+    errorDiv.style.display = 'none';
     try {
-      const res = await fetch(`${API}/auth/voter/forgot-password`, {
+      const res = await fetch('/api/auth/voter/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
       const data = await res.json();
-
       if (res.ok) {
-        resetEmail = email;
-        showSuccess('Reset code sent! Check PowerShell console.');
-        console.log('Reset code:', data.reset_code);
-        if (data.reset_code) document.getElementById('resetCode').value = data.reset_code;
-        document.getElementById('forgotForm').classList.add('hidden');
-        document.getElementById('resetForm').classList.remove('hidden');
+        document.getElementById('resetSection').classList.remove('hidden');
+        errorDiv.innerText = 'Reset code sent. Check PowerShell console.';
+        errorDiv.style.background = '#dcfce7';
+        errorDiv.style.color = '#16a34a';
+        errorDiv.style.display = 'block';
+        setTimeout(() => errorDiv.style.display = 'none', 3000);
+        if (data.reset_code) console.log('Reset code:', data.reset_code);
       } else {
-        showError(data.message || 'Email not found');
+        errorDiv.innerText = data.message || 'Email not found';
+        errorDiv.style.display = 'block';
       }
     } catch (err) {
-      showError('Cannot connect to server');
+      errorDiv.innerText = 'Connection error';
+      errorDiv.style.display = 'block';
     }
   }
 
   async function resetPassword() {
-    const resetCode = document.getElementById('resetCode').value.trim();
+    const resetCode = document.getElementById('resetCode').value;
     const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-
-    if (!resetCode || resetCode.length !== 6) {
-      showError('Enter 6-digit reset code');
+    const errorDiv = document.getElementById('errorMsg');
+    if (!resetCode || !newPassword) {
+      errorDiv.innerText = 'Enter reset code and new password';
+      errorDiv.style.display = 'block';
       return;
     }
-    if (!newPassword || newPassword.length < 8) {
-      showError('Password must be at least 8 characters');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      showError('Passwords do not match');
-      return;
-    }
-
+    errorDiv.style.display = 'none';
     try {
-      const res = await fetch(`${API}/auth/voter/reset-password`, {
+      const res = await fetch('/api/auth/voter/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail, reset_code: resetCode, new_password: newPassword })
       });
       const data = await res.json();
-
       if (res.ok) {
-        showSuccess('Password reset successful! You can now login.');
-        setTimeout(() => showLoginTab(), 2000);
+        alert('Password reset successful. Please login with your new password.');
+        showLogin();
       } else {
-        showError(data.message || 'Invalid reset code');
+        errorDiv.innerText = data.message || 'Invalid reset code';
+        errorDiv.style.display = 'block';
       }
     } catch (err) {
-      showError('Connection error');
+      errorDiv.innerText = 'Connection error';
+      errorDiv.style.display = 'block';
     }
+  }
+
+  function showLogin() {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('forgotForm').classList.add('hidden');
+    document.getElementById('otpForm').classList.add('hidden');
+    document.getElementById('errorMsg').style.display = 'none';
+  }
+  function showRegister() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+    document.getElementById('forgotForm').classList.add('hidden');
+    document.getElementById('otpForm').classList.add('hidden');
+  }
+  function showForgot() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('forgotForm').classList.remove('hidden');
+    document.getElementById('otpForm').classList.add('hidden');
+  }
+  function backToLogin() {
+    showLogin();
   }
 
   if (localStorage.getItem('voterToken')) {

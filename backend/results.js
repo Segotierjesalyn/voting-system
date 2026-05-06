@@ -14,4 +14,30 @@ router.get('/turnout/:election_id', verifyToken, async (req, res) => {
   }
 });
 
+// Detailed results per position for an election
+router.get('/details/:election_id', verifyToken, async (req, res) => {
+  try {
+    const [positions] = await db.query('SELECT * FROM positions WHERE election_id = ? ORDER BY display_order', [req.params.election_id]);
+    const results = [];
+    for (const pos of positions) {
+      const [candidates] = await db.query(`
+        SELECT c.id, c.name, c.party, COUNT(v.id) as vote_count
+        FROM candidates c
+        LEFT JOIN votes v ON v.candidate_id = c.id
+        WHERE c.position_id = ?
+        GROUP BY c.id
+        ORDER BY vote_count DESC
+      `, [pos.id]);
+      results.push({
+        position: pos.title,
+        max_seats: pos.max_seats,
+        candidates
+      });
+    }
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

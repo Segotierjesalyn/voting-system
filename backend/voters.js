@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('./db');
 const verifyToken = require('./middleware');
 
-// Get all voters
 router.get('/', verifyToken, async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM voters ORDER BY created_at DESC');
@@ -13,7 +12,6 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// Approve voter
 router.put('/approve/:id', verifyToken, async (req, res) => {
   try {
     await db.query('UPDATE voters SET status = "approved" WHERE id = ?', [req.params.id]);
@@ -23,7 +21,6 @@ router.put('/approve/:id', verifyToken, async (req, res) => {
   }
 });
 
-// UPDATE voter (full edit)
 router.put('/:id', verifyToken, async (req, res) => {
   const { first_name, last_name, email, phone, address, status } = req.body;
   try {
@@ -37,7 +34,6 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// DELETE voter
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     await db.query('DELETE FROM voters WHERE id = ?', [req.params.id]);
