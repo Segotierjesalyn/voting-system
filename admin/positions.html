@@ -17,10 +17,10 @@
     .add { background:#16a34a; color:white; }
     .edit { background:#3b82f6; color:white; }
     .delete { background:#dc2626; color:white; }
-    select { padding:5px; margin-bottom:10px; }
+    select { padding:5px; margin-bottom:10px; width:100%; max-width:300px; }
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
     .modal-content { background:white; padding:20px; border-radius:12px; width:400px; }
-    input, select { width:100%; padding:8px; margin:8px 0; }
+    input { width:100%; padding:8px; margin:8px 0; }
   </style>
 </head>
 <body>
@@ -40,9 +40,13 @@
     <label>Select Election</label>
     <select id="electionSelect"></select>
     <button class="add" onclick="openModal()">➕ Add Position</button>
-    <table id="positionTable"><thead><tr><th>ID</th><th>Title</th><th>Max Seats</th><th>Order</th><th>Actions</th></tr></thead><tbody></tbody></table>
+    <table id="positionTable">
+      <thead><tr><th>ID</th><th>Title</th><th>Max Seats</th><th>Order</th><th>Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
+
 <div id="modal" class="modal">
   <div class="modal-content">
     <h3 id="modalTitle">Add Position</h3>
@@ -54,78 +58,117 @@
     <button onclick="closeModal()">Cancel</button>
   </div>
 </div>
+
 <script>
   const token = localStorage.getItem('adminToken');
   if (!token) window.location.href = 'index.html';
-  let elections = [];
+
   let currentElectionId = null;
-  let positions = [];
 
   async function loadElections() {
-    const res = await fetch('/api/election', { headers: { 'Authorization': `Bearer ${token}` } });
-    elections = await res.json();
-    const select = document.getElementById('electionSelect');
-    select.innerHTML = '';
-    elections.forEach(e => {
-      const opt = document.createElement('option');
-      opt.value = e.id;
-      opt.textContent = e.name;
-      select.appendChild(opt);
-    });
-    if (elections.length) {
+    try {
+      const res = await fetch('/api/election', { headers: { 'Authorization': `Bearer ${token}` } });
+      const elections = await res.json();
+      const select = document.getElementById('electionSelect');
+      select.innerHTML = '';
+      if (!elections.length) {
+        select.innerHTML = '<option>No elections – create one first</option>';
+        return;
+      }
+      elections.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        opt.textContent = e.name;
+        select.appendChild(opt);
+      });
       currentElectionId = elections[0].id;
       loadPositions();
+      select.addEventListener('change', () => {
+        currentElectionId = select.value;
+        loadPositions();
+      });
+    } catch (err) {
+      alert('Error loading elections: ' + err.message);
     }
-    select.addEventListener('change', () => {
-      currentElectionId = select.value;
-      loadPositions();
-    });
   }
+
   async function loadPositions() {
     if (!currentElectionId) return;
-    const res = await fetch(`/api/positions?election_id=${currentElectionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-    positions = await res.json();
-    const tbody = document.querySelector('#positionTable tbody');
-    tbody.innerHTML = '';
-    positions.forEach(p => {
-      const row = tbody.insertRow();
-      row.insertCell(0).innerText = p.id;
-      row.insertCell(1).innerText = p.title;
-      row.insertCell(2).innerText = p.max_seats;
-      row.insertCell(3).innerText = p.display_order;
-      const cell = row.insertCell(4);
-      cell.innerHTML = `<button class="edit" onclick="editPosition(${p.id})">Edit</button>
-                        <button class="delete" onclick="deletePosition(${p.id})">Delete</button>`;
-    });
+    try {
+      const res = await fetch(`/api/positions?election_id=${currentElectionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const positions = await res.json();
+      const tbody = document.querySelector('#positionTable tbody');
+      tbody.innerHTML = '';
+      positions.forEach(p => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = p.id;
+        row.insertCell(1).innerText = p.title;
+        row.insertCell(2).innerText = p.max_seats;
+        row.insertCell(3).innerText = p.display_order;
+        const cell = row.insertCell(4);
+        cell.innerHTML = `<button class="edit" onclick="editPosition(${p.id})">Edit</button>
+                          <button class="delete" onclick="deletePosition(${p.id})">Delete</button>`;
+      });
+    } catch (err) {
+      alert('Error loading positions: ' + err.message);
+    }
   }
+
   async function savePosition() {
     const id = document.getElementById('positionId').value;
     const data = {
       election_id: currentElectionId,
-      title: document.getElementById('title').value,
-      max_seats: parseInt(document.getElementById('maxSeats').value),
-      display_order: parseInt(document.getElementById('displayOrder').value)
+      title: document.getElementById('title').value.trim(),
+      max_seats: parseInt(document.getElementById('maxSeats').value) || 1,
+      display_order: parseInt(document.getElementById('displayOrder').value) || 0
     };
+    if (!data.title) {
+      alert('Position title is required');
+      return;
+    }
     const url = id ? `/api/positions/${id}` : '/api/positions';
     const method = id ? 'PUT' : 'POST';
-    await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(data) });
-    closeModal();
-    loadPositions();
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Save failed');
+      closeModal();
+      loadPositions();
+    } catch (err) {
+      alert('Error saving position: ' + err.message);
+    }
   }
+
   async function editPosition(id) {
-    const p = positions.find(p => p.id === id);
-    document.getElementById('positionId').value = p.id;
-    document.getElementById('title').value = p.title;
-    document.getElementById('maxSeats').value = p.max_seats;
-    document.getElementById('displayOrder').value = p.display_order;
-    document.getElementById('modalTitle').innerText = 'Edit Position';
-    document.getElementById('modal').style.display = 'flex';
+    try {
+      const res = await fetch(`/api/positions/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const p = await res.json();
+      document.getElementById('positionId').value = p.id;
+      document.getElementById('title').value = p.title;
+      document.getElementById('maxSeats').value = p.max_seats;
+      document.getElementById('displayOrder').value = p.display_order;
+      document.getElementById('modalTitle').innerText = 'Edit Position';
+      document.getElementById('modal').style.display = 'flex';
+    } catch (err) {
+      alert('Error loading position details: ' + err.message);
+    }
   }
+
   async function deletePosition(id) {
-    if (!confirm('Delete this position?')) return;
-    await fetch(`/api/positions/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-    loadPositions();
+    if (!confirm('Delete this position? All candidates under it will also be deleted.')) return;
+    try {
+      const res = await fetch(`/api/positions/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error(await res.text());
+      loadPositions();
+    } catch (err) {
+      alert('Delete failed: ' + err.message);
+    }
   }
+
   function openModal() {
     document.getElementById('positionId').value = '';
     document.getElementById('title').value = '';
@@ -134,7 +177,11 @@
     document.getElementById('modalTitle').innerText = 'Add Position';
     document.getElementById('modal').style.display = 'flex';
   }
-  function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+
   loadElections();
 </script>
 </body>

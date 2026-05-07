@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const db = require('./db');
 const verifyToken = require('./middleware');
@@ -31,16 +31,16 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// CREATE position (admin only) – using column 'name' instead of 'title'
+// CREATE position (admin only)
 router.post('/', verifyToken, async (req, res) => {
-  const { election_id, name, max_seats, display_order } = req.body;
-  if (!election_id || !name) {
-    return res.status(400).json({ error: 'Missing required fields (election_id, name)' });
+  const { election_id, title, max_seats, display_order } = req.body;
+  if (!election_id || !title) {
+    return res.status(400).json({ error: 'Missing required fields (election_id, title)' });
   }
   try {
     const [result] = await db.query(
-      'INSERT INTO positions (election_id, name, max_seats, display_order) VALUES (?, ?, ?, ?)',
-      [election_id, name, max_seats || 1, display_order || 0]
+      'INSERT INTO positions (election_id, title, max_seats, display_order) VALUES (?, ?, ?, ?)',
+      [election_id, title, max_seats || 1, display_order || 0]
     );
     res.json({ message: 'Position added', id: result.insertId });
   } catch (err) {
@@ -50,11 +50,11 @@ router.post('/', verifyToken, async (req, res) => {
 
 // UPDATE position (admin only)
 router.put('/:id', verifyToken, async (req, res) => {
-  const { name, max_seats, display_order } = req.body;
+  const { title, max_seats, display_order } = req.body;
   try {
     await db.query(
-      'UPDATE positions SET name=?, max_seats=?, display_order=? WHERE id=?',
-      [name, max_seats, display_order, req.params.id]
+      'UPDATE positions SET title=?, max_seats=?, display_order=? WHERE id=?',
+      [title, max_seats, display_order, req.params.id]
     );
     res.json({ message: 'Position updated' });
   } catch (err) {
@@ -62,12 +62,12 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// DELETE position (admin only)
+// DELETE position (admin only) – also deletes associated candidates
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     await db.query('DELETE FROM candidates WHERE position_id = ?', [req.params.id]);
     await db.query('DELETE FROM positions WHERE id = ?', [req.params.id]);
-    res.json({ message: 'Position deleted' });
+    res.json({ message: 'Position and its candidates deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

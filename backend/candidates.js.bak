@@ -1,9 +1,8 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const db = require('./db');
 const verifyToken = require('./middleware');
 
-// GET all candidates (optionally filtered by election)
 router.get('/', async (req, res) => {
   try {
     let query = `SELECT c.*, p.title as position_title, e.name as election_name 
@@ -23,7 +22,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET candidates for a specific position
 router.get('/position/:position_id', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM candidates WHERE position_id = ? ORDER BY name', [req.params.position_id]);
@@ -33,7 +31,6 @@ router.get('/position/:position_id', async (req, res) => {
   }
 });
 
-// GET single candidate by ID
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM candidates WHERE id = ?', [req.params.id]);
@@ -44,11 +41,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// CREATE candidate
 router.post('/', verifyToken, async (req, res) => {
   const { election_id, position_id, name, party, description } = req.body;
   if (!election_id || !position_id || !name) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'Missing required fields (election_id, position_id, name)' });
   }
   try {
     const [result] = await db.query(
@@ -61,7 +57,6 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// UPDATE candidate
 router.put('/:id', verifyToken, async (req, res) => {
   const { name, party, description, position_id } = req.body;
   try {
@@ -75,7 +70,6 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// DELETE candidate
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     await db.query('DELETE FROM candidates WHERE id = ?', [req.params.id]);
