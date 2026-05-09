@@ -16,9 +16,9 @@ async function test() {
       body: JSON.stringify({ email: 'admin@votesecure.ph', password: 'admin123' })
     });
     const data = await res.json();
-    result.innerText = '✅ Success!\n' + JSON.stringify(data, null, 2);
+    result.innerText = 'Success!\n' + JSON.stringify(data, null, 2);
   } catch (err) {
-    result.innerText = '❌ Failed: ' + err.message;
+    result.innerText = ' Failed: ' + err.message;
   }
 }
 </script>

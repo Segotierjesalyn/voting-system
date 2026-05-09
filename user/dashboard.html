@@ -336,10 +336,10 @@
 <div class="container">
   <div class="welcome-card">
     <div>
-      <h2>Welcome, <span id="welcomeName">Voter</span>! 🎉</h2>
+      <h2>Welcome, <span id="welcomeName">Voter</span>! </h2>
       <p>Your voice matters. Vote wisely.</p>
     </div>
-    <button class="vote-now-btn" onclick="goToBallot()">🗳️ VOTE NOW</button>
+    <button class="vote-now-btn" onclick="goToBallot()"> VOTE NOW</button>
   </div>
 
   <div class="stats-grid">
@@ -361,14 +361,14 @@
     <!-- LEFT COLUMN -->
     <div>
       <div class="card next-election-card" id="nextElectionCard" style="display: none;">
-        <div class="next-election-title">⏳ NEXT ELECTION TRACKER</div>
+        <div class="next-election-title"> NEXT ELECTION TRACKER</div>
         <div class="next-election-name" id="nextElectionName">--</div>
         <div class="countdown" id="countdownTimer">--:--:--</div>
         <div class="countdown-label" id="countdownLabel">days | hours | minutes | seconds</div>
       </div>
 
       <div class="card">
-        <div class="card-title">📅 ELECTION CALENDAR (Click to Vote)</div>
+        <div class="card-title"> ELECTION CALENDAR (Click to Vote)</div>
         <div id="electionList" class="election-list">
           <div class="no-data">Loading elections...</div>
         </div>
@@ -378,9 +378,9 @@
     <!-- RIGHT COLUMN: Tabbed Content -->
     <div class="card">
       <div class="tabs">
-        <button class="tab-btn active" data-tab="guide">📖 Voter's Guide</button>
-        <button class="tab-btn" data-tab="announcements">📢 Announcements</button>
-        <button class="tab-btn" data-tab="education">🎓 Voter Education</button>
+        <button class="tab-btn active" data-tab="guide"> Voter's Guide</button>
+        <button class="tab-btn" data-tab="announcements"> Announcements</button>
+        <button class="tab-btn" data-tab="education"> Voter Education</button>
       </div>
 
       <div id="tab-guide" class="tab-content active">
@@ -401,17 +401,17 @@
 
       <div id="tab-education" class="tab-content">
         <div class="education-item clickable" onclick="window.location.href='education.html'">
-          <div class="education-title">📌 How to Vote Guide</div>
+          <div class="education-title"> How to Vote Guide</div>
           <div class="education-meta">Step-by-step instruction</div>
           <p style="font-size: 12px;">Learn the proper way to shade and submit your ballot.</p>
         </div>
         <div class="education-item clickable" onclick="window.location.href='education.html'">
-          <div class="education-title">⚖️ Voter's Rights and Responsibilities</div>
+          <div class="education-title"> Voter's Rights and Responsibilities</div>
           <div class="education-meta">Know your rights</div>
           <p style="font-size: 12px;">Every Filipino voter has rights protected by law.</p>
         </div>
         <div class="education-item clickable" onclick="window.location.href='education.html'">
-          <div class="education-title">❓ Frequently Asked Questions</div>
+          <div class="education-title"> Frequently Asked Questions</div>
           <div class="education-meta">Common questions answered</div>
           <p style="font-size: 12px;">Get answers about the voting process.</p>
         </div>
@@ -474,7 +474,7 @@
       announcements.forEach(a => {
         html += `
           <div class="announcement-item">
-            <div class="announcement-title">📢 ${a.title}</div>
+            <div class="announcement-title"> ${a.title}</div>
             <div class="announcement-date">${new Date(a.created_at).toLocaleDateString()}</div>
             <p style="font-size: 12px; margin-top: 5px;">${a.content}</p>
           </div>
@@ -520,8 +520,8 @@
         html += `
           <div class="election-item" onclick="selectElection(${election.id}, '${election.name.replace(/'/g, "\\'")}')">
             <div class="election-info">
-              <h4>🗳️ ${election.name}</h4>
-              <p>📅 ${startFormatted} - ${endFormatted}</p>
+              <h4> ${election.name}</h4>
+              <p> ${startFormatted} - ${endFormatted}</p>
             </div>
             <span class="election-status ${statusClass}">${statusText}</span>
           </div>

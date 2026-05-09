@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('./db');
 const verifyToken = require('./middleware');
 
-// GET positions (optionally filtered by election_id)
+// GET positions (optionally filtered by election)
 router.get('/', async (req, res) => {
   try {
     let query = 'SELECT * FROM positions';
@@ -31,11 +31,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// CREATE position (admin only) – using column 'name' instead of 'title'
+// CREATE position
 router.post('/', verifyToken, async (req, res) => {
   const { election_id, name, max_seats, display_order } = req.body;
   if (!election_id || !name) {
-    return res.status(400).json({ error: 'Missing required fields (election_id, name)' });
+    return res.status(400).json({ error: 'Missing election_id or name' });
   }
   try {
     const [result] = await db.query(
@@ -48,7 +48,7 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// UPDATE position (admin only)
+// UPDATE position
 router.put('/:id', verifyToken, async (req, res) => {
   const { name, max_seats, display_order } = req.body;
   try {
@@ -62,7 +62,7 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// DELETE position (admin only)
+// DELETE position (also deletes related candidates)
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     await db.query('DELETE FROM candidates WHERE position_id = ?', [req.params.id]);

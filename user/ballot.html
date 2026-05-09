@@ -11,6 +11,11 @@
       font-family: 'Segoe UI', 'Arial', sans-serif;
       padding: 20px;
     }
+    :root {
+      --primary: #0038a8;
+      --secondary: #ce1126;
+      --accent: #fcdb30;
+    }
     .ballot-paper {
       max-width: 900px;
       margin: 0 auto;
@@ -78,7 +83,7 @@
       padding: 6px 10px;
       font-weight: bold;
       font-size: 13px;
-      border-left: 4px solid #1e3a8a;
+      border-left: 4px solid var(--primary);
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
@@ -116,8 +121,8 @@
       flex-shrink: 0;
     }
     .candidate-row.selected .shade-oval {
-      background: #1e3a8a;
-      border-color: #1e3a8a;
+      background: var(--primary);
+      border-color: var(--primary);
     }
     .candidate-row.selected .shade-oval::after {
       content: "✓";
@@ -169,15 +174,15 @@
       border-radius: 5px;
     }
     .btn-review {
-      background: #fbbf24;
-      color: #1e3a8a;
+      background: var(--accent);
+      color: var(--primary);
     }
     .btn-clear {
       background: #cbd5e1;
       color: #333;
     }
     .btn-submit {
-      background: #1e3a8a;
+      background: var(--primary);
       color: white;
     }
     .modal {
@@ -203,7 +208,7 @@
     }
     .modal-content h3 {
       margin-bottom: 15px;
-      color: #1e3a8a;
+      color: var(--primary);
       font-size: 16px;
     }
     .review-item {
@@ -229,18 +234,27 @@
       .ballot-paper { box-shadow: none; }
     }
   </style>
+  <style id="dynamic-css"></style>
 </head>
 <body>
 
 <div class="ballot-paper">
   <div class="ballot-header">
     <div class="logos-container">
-      <div class="logo-item"><img src="image-logo/PILIPINAS.png" alt="Republika ng Pilipinas"><p>REPUBLIKA NG<br>PILIPINAS</p></div>
-      <div class="logo-item"><img src="image-logo/Bagong Pilipinas.png" alt="Bagong Pilipinas"><p>BAGONG<br>PILIPINAS</p></div>
-      <div class="logo-item"><img src="image-logo/COMELEC.png" alt="COMELEC"><p>COMELEC</p></div>
+      <div class="logo-item">
+        <img id="logoLeft" src="image-logo/PILIPINAS.png" alt="Republika ng Pilipinas">
+        <p>REPUBLIKA NG<br>PILIPINAS</p>
+      </div>
+      <div class="logo-item">
+        <img id="logoCenter" src="image-logo/Bagong Pilipinas.png" alt="Bagong Pilipinas">
+        <p>BAGONG<br>PILIPINAS</p>
+      </div>
+      <div class="logo-item">
+        <img id="logoRight" src="image-logo/COMELEC.png" alt="COMELEC">
+        <p>COMELEC</p>
+      </div>
     </div>
-    <h1>GLITCH</h1>
-    <h1>OFFICIAL BALLOT</h1>
+    <h1 id="customTitle">OFFICIAL BALLOT</h1>
     <p>VoteSecure PH - Automated Election System | Bagong Pilipinas</p>
     <div class="stub"><small>Ballot No: <span id="ballotNo">XXXXXX</span></small></div>
   </div>
@@ -250,7 +264,7 @@
   </div>
 
   <div class="ballot-footer">
-    <p>⚠️ INSTRUCTIONS: Shade the oval (●) completely beside the candidate of your choice.</p>
+    <p> INSTRUCTIONS: Shade the oval (●) completely beside the candidate of your choice.</p>
     <p>Do not write anything outside the designated areas. This ballot is official and confidential.</p>
     <p>🇵🇭 "Bagong Pilipinas" - Isang bansa, isang pangarap, isang kinabukasan. 🇵🇭</p>
   </div>
@@ -262,11 +276,11 @@
   <button class="btn btn-submit" onclick="submitVotes()"> SUBMIT BALLOT</button>
 </div>
 
-<div class="watermark">🗳️</div>
+<div class="watermark"></div>
 
 <div id="reviewModal" class="modal">
   <div class="modal-content">
-    <h3>📋 Review Your Ballot</h3>
+    <h3> Review Your Ballot</h3>
     <div id="reviewList"></div>
     <div style="margin-top: 15px; display: flex; gap: 10px;">
       <button class="btn btn-clear" onclick="closeModal()">Continue Voting</button>
@@ -293,9 +307,43 @@
   document.getElementById('ballotNo').innerText = ballotNumber;
 
   // ---- Global state ----
-  let positions = [];           // array of position objects { id, title, max_seats, display_order }
-  let candidatesByPosition = {}; // { position_id: [ {id, name, party} ] }
-  let myVotes = {};            // { position_id: [candidate_id] }
+  let positions = [];
+  let candidatesByPosition = {};
+  let myVotes = {};
+
+  // ---- Load election design (logos, title, colors) ----
+  async function loadElectionDesign() {
+    try {
+      const res = await fetch(`/api/election-design/${selectedElection.id}`);
+      const design = await res.json();
+      if (!design) return;
+
+      // Apply custom title
+      if (design.custom_title) {
+        document.getElementById('customTitle').innerText = design.custom_title;
+      } else {
+        document.getElementById('customTitle').innerText = 'OFFICIAL BALLOT';
+      }
+
+      // Apply custom logos (if URLs are provided)
+      if (design.logo_left) document.getElementById('logoLeft').src = design.logo_left;
+      if (design.logo_center) document.getElementById('logoCenter').src = design.logo_center;
+      if (design.logo_right) document.getElementById('logoRight').src = design.logo_right;
+
+      // Apply custom colors
+      if (design.primary_color) document.documentElement.style.setProperty('--primary', design.primary_color);
+      if (design.secondary_color) document.documentElement.style.setProperty('--secondary', design.secondary_color);
+      if (design.accent_color) document.documentElement.style.setProperty('--accent', design.accent_color);
+
+      // Apply custom CSS
+      if (design.custom_css) {
+        const styleTag = document.getElementById('dynamic-css');
+        styleTag.textContent = design.custom_css;
+      }
+    } catch (err) {
+      console.log('No custom design, using defaults', err);
+    }
+  }
 
   // ---- Load positions and candidates for this election ----
   async function loadBallot() {
@@ -303,7 +351,6 @@
     ballotBody.innerHTML = '<div class="loading">Loading ballot data...</div>';
 
     try {
-      // 1. Fetch positions for this election
       const posRes = await fetch(`/api/positions?election_id=${selectedElection.id}`);
       if (!posRes.ok) throw new Error('Failed to load positions');
       positions = await posRes.json();
@@ -311,7 +358,7 @@
       if (positions.length === 0) {
         ballotBody.innerHTML = `
           <div class="empty-ballot">
-            <h3>📋 No positions configured</h3>
+            <h3> No positions configured</h3>
             <p>The election administrator has not set up positions for this election.</p>
             <p>Please check back later.</p>
           </div>
@@ -319,7 +366,6 @@
         return;
       }
 
-      // 2. For each position, fetch its candidates
       for (let pos of positions) {
         const candRes = await fetch(`/api/candidates/position/${pos.id}`);
         if (candRes.ok) {
@@ -330,16 +376,14 @@
         }
       }
 
-      // 3. Initialise myVotes for each position (empty arrays)
       positions.forEach(pos => {
         if (!myVotes[pos.id]) myVotes[pos.id] = [];
       });
 
-      // 4. Render the ballot
       renderBallot();
     } catch (err) {
       console.error(err);
-      ballotBody.innerHTML = '<div class="empty-ballot"><h3>⚠️ Error loading ballot</h3><p>Please try again later.</p></div>';
+      ballotBody.innerHTML = '<div class="empty-ballot"><h3> Error loading ballot</h3><p>Please try again later.</p></div>';
     }
   }
 
@@ -361,7 +405,7 @@
       html += `
         <div class="position-section">
           <div class="position-title">
-            <span>🗳️ ${pos.title}</span>
+            <span> ${pos.title}</span>
             <span class="vote-limit">Vote: ${voteCount}/${maxSeats}</span>
           </div>
           <div class="candidates-list">
@@ -397,10 +441,8 @@
     let current = myVotes[positionId] || [];
     const index = current.indexOf(candidateId);
     if (index !== -1) {
-      // Remove
       current.splice(index, 1);
     } else {
-      // Add only if under limit
       if (current.length >= maxSeats) {
         alert(`You can only vote for ${maxSeats} candidate(s) for this position.`);
         return;
@@ -413,7 +455,7 @@
 
   // ---- Clear all votes ----
   window.clearAll = function() {
-    if (!confirm('⚠️ Are you sure you want to clear ALL your votes?')) return;
+    if (!confirm(' Are you sure you want to clear ALL your votes?')) return;
     positions.forEach(pos => {
       myVotes[pos.id] = [];
     });
@@ -455,19 +497,17 @@
 
   // ---- Submit votes to backend ----
   window.submitVotes = async function() {
-    // Count total votes
     let total = 0;
     for (let pos of positions) {
       total += (myVotes[pos.id] || []).length;
     }
     if (total === 0) {
-      alert('⚠️ Please vote for at least one candidate before submitting.');
+      alert(' Please vote for at least one candidate before submitting.');
       return;
     }
 
-    if (!confirm('🗳️ FINAL SUBMISSION\n\nAre you sure you want to submit your ballot?\n\nYou CANNOT change your votes after submission!')) return;
+    if (!confirm(' FINAL SUBMISSION\n\nAre you sure you want to submit your ballot?\n\nYou CANNOT change your votes after submission!')) return;
 
-    // Prepare payload: array of { candidate_id, position_id, election_id }
     const votesToSubmit = [];
     for (let pos of positions) {
       const candidateIds = myVotes[pos.id] || [];
@@ -491,7 +531,7 @@
       });
       const data = await res.json();
       if (res.ok) {
-        alert('✅ Your ballot has been recorded!\n\nThank you for voting!');
+        alert(' Your ballot has been recorded!\n\nThank you for voting!');
         localStorage.setItem('hasVoted', 'true');
         window.location.href = 'dashboard.html';
       } else {
@@ -503,7 +543,6 @@
     }
   };
 
-  // ---- Helper to escape HTML ----
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -514,7 +553,6 @@
     });
   }
 
-  // ---- Also check if user has already voted ----
   async function checkAlreadyVoted() {
     try {
       const res = await fetch(`/api/votes/has-voted?election_id=${selectedElection.id}`, {
@@ -526,8 +564,6 @@
         window.location.href = 'dashboard.html';
       }
     } catch(e) {
-      // If endpoint doesn't exist yet, we skip (but we still need to avoid double voting)
-      // For now we rely on client-side flag (not secure, but prevents accidental double submit)
       if (localStorage.getItem('hasVotedFor_' + selectedElection.id) === 'true') {
         alert('You have already submitted your ballot for this election.');
         window.location.href = 'dashboard.html';
@@ -535,13 +571,12 @@
     }
   }
 
-  // ---- Start ----
-  loadBallot();
-  // Optional: clear localStorage vote flag for this election when page loads
-  // (better to rely on backend, but we'll remove client flag after successful submit)
-  if (localStorage.getItem('hasVotedFor_' + selectedElection.id)) {
-    // but we still check backend
-  }
+  // ---- Start sequence: load design, then load ballot ----
+  (async function init() {
+    await loadElectionDesign();
+    await loadBallot();
+    checkAlreadyVoted();
+  })();
 </script>
 </body>
 </html>

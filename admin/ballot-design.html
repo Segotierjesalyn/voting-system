@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ballot Design | VoteSecure PH</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
+    .sidebar { width:240px; background:#0038a8; color:white; min-height:100vh; }
+    .sidebar a { display:block; padding:12px 20px; color:#cbd5e1; text-decoration:none; }
+    .sidebar a.active { background:#1e3a8a; color:white; }
+    .main { flex:1; padding:20px; }
+    .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input, select, textarea { width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:6px; }
+    .color-input { display:flex; align-items:center; gap:10px; }
+    .color-input input { width:80px; }
+    button { background:#16a34a; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; margin-top:15px; }
+    .preview { border:1px solid #ddd; padding:10px; margin-top:15px; border-radius:8px; }
+    .logo-upload { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .logo-upload button { margin-top:0; }
+    .logo-preview { max-width:100px; max-height:100px; margin-top:5px; }
+    .election-list { margin-bottom:20px; }
+    .election-item { display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #ddd; cursor:pointer; }
+    .election-item:hover { background:#f0f0f0; }
+    .design-actions { margin-top:10px; display:flex; gap:10px; }
+    .btn-delete { background:#dc2626; }
+    .btn-reset { background:#6b7280; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <h2 style="padding:20px;">🗳️ VoteSecure</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="voters.html">Voter Management</a>
+  <a href="candidates.html">Candidates</a>
+  <a href="election-setup.html">Election Setup</a>
+  <a href="positions.html">Positions</a>
+  <a href="ballot-design.html" class="active">Ballot Design</a>
+  <a href="announcements.html">Announcements</a>
+  <a href="results.html">Results</a>
+</div>
+<div class="main">
+  <h1>Ballot Design per Election</h1>
+  <div class="card">
+    <h3>Select Election to Customize</h3>
+    <div id="electionList" class="election-list"></div>
+  </div>
+  <div id="designPanel" style="display:none;">
+    <div class="card">
+      <h3 id="designTitle">Design for: <span id="electionName"></span></h3>
+      <input type="hidden" id="currentElectionId">
+
+      <label>Custom Ballot Title</label>
+      <input type="text" id="customTitle" placeholder="e.g., Student Council Election">
+
+      <label>Left Logo</label>
+      <div class="logo-upload">
+        <input type="text" id="logoLeft" placeholder="Image URL (or upload)" style="flex:1">
+        <button onclick="uploadLogo('left')"> Upload Image</button>
+        <input type="file" id="fileLeft" accept="image/*" style="display:none">
+      </div>
+      <img id="previewLeft" class="logo-preview" style="display:none;">
+
+      <label>Center Logo</label>
+      <div class="logo-upload">
+        <input type="text" id="logoCenter" placeholder="Image URL (or upload)" style="flex:1">
+        <button onclick="uploadLogo('center')"> Upload Image</button>
+        <input type="file" id="fileCenter" accept="image/*" style="display:none">
+      </div>
+      <img id="previewCenter" class="logo-preview" style="display:none;">
+
+      <label>Right Logo</label>
+      <div class="logo-upload">
+        <input type="text" id="logoRight" placeholder="Image URL (or upload)" style="flex:1">
+        <button onclick="uploadLogo('right')"> Upload Image</button>
+        <input type="file" id="fileRight" accept="image/*" style="display:none">
+      </div>
+      <img id="previewRight" class="logo-preview" style="display:none;">
+
+      <label>Primary Color (header, buttons)</label>
+      <div class="color-input">
+        <input type="color" id="primaryColor" value="#0038a8">
+        <span id="primaryColorHex">#0038a8</span>
+      </div>
+
+      <label>Secondary Color (accents, borders)</label>
+      <div class="color-input">
+        <input type="color" id="secondaryColor" value="#ce1126">
+        <span id="secondaryColorHex">#ce1126</span>
+      </div>
+
+      <label>Accent Color (review button, highlights)</label>
+      <div class="color-input">
+        <input type="color" id="accentColor" value="#fcdb30">
+        <span id="accentColorHex">#fcdb30</span>
+      </div>
+
+      <label>Custom CSS (optional)</label>
+      <textarea id="customCss" rows="4" placeholder=".ballot-header { background: linear-gradient(...); }"></textarea>
+
+      <div class="design-actions">
+        <button onclick="saveDesign()"> Save Design</button>
+        <button class="btn-delete" onclick="deleteDesign()"> Delete Design (Reset)</button>
+        <button class="btn-reset" onclick="resetToDefault()"> Reset to Default</button>
+      </div>
+
+      <div class="preview">
+        <strong>Live Preview</strong>
+        <div id="preview" style="border:1px solid #ccc; padding:10px; margin-top:8px; background:white;">
+          <div style="text-align:center; padding:10px; background:#0038a8; color:white;">Ballot Header</div>
+          <div style="margin-top:10px; padding:8px; border-left:4px solid #ce1126; background:#f0f0f0;">
+            <span style="color:#ce1126;">✪</span> Candidate Name
+          </div>
+          <div style="margin-top:8px; background:#ce1126; color:white; text-align:center; padding:5px; border-radius:4px;">Primary Button</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('adminToken');
+  if (!token) window.location.href = 'index.html';
+
+  let elections = [];
+  let currentDesign = null;
+
+  // Load all elections and show list
+  async function loadElections() {
+    const res = await fetch('/api/election', { headers: { 'Authorization': `Bearer ${token}` } });
+    elections = await res.json();
+    const container = document.getElementById('electionList');
+    container.innerHTML = '';
+    elections.forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'election-item';
+      div.innerHTML = `<span>${e.name}</span><button onclick="selectElection(${e.id})">🎨 Design</button>`;
+      container.appendChild(div);
+    });
+  }
+
+  async function selectElection(electionId) {
+    document.getElementById('currentElectionId').value = electionId;
+    const election = elections.find(e => e.id === electionId);
+    document.getElementById('electionName').innerText = election.name;
+    document.getElementById('designPanel').style.display = 'block';
+
+    // Load existing design
+    const res = await fetch(`/api/election-design/${electionId}`);
+    const design = await res.json();
+    currentDesign = design;
+    document.getElementById('customTitle').value = design.custom_title || '';
+    document.getElementById('logoLeft').value = design.logo_left || '';
+    document.getElementById('logoCenter').value = design.logo_center || '';
+    document.getElementById('logoRight').value = design.logo_right || '';
+    document.getElementById('primaryColor').value = design.primary_color || '#0038a8';
+    document.getElementById('secondaryColor').value = design.secondary_color || '#ce1126';
+    document.getElementById('accentColor').value = design.accent_color || '#fcdb30';
+    document.getElementById('customCss').value = design.custom_css || '';
+    updatePreview();
+    updateLogoPreviews();
+  }
+
+  function updatePreview() {
+    const primary = document.getElementById('primaryColor').value;
+    const secondary = document.getElementById('secondaryColor').value;
+    const previewDiv = document.getElementById('preview');
+    previewDiv.innerHTML = `
+      <div style="text-align:center; padding:10px; background:${primary}; color:white;">Ballot Header</div>
+      <div style="margin-top:10px; padding:8px; border-left:4px solid ${secondary}; background:#f0f0f0;">
+        <span style="color:${secondary};"></span> Candidate Name
+      </div>
+      <div style="margin-top:8px; background:${secondary}; color:white; text-align:center; padding:5px; border-radius:4px;">Primary Button</div>
+    `;
+    document.getElementById('primaryColorHex').innerText = primary;
+    document.getElementById('secondaryColorHex').innerText = secondary;
+    document.getElementById('accentColorHex').innerText = document.getElementById('accentColor').value;
+  }
+
+  function updateLogoPreviews() {
+    const left = document.getElementById('logoLeft').value;
+    const center = document.getElementById('logoCenter').value;
+    const right = document.getElementById('logoRight').value;
+    if (left) { document.getElementById('previewLeft').src = left; document.getElementById('previewLeft').style.display = 'block'; }
+    else document.getElementById('previewLeft').style.display = 'none';
+    if (center) { document.getElementById('previewCenter').src = center; document.getElementById('previewCenter').style.display = 'block'; }
+    else document.getElementById('previewCenter').style.display = 'none';
+    if (right) { document.getElementById('previewRight').src = right; document.getElementById('previewRight').style.display = 'block'; }
+    else document.getElementById('previewRight').style.display = 'none';
+  }
+
+  async function saveDesign() {
+    const electionId = document.getElementById('currentElectionId').value;
+    const data = {
+      custom_title: document.getElementById('customTitle').value,
+      logo_left: document.getElementById('logoLeft').value,
+      logo_center: document.getElementById('logoCenter').value,
+      logo_right: document.getElementById('logoRight').value,
+      primary_color: document.getElementById('primaryColor').value,
+      secondary_color: document.getElementById('secondaryColor').value,
+      accent_color: document.getElementById('accentColor').value,
+      custom_css: document.getElementById('customCss').value
+    };
+    const res = await fetch(`/api/election-design/${electionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) alert('Design saved successfully');
+    else alert('Error saving design');
+  }
+
+  async function deleteDesign() {
+    if (!confirm('Delete the custom design for this election? It will revert to default.')) return;
+    const electionId = document.getElementById('currentElectionId').value;
+    const res = await fetch(`/api/election-design/${electionId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+    if (res.ok) {
+      alert('Design deleted. Using defaults.');
+      selectElection(electionId); // reload defaults
+    } else alert('Error deleting design');
+  }
+
+  function resetToDefault() {
+    document.getElementById('customTitle').value = '';
+    document.getElementById('logoLeft').value = '';
+    document.getElementById('logoCenter').value = '';
+    document.getElementById('logoRight').value = '';
+    document.getElementById('primaryColor').value = '#0038a8';
+    document.getElementById('secondaryColor').value = '#ce1126';
+    document.getElementById('accentColor').value = '#fcdb30';
+    document.getElementById('customCss').value = '';
+    updatePreview();
+    updateLogoPreviews();
+  }
+
+  // Upload logo via multer
+  async function uploadLogo(position) {
+    let fileInput = null;
+    let targetField = null;
+    if (position === 'left') { fileInput = document.getElementById('fileLeft'); targetField = 'logoLeft'; }
+    else if (position === 'center') { fileInput = document.getElementById('fileCenter'); targetField = 'logoCenter'; }
+    else { fileInput = document.getElementById('fileRight'); targetField = 'logoRight'; }
+    fileInput.click();
+    fileInput.onchange = async () => {
+      if (!fileInput.files.length) return;
+      const formData = new FormData();
+      formData.append('logo', fileInput.files[0]);
+      const res = await fetch('/api/upload-logo', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById(targetField).value = data.url;
+        updateLogoPreviews();
+      } else alert('Upload failed');
+    };
+  }
+
+  document.getElementById('primaryColor').addEventListener('input', updatePreview);
+  document.getElementById('secondaryColor').addEventListener('input', updatePreview);
+  loadElections();
+</script>
+</body>
+</html>

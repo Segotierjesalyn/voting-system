@@ -17,15 +17,15 @@
     .add { background:#16a34a; color:white; }
     .edit { background:#3b82f6; color:white; }
     .delete { background:#dc2626; color:white; }
-    select { padding:5px; margin-bottom:10px; width:100%; max-width:300px; }
+    select, input { padding:5px; margin:5px 0; width:100%; }
     .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
     .modal-content { background:white; padding:20px; border-radius:12px; width:400px; }
-    input { width:100%; padding:8px; margin:8px 0; }
+    .refresh { background:#fcdb30; color:#0038a8; }
   </style>
 </head>
 <body>
 <div class="sidebar">
-  <h2 style="padding:20px;">🗳️ VoteSecure</h2>
+  <h2 style="padding:20px;"> VoteSecure</h2>
   <a href="dashboard.html">Dashboard</a>
   <a href="voters.html">Voter Management</a>
   <a href="candidates.html">Candidates</a>
@@ -39,9 +39,10 @@
   <div class="card">
     <label>Select Election</label>
     <select id="electionSelect"></select>
-    <button class="add" onclick="openModal()">➕ Add Position</button>
+    <button class="add" onclick="openModal()">Add Position</button>
+    <button class="refresh" onclick="loadPositions()" style="margin-left:10px;"> Refresh</button>
     <table id="positionTable">
-      <thead><tr><th>ID</th><th>Title</th><th>Max Seats</th><th>Order</th><th>Actions</th></tr></thead>
+      <thead><tr><th>ID</th><th>Name</th><th>Max Seats</th><th>Order</th><th>Actions</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -51,7 +52,7 @@
   <div class="modal-content">
     <h3 id="modalTitle">Add Position</h3>
     <input type="hidden" id="positionId">
-    <label>Title</label><input type="text" id="title">
+    <label>Position Name</label><input type="text" id="posName">
     <label>Max Seats</label><input type="number" id="maxSeats" value="1">
     <label>Display Order</label><input type="number" id="displayOrder" value="0">
     <button class="add" onclick="savePosition()">Save</button>
@@ -82,10 +83,10 @@
         select.appendChild(opt);
       });
       currentElectionId = elections[0].id;
-      loadPositions();
-      select.addEventListener('change', () => {
+      await loadPositions();
+      select.addEventListener('change', async () => {
         currentElectionId = select.value;
-        loadPositions();
+        await loadPositions();
       });
     } catch (err) {
       alert('Error loading elections: ' + err.message);
@@ -96,13 +97,14 @@
     if (!currentElectionId) return;
     try {
       const res = await fetch(`/api/positions?election_id=${currentElectionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to fetch positions');
       const positions = await res.json();
       const tbody = document.querySelector('#positionTable tbody');
       tbody.innerHTML = '';
       positions.forEach(p => {
         const row = tbody.insertRow();
         row.insertCell(0).innerText = p.id;
-        row.insertCell(1).innerText = p.title;
+        row.insertCell(1).innerText = p.name;
         row.insertCell(2).innerText = p.max_seats;
         row.insertCell(3).innerText = p.display_order;
         const cell = row.insertCell(4);
@@ -118,12 +120,12 @@
     const id = document.getElementById('positionId').value;
     const data = {
       election_id: currentElectionId,
-      title: document.getElementById('title').value.trim(),
+      name: document.getElementById('posName').value.trim(),
       max_seats: parseInt(document.getElementById('maxSeats').value) || 1,
       display_order: parseInt(document.getElementById('displayOrder').value) || 0
     };
-    if (!data.title) {
-      alert('Position title is required');
+    if (!data.name) {
+      alert('Position name is required');
       return;
     }
     const url = id ? `/api/positions/${id}` : '/api/positions';
@@ -137,7 +139,7 @@
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Save failed');
       closeModal();
-      loadPositions();
+      await loadPositions();  // Refresh list
     } catch (err) {
       alert('Error saving position: ' + err.message);
     }
@@ -146,9 +148,10 @@
   async function editPosition(id) {
     try {
       const res = await fetch(`/api/positions/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to fetch position');
       const p = await res.json();
       document.getElementById('positionId').value = p.id;
-      document.getElementById('title').value = p.title;
+      document.getElementById('posName').value = p.name;
       document.getElementById('maxSeats').value = p.max_seats;
       document.getElementById('displayOrder').value = p.display_order;
       document.getElementById('modalTitle').innerText = 'Edit Position';
@@ -163,7 +166,7 @@
     try {
       const res = await fetch(`/api/positions/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
       if (!res.ok) throw new Error(await res.text());
-      loadPositions();
+      await loadPositions();
     } catch (err) {
       alert('Delete failed: ' + err.message);
     }
@@ -171,7 +174,7 @@
 
   function openModal() {
     document.getElementById('positionId').value = '';
-    document.getElementById('title').value = '';
+    document.getElementById('posName').value = '';
     document.getElementById('maxSeats').value = '1';
     document.getElementById('displayOrder').value = '0';
     document.getElementById('modalTitle').innerText = 'Add Position';
