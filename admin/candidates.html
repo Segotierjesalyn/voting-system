@@ -1,171 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Candidates | VoteSecure PH</title>
+  <meta charset="UTF-8">
+  <title>Manage Candidates</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; min-height:100vh; }
-    .sidebar { width:240px; background:#0a1628; color:white; display:flex; flex-direction:column; position:fixed; height:100vh; }
-    .sidebar-logo { padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); text-align:center; }
-    .sidebar-logo h2 { font-size:16px; font-weight:700; }
-    .sidebar-logo p { font-size:11px; color:#94a3b8; margin-top:2px; }
-    .menu-label { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:1px; padding:0.5rem 1.2rem; margin-top:0.5rem; }
-    .menu-item { display:flex; align-items:center; gap:10px; padding:10px 1.2rem; color:#94a3b8; text-decoration:none; font-size:14px; transition:all 0.2s; border-left:3px solid transparent; }
-    .menu-item:hover,.menu-item.active { background:rgba(255,255,255,0.07); color:white; border-left:3px solid #3b82f6; }
-    .sidebar-footer { padding:1rem 1.2rem; border-top:1px solid rgba(255,255,255,0.1); margin-top:auto; }
-    .btn-logout { width:100%; padding:9px; background:#ef4444; color:white; border:none; border-radius:8px; font-size:13px; cursor:pointer; font-weight:600; }
-    .main { margin-left:240px; flex:1; padding:2rem; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
-    .topbar h1 { font-size:22px; color:#0a1628; font-weight:700; }
-    .topbar p { font-size:13px; color:#64748b; }
-    .card { background:white; border-radius:12px; padding:1.5rem; box-shadow:0 1px 4px rgba(0,0,0,0.07); margin-bottom:1.5rem; }
-    .card h3 { font-size:16px; font-weight:700; color:#0a1628; margin-bottom:1.2rem; border-bottom:2px solid #f1f5f9; padding-bottom:0.8rem; }
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .form-group { display:flex; flex-direction:column; gap:5px; }
-    .form-group.full { grid-column:1/-1; }
-    label { font-size:12px; font-weight:600; color:#555; text-transform:uppercase; letter-spacing:0.5px; }
-    input,select,textarea { padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:8px; font-size:14px; color:#111; outline:none; font-family:inherit; }
-    input:focus,select:focus,textarea:focus { border-color:#1e3a8a; }
-    textarea { resize:vertical; min-height:80px; }
-    .btn { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
-    .btn-primary { background:#1e3a8a; color:white; }
-    .btn-danger { background:#ef4444; color:white; }
-    .btn-warning { background:#f59e0b; color:white; }
-    .candidates-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; }
-    .candidate-card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:1.2rem; }
-    .candidate-card .avatar { width:50px; height:50px; border-radius:50%; background:#dbeafe; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:0.8rem; }
-    .candidate-card .cname { font-size:15px; font-weight:700; color:#0a1628; }
-    .candidate-card .cpos { font-size:12px; color:#3b82f6; font-weight:600; margin-top:2px; }
-    .candidate-card .cparty { font-size:12px; color:#64748b; margin-top:2px; }
-    .candidate-card .cplatform { font-size:13px; color:#475569; margin-top:8px; line-height:1.5; }
-    .candidate-card .card-actions { display:flex; gap:8px; margin-top:1rem; }
+    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
+    .sidebar { width:240px; background:#0038a8; color:white; min-height:100vh; }
+    .sidebar a { display:block; padding:12px 20px; color:#cbd5e1; text-decoration:none; }
+    .sidebar a.active { background:#1e3a8a; color:white; }
+    .main { flex:1; padding:20px; }
+    .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:8px; text-align:left; border-bottom:1px solid #ddd; }
+    button { margin:2px; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; }
+    .add { background:#16a34a; color:white; }
+    .edit { background:#3b82f6; color:white; }
+    .delete { background:#dc2626; color:white; }
+    .refresh { background:#fcdb30; color:#0038a8; }
+    select, input { padding:5px; margin:5px 0; width:100%; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    .modal-content { background:white; padding:20px; border-radius:12px; width:450px; }
   </style>
 </head>
 <body>
 <div class="sidebar">
-  <div class="sidebar-logo"><div style="font-size:28px;">🗳️</div><h2>VoteSecure PH</h2><p>Admin Panel</p></div>
-  <div style="padding:1rem 0;flex:1;">
-    <div class="menu-label">Main</div>
-    <a class="menu-item" href="dashboard.html"><span>📊</span> Dashboard</a>
-    <a class="menu-item" href="voters.html"><span>👥</span> Voter Management</a>
-    <a class="menu-item active" href="candidates.html"><span>🧑‍💼</span> Candidates</a>
-    <a class="menu-item" href="election-setup.html"><span>⚙️</span> Election Setup</a>
-    <div class="menu-label">Reports</div>
-    <a class="menu-item" href="results.html"><span>📈</span> Results</a>
-    <a class="menu-item" href="audit-logs.html"><span>📋</span> Audit Logs</a>
-    <a class="menu-item" href="announcements.html"><span>📢</span> Announcements</a>
-    <div class="menu-label">Security</div>
-    <a class="menu-item" href="#"><span>🔒</span> Security Monitor</a>
+  <h2 style="padding:20px;"> VoteSecure</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="voters.html">Voter Management</a>
+  <a href="candidates.html" class="active">Candidates</a>
+  <a href="election-setup.html">Election Setup</a>
+  <a href="positions.html">Positions</a>
+  <a href="announcements.html">Announcements</a>
+  <a href="results.html">Results</a>
+</div>
+<div class="main">
+  <h1>Manage Candidates</h1>
+  <div class="card">
+    <label>Select Election</label>
+    <select id="electionSelect"></select>
+    <label>Select Position</label>
+    <select id="positionSelect"></select>
+    <button class="add" onclick="openModal()">Add Candidate</button>
+    <button class="refresh" onclick="loadCandidates()"> Refresh</button>
+    <table id="candidateTable">
+      <thead><tr><th>ID</th><th>Name</th><th>Party</th><th>Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
   </div>
-  <div class="sidebar-footer"><button class="btn-logout" onclick="logout()">🚪 Logout</button></div>
 </div>
 
-<div class="main">
-  <div class="topbar">
-    <div><h1>🧑‍💼 Candidate Management</h1><p>Add, edit, and manage candidates</p></div>
-    <span style="background:#dbeafe;color:#1e3a8a;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;">👤 Admin</span>
-  </div>
-
-  <div class="card">
-    <h3>➕ Add New Candidate</h3>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="cName" placeholder="Candidate full name" />
-      </div>
-      <div class="form-group">
-        <label>Position</label>
-        <select id="cPosition">
-          <option>President</option>
-          <option>Vice President</option>
-          <option>Senator</option>
-          <option>Mayor</option>
-          <option>Vice Mayor</option>
-          <option>Councilor</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Party / Affiliation</label>
-        <input type="text" id="cParty" placeholder="Party name" />
-      </div>
-      <div class="form-group">
-        <label>Age</label>
-        <input type="number" id="cAge" placeholder="Age" min="18" />
-      </div>
-      <div class="form-group full">
-        <label>Platform / Advocacy</label>
-        <textarea id="cPlatform" placeholder="Brief description of candidate's platform..."></textarea>
-      </div>
-    </div>
-    <div style="margin-top:1rem;">
-      <button class="btn btn-primary" onclick="addCandidate()">💾 Save Candidate</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>📋 Candidate List</h3>
-    <div class="candidates-grid" id="candidatesGrid">
-      <div class="candidate-card">
-        <div class="avatar">🧑</div>
-        <div class="cname">Jose Rizal II</div>
-        <div class="cpos">President</div>
-        <div class="cparty">Partido ng Bayan</div>
-        <div class="cplatform">Champion of education, healthcare, and rural development for all Filipinos.</div>
-        <div class="card-actions">
-          <button class="btn btn-warning" onclick="alert('Edit feature coming soon!')">✏️ Edit</button>
-          <button class="btn btn-danger" onclick="this.closest('.candidate-card').remove()">🗑️ Delete</button>
-        </div>
-      </div>
-      <div class="candidate-card">
-        <div class="avatar">👩</div>
-        <div class="cname">Maria Clara Reyes</div>
-        <div class="cpos">Vice President</div>
-        <div class="cparty">Bagong Pilipinas</div>
-        <div class="cplatform">Focused on anti-corruption, transparency, and women empowerment.</div>
-        <div class="card-actions">
-          <button class="btn btn-warning" onclick="alert('Edit feature coming soon!')">✏️ Edit</button>
-          <button class="btn btn-danger" onclick="this.closest('.candidate-card').remove()">🗑️ Delete</button>
-        </div>
-      </div>
-    </div>
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Add Candidate</h3>
+    <input type="hidden" id="candidateId">
+    <label>Name</label><input type="text" id="candName" placeholder="e.g., Juan Dela Cruz">
+    <label>Party</label><input type="text" id="candParty" placeholder="e.g., Partido ng Masa">
+    <button class="add" onclick="saveCandidate()">Save</button>
+    <button onclick="closeModal()">Cancel</button>
   </div>
 </div>
 
 <script>
-  if (localStorage.getItem('adminLoggedIn') !== 'true') window.location.href = 'index.html';
+  const token = localStorage.getItem('adminToken');
+  if (!token) window.location.href = 'index.html';
 
-  const avatars = ['🧑','👩','👨','🧕','👳','🧔'];
+  let currentElectionId = null;
+  let currentPositionId = null;
 
-  function addCandidate() {
-    const name = document.getElementById('cName').value.trim();
-    const position = document.getElementById('cPosition').value;
-    const party = document.getElementById('cParty').value.trim();
-    const platform = document.getElementById('cPlatform').value.trim();
-    if (!name || !party) { alert('Please fill in required fields.'); return; }
-    const card = document.createElement('div');
-    card.className = 'candidate-card';
-    card.innerHTML = `
-      <div class="avatar">${avatars[Math.floor(Math.random()*avatars.length)]}</div>
-      <div class="cname">${name}</div>
-      <div class="cpos">${position}</div>
-      <div class="cparty">${party}</div>
-      <div class="cplatform">${platform}</div>
-      <div class="card-actions">
-        <button class="btn btn-warning" onclick="alert('Edit feature coming soon!')">✏️ Edit</button>
-        <button class="btn btn-danger" onclick="this.closest('.candidate-card').remove()">🗑️ Delete</button>
-      </div>`;
-    document.getElementById('candidatesGrid').appendChild(card);
-    document.getElementById('cName').value = '';
-    document.getElementById('cParty').value = '';
-    document.getElementById('cPlatform').value = '';
-    alert('✅ Candidate added!');
+  async function loadElections() {
+    try {
+      const res = await fetch('/api/election', { headers: { 'Authorization': Bearer ${token} } });
+      if (!res.ok) throw new Error('Failed to fetch elections');
+      const elections = await res.json();
+      const select = document.getElementById('electionSelect');
+      select.innerHTML = '';
+      if (!elections.length) {
+        select.innerHTML = '<option>No elections – create one first</option>';
+        return;
+      }
+      elections.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        opt.textContent = e.name;
+        select.appendChild(opt);
+      });
+      currentElectionId = elections[0].id;
+      await loadPositions();
+      select.addEventListener('change', async () => {
+        currentElectionId = parseInt(select.value);
+        await loadPositions();
+      });
+    } catch (err) {
+      alert('Error loading elections: ' + err.message);
+    }
   }
 
-  function logout() {
-    if (confirm('Logout?')) { localStorage.removeItem('adminLoggedIn'); window.location.href = 'index.html'; }
+  async function loadPositions() {
+    if (!currentElectionId) return;
+    try {
+      const res = await fetch(/api/positions?election_id=${currentElectionId}, { headers: { 'Authorization': Bearer ${token} } });
+      if (!res.ok) throw new Error('Failed to fetch positions');
+      const positions = await res.json();
+      const posSelect = document.getElementById('positionSelect');
+      posSelect.innerHTML = '';
+      if (!positions.length) {
+        posSelect.innerHTML = '<option>No positions – add positions first</option>';
+        currentPositionId = null;
+        document.getElementById('candidateTable tbody').innerHTML = '';
+        return;
+      }
+      positions.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        posSelect.appendChild(opt);
+      });
+      currentPositionId = parseInt(positions[0].id);
+      await loadCandidates();
+      posSelect.addEventListener('change', async () => {
+        currentPositionId = parseInt(posSelect.value);
+        await loadCandidates();
+      });
+    } catch (err) {
+      alert('Error loading positions: ' + err.message);
+    }
   }
+
+  async function loadCandidates() {
+    if (!currentPositionId) return;
+    try {
+      const res = await fetch(/api/candidates/position/${currentPositionId}, { headers: { 'Authorization': Bearer ${token} } });
+      if (!res.ok) throw new Error('Failed to fetch candidates');
+      const candidates = await res.json();
+      const tbody = document.querySelector('#candidateTable tbody');
+      tbody.innerHTML = '';
+      candidates.forEach(c => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = c.id;
+        row.insertCell(1).innerText = c.full_name || c.name;
+        row.insertCell(2).innerText = c.party || '';
+        const cell = row.insertCell(3);
+        cell.innerHTML = `<button class="edit" onclick="editCandidate(${c.id})">Edit</button>
+                          <button class="delete" onclick="deleteCandidate(${c.id})">Delete</button>`;
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Error loading candidates: ' + err.message);
+    }
+  }
+
+  async function saveCandidate() {
+    if (!currentElectionId || !currentPositionId) {
+      alert('Please select an election and position first');
+      return;
+    }
+    const id = document.getElementById('candidateId').value;
+    const name = document.getElementById('candName').value.trim();
+    const party = document.getElementById('candParty').value.trim();
+    if (!name) {
+      alert('Candidate name is required');
+      return;
+    }
+    const data = {
+      election_id: currentElectionId,
+      position_id: currentPositionId,
+      name: name,
+      party: party
+    };
+    const url = id ? /api/candidates/${id} : '/api/candidates';
+    const method = id ? 'PUT' : 'POST';
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': Bearer ${token} },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Save failed');
+      closeModal();
+      await loadCandidates();
+    } catch (err) {
+      alert('Error saving candidate: ' + err.message);
+    }
+  }
+
+  async function editCandidate(id) {
+    try {
+      const res = await fetch(/api/candidates/${id}, { headers: { 'Authorization': Bearer ${token} } });
+      if (!res.ok) throw new Error('Failed to fetch candidate');
+      const c = await res.json();
+      document.getElementById('candidateId').value = c.id;
+      document.getElementById('candName').value = c.full_name || c.name;
+      document.getElementById('candParty').value = c.party || '';
+      document.getElementById('modalTitle').innerText = 'Edit Candidate';
+      document.getElementById('modal').style.display = 'flex';
+    } catch (err) {
+      alert('Error loading candidate details: ' + err.message);
+    }
+  }
+
+  async function deleteCandidate(id) {
+    if (!confirm('Delete this candidate?')) return;
+    try {
+      const res = await fetch(/api/candidates/${id}, { method: 'DELETE', headers: { 'Authorization': Bearer ${token} } });
+      if (!res.ok) throw new Error(await res.text());
+      await loadCandidates();
+    } catch (err) {
+      alert('Delete failed: ' + err.message);
+    }
+  }
+
+  function openModal() {
+    document.getElementById('candidateId').value = '';
+    document.getElementById('candName').value = '';
+    document.getElementById('candParty').value = '';
+    document.getElementById('modalTitle').innerText = 'Add Candidate';
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+
+  loadElections();
 </script>
 </body>
 </html>

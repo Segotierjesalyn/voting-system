@@ -1,602 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | VoteSecure PH</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #f1f5f9;
       display: flex;
       min-height: 100vh;
     }
-
-    /* ===== SIDEBAR ===== */
+    /* Sidebar */
     .sidebar {
-      width: 240px;
-      background: #0a1628;
+      width: 260px;
+      background: linear-gradient(180deg, #0038a8 0%, #002266 100%);
       color: white;
-      display: flex;
-      flex-direction: column;
       position: fixed;
       height: 100vh;
-      z-index: 100;
     }
-
-    .sidebar-logo {
-      padding: 1.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      text-align: center;
-    }
-
-    .sidebar-logo h2 {
-      font-size: 16px;
-      font-weight: 700;
-      color: white;
-    }
-
-    .sidebar-logo p {
-      font-size: 11px;
-      color: #94a3b8;
-      margin-top: 2px;
-    }
-
-    .sidebar-menu {
-      padding: 1rem 0;
-      flex: 1;
-    }
-
-    .menu-label {
-      font-size: 10px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 0.5rem 1.2rem;
-      margin-top: 0.5rem;
-    }
-
+    .sidebar-logo { padding: 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo h2 { font-size: 1.2rem; }
+    .sidebar-menu { padding: 1rem 0; }
     .menu-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 1.2rem;
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 14px;
-      transition: all 0.2s;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-    }
-
-    .menu-item:hover, .menu-item.active {
-      background: rgba(255,255,255,0.07);
-      color: white;
-      border-left: 3px solid #3b82f6;
-    }
-
-    .menu-item span.icon { font-size: 16px; }
-
-    .sidebar-footer {
-      padding: 1rem 1.2rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .btn-logout {
-      width: 100%;
-      padding: 9px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn-logout:hover { background: #dc2626; }
-
-    /* ===== MAIN CONTENT ===== */
-    .main {
-      margin-left: 240px;
-      flex: 1;
-      padding: 2rem;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .topbar h1 {
-      font-size: 22px;
-      color: #0a1628;
-      font-weight: 700;
-    }
-
-    .topbar p { font-size: 13px; color: #64748b; }
-
-    .admin-tag {
-      background: #dbeafe;
-      color: #1e3a8a;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 5px 14px;
-      border-radius: 20px;
-    }
-
-    /* ===== STAT CARDS ===== */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.2rem 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
-
-    .stat-card .label {
-      font-size: 12px;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    .stat-card .value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #0a1628;
-    }
-
-    .stat-card .sub {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 4px;
-    }
-
-    .stat-card.blue .value { color: #1d4ed8; }
-    .stat-card.green .value { color: #16a34a; }
-    .stat-card.amber .value { color: #d97706; }
-    .stat-card.red .value { color: #dc2626; }
-
-    /* ===== BOTTOM GRID ===== */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
-
-    .card h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #0a1628;
-      margin-bottom: 1rem;
-    }
-
-    /* ===== QUICK ACTIONS ===== */
-    .quick-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1.5px solid #e5e7eb;
-      background: white;
-      font-size: 14px;
-      font-weight: 500;
-      color: #0a1628;
-      cursor: pointer;
+      gap: 12px;
+      padding: 12px 1.5rem;
+      color: #cbd5e1;
       text-decoration: none;
       transition: all 0.2s;
     }
-
-    .action-btn:hover {
-      background: #f1f5f9;
-      border-color: #3b82f6;
-      color: #1d4ed8;
-    }
-
-    /* ===== RECENT ACTIVITY ===== */
-    .activity-list { list-style: none; }
-
-    .activity-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 13px;
-      color: #475569;
-    }
-
-    .activity-list li:last-child { border-bottom: none; }
-
-    .activity-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #3b82f6;
-      margin-top: 4px;
-      flex-shrink: 0;
-    }
-
-    /* ===== COUNTDOWN ===== */
-    .countdown {
-      text-align: center;
-      padding: 1rem 0;
-    }
-
-    .countdown .time {
-      font-size: 36px;
-      font-weight: 700;
-      color: #1e3a8a;
-      letter-spacing: 2px;
-    }
-
-    .countdown .time-label {
-      font-size: 12px;
-      color: #94a3b8;
-      margin-top: 4px;
-    }
-
-    /* ===== ALERT ===== */
-    .alert {
-      background: #fef3c7;
-      border: 1px solid #fbbf24;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: #92400e;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 10px;
-      color: #1e3a8a;
-      font-size: 13px;
-    }
+    .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid #fcdb30; }
+    .sidebar-footer { position: absolute; bottom: 0; width: 100%; padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+    .btn-logout { width: 100%; padding: 10px; background: #ce1126; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    /* Main */
+    .main { margin-left: 260px; flex: 1; padding: 2rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .topbar h1 { color: #0038a8; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .stat-number { font-size: 2rem; font-weight: bold; color: #1e3a8a; }
+    .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .quick-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .action-btn { background: #e2e8f0; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; color: #1e3a8a; font-weight: bold; transition: 0.2s; }
+    .action-btn:hover { background: #cbd5e1; transform: translateY(-2px); }
   </style>
 </head>
 <body>
-
-<!-- ===== SIDEBAR ===== -->
 <div class="sidebar">
-  <div class="sidebar-logo">
-    <div style="font-size:28px;">🗳️</div>
-    <h2>VoteSecure PH</h2>
-    <p>Admin Panel</p>
-  </div>
-
+  <div class="sidebar-logo"><div style="font-size:32px;"></div><h2>VoteSecure PH</h2><p>Admin Panel</p></div>
   <div class="sidebar-menu">
-    <div class="menu-label">Main</div>
-    <a class="menu-item active" href="dashboard.html">
-      <span class="icon">📊</span> Dashboard
-    </a>
-    <a class="menu-item" href="voters.html">
-      <span class="icon">👥</span> Voter Management
-    </a>
-    <a class="menu-item" href="candidates.html">
-      <span class="icon">🧑‍💼</span> Candidates
-    </a>
-    <a class="menu-item" href="election-setup.html">
-      <span class="icon">⚙️</span> Election Setup
-    </a>
-
-    <div class="menu-label">Reports</div>
-    <a class="menu-item" href="results.html">
-      <span class="icon">📈</span> Results
-    </a>
-    <a class="menu-item" href="audit-logs.html">
-      <span class="icon">📋</span> Audit Logs
-    </a>
-    <a class="menu-item" href="announcements.html">
-      <span class="icon">📢</span> Announcements
-    </a>
-
-    <div class="menu-label">Security</div>
-    <a class="menu-item" href="#">
-      <span class="icon">🔒</span> Security Monitor
-    </a>
+    <a href="dashboard.html" class="menu-item active"> Dashboard</a>
+    <a href="voters.html" class="menu-item"> Voter Management</a>
+    <a href="candidates.html" class="menu-item"> Candidates</a>
+    <a href="election-setup.html" class="menu-item"> Election Setup</a>
+    <a href="positions.html" class="menu-item"> Positions</a>
+    <a href="ballot-design.html" class="menu-item"> Ballot Design</a>   <!-- ADDED -->
+    <a href="announcements.html" class="menu-item"> Announcements</a>
+    <a href="results.html" class="menu-item"> Results</a>
   </div>
-
-  <div class="sidebar-footer">
-    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
-  </div>
+  <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"> Logout</button></div>
 </div>
-
-<!-- ===== MAIN CONTENT ===== -->
 <div class="main">
-
-  <!-- Topbar -->
-  <div class="topbar">
-    <div>
-      <h1>Admin Dashboard</h1>
-      <p id="dateToday"></p>
-    </div>
-    <span class="admin-tag" id="adminName">👤 Admin</span>
-  </div>
-
-  <!-- Alert -->
-  <div class="alert" id="alertMessage">
-    ⚠️ Loading election status...
-  </div>
-
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="stat-card blue">
-      <div class="label">Total Registered Voters</div>
-      <div class="value" id="totalVoters">0</div>
-      <div class="sub" id="newVotersToday">↑ 0 new today</div>
-    </div>
-    <div class="stat-card green">
-      <div class="label">Votes Cast</div>
-      <div class="value" id="votesCast">0</div>
-      <div class="sub" id="electionStatus">Election not started</div>
-    </div>
-    <div class="stat-card amber">
-      <div class="label">Turnout Rate</div>
-      <div class="value" id="turnoutRate">0%</div>
-      <div class="sub">Target: 75%</div>
-    </div>
-    <div class="stat-card red">
-      <div class="label">Pending Approvals</div>
-      <div class="value" id="pendingApprovals">0</div>
-      <div class="sub">Needs review</div>
+  <div class="topbar"><h1>Admin Dashboard</h1><p id="dateToday"></p></div>
+  <div class="stats-grid" id="stats"></div>
+  <div class="card">
+    <h3> Quick Actions</h3>
+    <div class="quick-actions">
+      <a href="voters.html" class="action-btn"> Approve Voters</a>
+      <a href="election-setup.html" class="action-btn"> Create Election</a>
+      <a href="candidates.html" class="action-btn"> Add Candidate</a>
+      <a href="ballot-design.html" class="action-btn"> Customize Ballot</a>   <!-- OPTIONAL: add quick action -->
+      <a href="announcements.html" class="action-btn"> Post Announcement</a>
     </div>
   </div>
-
-  <!-- Bottom Grid -->
-  <div class="bottom-grid">
-
-    <!-- Recent Activity -->
-    <div class="card">
-      <h3>📋 Recent Activity</h3>
-      <ul class="activity-list" id="activityList">
-        <li><div class="activity-dot"></div><div>Loading activities...</div></li>
-      </ul>
-    </div>
-
-    <!-- Quick Actions + Countdown -->
-    <div style="display:flex; flex-direction:column; gap:1.5rem;">
-
-      <div class="card">
-        <h3>⚡ Quick Actions</h3>
-        <div class="quick-actions">
-          <a class="action-btn" href="candidates.html">➕ Add Candidate</a>
-          <a class="action-btn" href="voters.html">✅ Approve Voters</a>
-          <a class="action-btn" href="election-setup.html">🗓️ Setup Election</a>
-          <a class="action-btn" href="results.html">📊 View Results</a>
-          <a class="action-btn" href="announcements.html">📢 Post Announcement</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>⏳ Election Countdown</h3>
-        <div class="countdown">
-          <div class="time" id="countdownTimer">--:--:--</div>
-          <div class="time-label" id="countdownLabel">No election scheduled yet</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
 </div>
-
 <script>
-  const API_URL = 'http://localhost:3000/api';
-
-  // Helper function for API calls
-  async function apiFetch(endpoint, options = {}) {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
-        ...options.headers
-      }
-    });
-    return response.json();
-  }
-
-  // Auth guard - Check if logged in
   const token = localStorage.getItem('adminToken');
-  const loggedIn = localStorage.getItem('adminLoggedIn');
-  if (!token && !loggedIn) {
-    window.location.href = 'index.html';
-  }
+  if (!token) window.location.href = 'index.html';
 
-  // Display admin name
-  const adminData = localStorage.getItem('adminData');
-  if (adminData) {
-    try {
-      const admin = JSON.parse(adminData);
-      if (admin.name) {
-        document.getElementById('adminName').innerHTML = `👤 ${admin.name}`;
-      }
-    } catch(e) {}
-  }
+  document.getElementById('dateToday').innerText = new Date().toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-  // Date today
-  const today = new Date();
-  document.getElementById('dateToday').textContent = today.toLocaleDateString('en-PH', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
-
-  // Load stats from backend
   async function loadStats() {
     try {
-      // Get voters
-      const votersRes = await fetch(`${API_URL}/voters`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-      });
-      const voters = await votersRes.json();
-      
-      if (Array.isArray(voters)) {
-        const total = voters.length;
-        const pending = voters.filter(v => v.status === 'pending').length;
-        const approved = voters.filter(v => v.status === 'approved').length;
-        
-        document.getElementById('totalVoters').textContent = total.toLocaleString();
-        document.getElementById('pendingApprovals').textContent = pending;
-        
-        // Count new voters today
-        const todayStr = new Date().toISOString().split('T')[0];
-        const newToday = voters.filter(v => v.created_at && v.created_at.split('T')[0] === todayStr).length;
-        document.getElementById('newVotersToday').innerHTML = `↑ ${newToday} new today`;
-      }
-    } catch (err) {
-      console.log('Error loading voters:', err);
-      document.getElementById('totalVoters').textContent = '0';
-      document.getElementById('pendingApprovals').textContent = '0';
-    }
-    
-    // Try to get turnout stats
-    try {
-      const turnoutRes = await fetch(`${API_URL}/results/turnout/1`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-      });
-      const turnout = await turnoutRes.json();
-      if (turnout.votes_cast !== undefined) {
-        document.getElementById('votesCast').textContent = turnout.votes_cast.toLocaleString();
-        document.getElementById('turnoutRate').textContent = turnout.turnout_percentage + '%';
-      }
-    } catch (err) {
-      console.log('No turnout data yet');
-      document.getElementById('votesCast').textContent = '0';
-      document.getElementById('turnoutRate').textContent = '0%';
-    }
-  }
-
-  // Load election status
-  async function loadElectionStatus() {
-    try {
-      const elections = await apiFetch('/election');
-      if (elections && elections.length > 0) {
-        const election = elections[0];
-        const alertDiv = document.getElementById('alertMessage');
-        alertDiv.innerHTML = `⚠️ Election: <strong>${election.name || 'Election'}</strong> — Status: <strong>${election.status ? election.status.toUpperCase() : 'PENDING'}</strong>`;
-        
-        if (election.start_date && election.end_date) {
-          const startDate = new Date(election.start_date);
-          const now = new Date();
-          
-          if (now >= startDate && now <= new Date(election.end_date)) {
-            alertDiv.innerHTML = `✅ Election is <strong>ACTIVE</strong> — ${election.name}`;
-            document.getElementById('electionStatus').innerHTML = 'Election active';
-          } else if (now < startDate) {
-            document.getElementById('electionStatus').innerHTML = 'Election upcoming';
-            updateCountdown(startDate);
-            setInterval(() => updateCountdown(startDate), 1000);
-          } else {
-            document.getElementById('electionStatus').innerHTML = 'Election ended';
-          }
-        }
-      } else {
-        document.getElementById('alertMessage').innerHTML = '⚠️ No election configured. Go to <strong>Election Setup</strong> to start.';
-      }
-    } catch (err) {
-      console.log('Error loading election:', err);
-    }
-  }
-
-  // Countdown function
-  function updateCountdown(targetDate) {
-    if (!targetDate) {
-      document.getElementById('countdownTimer').textContent = '--:--:--';
-      document.getElementById('countdownLabel').textContent = 'No election scheduled';
-      return;
-    }
-    
-    const now = new Date();
-    const diff = targetDate - now;
-    
-    if (diff <= 0) {
-      document.getElementById('countdownTimer').textContent = 'ELECTION ACTIVE!';
-      document.getElementById('countdownLabel').textContent = 'Election is now ongoing';
-      return;
-    }
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (86400000)) / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    
-    document.getElementById('countdownTimer').textContent = 
-      `${days}d ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-    document.getElementById('countdownLabel').textContent = 'until election starts';
-  }
-
-  // Load recent activities
-  async function loadActivities() {
-    try {
-      const logs = await apiFetch('/results/audit/logs');
-      if (logs && logs.length > 0) {
-        const activityList = document.getElementById('activityList');
-        activityList.innerHTML = logs.slice(0, 10).map(log => `
-          <li>
-            <div class="activity-dot"></div>
-            <div><strong>${log.user_type || 'System'}</strong> ${log.action || 'Activity'} — ${new Date(log.created_at).toLocaleTimeString()}</div>
-          </li>
-        `).join('');
-      }
-    } catch (err) {
-      console.log('Using demo activities');
-      document.getElementById('activityList').innerHTML = `
-        <li><div class="activity-dot"></div><div><strong>Admin</strong> logged in — just now</div></li>
-        <li><div class="activity-dot"></div><div>🔄 Dashboard loaded — ${new Date().toLocaleTimeString()}</div></li>
+      const res = await fetch('/api/voters', { headers: { 'Authorization': Bearer ${token} } });
+      const voters = await res.json();
+      const total = voters.length;
+      const pending = voters.filter(v => v.status === 'pending').length;
+      const approved = voters.filter(v => v.status === 'approved').length;
+      let votesCast = 0;
+      try {
+        const turnoutRes = await fetch('/api/results/turnout/1', { headers: { 'Authorization': Bearer ${token} } });
+        const turnout = await turnoutRes.json();
+        votesCast = turnout.votes_cast || 0;
+      } catch(e) {}
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card"><div class="stat-number">${total}</div><div>Total Voters</div></div>
+        <div class="stat-card"><div class="stat-number">${pending}</div><div>Pending Approval</div></div>
+        <div class="stat-card"><div class="stat-number">${approved}</div><div>Approved Voters</div></div>
+        <div class="stat-card"><div class="stat-number">${votesCast}</div><div>Votes Cast</div></div>
       `;
-    }
+    } catch(e) { console.error(e); document.getElementById('stats').innerHTML = '<div class="stat-card">Error loading stats</div>'; }
   }
-
-  // LOGOUT FUNCTION - Fixed
-  function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      // Clear all admin-related storage
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminData');
-      localStorage.removeItem('adminLoggedIn');
-      localStorage.removeItem('savedAdminEmail');
-      localStorage.removeItem('savedAdminPassword');
-      
-      // Redirect to login page
-      window.location.href = 'index.html';
-    }
-  }
-
-  // Initialize dashboard
+  function logout() { localStorage.clear(); window.location.href = 'index.html'; }
   loadStats();
-  loadElectionStatus();
-  loadActivities();
 </script>
-
 </body>
 </html>

@@ -57,20 +57,20 @@
 </head>
 <body>
 <nav class="navbar">
-  <div class="brand">🗳️ VoteSecure PH</div>
+  <div class="brand"> VoteSecure PH</div>
   <button class="btn-back" onclick="window.location.href='dashboard.html'">← Dashboard</button>
 </nav>
 
 <div class="main">
   <div class="hero">
-    <div style="font-size:48px;">📚</div>
+    <div style="font-size:48px;"></div>
     <h2>Voter Education Hub</h2>
     <p>Learn how to vote properly and exercise your right responsibly</p>
   </div>
 
   <!-- HOW TO VOTE -->
   <div class="card">
-    <h3>🗺️ How to Vote — Step by Step</h3>
+    <h3> How to Vote — Step by Step</h3>
     <div class="steps">
       <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Register & Get Approved</div><div class="step-desc">Create an account using your valid ID. Wait for admin approval before you can vote.</div></div></div>
       <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Login Securely</div><div class="step-desc">Use your email and password plus OTP verification to access the system.</div></div></div>
@@ -82,22 +82,22 @@
 
   <!-- ELECTION RULES -->
   <div class="card">
-    <h3>📜 Election Rules & Guidelines</h3>
+    <h3> Election Rules & Guidelines</h3>
     <ul class="rules-list">
-      <li><span class="r-icon">✅</span><span>Each registered voter may only vote <strong>once</strong> per election.</span></li>
-      <li><span class="r-icon">✅</span><span>You must be at least <strong>18 years old</strong> to register and vote.</span></li>
-      <li><span class="r-icon">✅</span><span>Your vote is <strong>secret and anonymous</strong>. No one can see who you voted for.</span></li>
-      <li><span class="r-icon">✅</span><span>Voting period is from <strong>8:00 AM to 5:00 PM</strong> on election day.</span></li>
-      <li><span class="r-icon">❌</span><span>Do not share your account credentials with anyone.</span></li>
-      <li><span class="r-icon">❌</span><span>Vote buying and selling is illegal and punishable by law.</span></li>
-      <li><span class="r-icon">❌</span><span>Do not take screenshots of your ballot. This is a violation of election law.</span></li>
-      <li><span class="r-icon">❌</span><span>Attempting to vote more than once is a criminal offense.</span></li>
+      <li><span class="r-icon"></span><span>Each registered voter may only vote <strong>once</strong> per election.</span></li>
+      <li><span class="r-icon"></span><span>You must be at least <strong>18 years old</strong> to register and vote.</span></li>
+      <li><span class="r-icon"></span><span>Your vote is <strong>secret and anonymous</strong>. No one can see who you voted for.</span></li>
+      <li><span class="r-icon"></span><span>Voting period is from <strong>8:00 AM to 5:00 PM</strong> on election day.</span></li>
+      <li><span class="r-icon"></span><span>Do not share your account credentials with anyone.</span></li>
+      <li><span class="r-icon"></span><span>Vote buying and selling is illegal and punishable by law.</span></li>
+      <li><span class="r-icon"></span><span>Do not take screenshots of your ballot. This is a violation of election law.</span></li>
+      <li><span class="r-icon"></span><span>Attempting to vote more than once is a criminal offense.</span></li>
     </ul>
   </div>
 
   <!-- FAQ -->
   <div class="card">
-    <h3>❓ Frequently Asked Questions</h3>
+    <h3> Frequently Asked Questions</h3>
     <div class="faq">
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">What if I forgot my password? <span>▼</span></div>
@@ -124,7 +124,7 @@
 
   <!-- QUIZ -->
   <div class="card">
-    <h3>🧠 Quick Voter Awareness Quiz</h3>
+    <h3> Quick Voter Awareness Quiz</h3>
     <div class="quiz-section">
       <div class="quiz-q" id="quizQ">Loading quiz...</div>
       <div class="quiz-opts" id="quizOpts"></div>
@@ -158,7 +158,7 @@
 
   function loadQuestion() {
     const q = quizzes[currentQ];
-    document.getElementById('quizQ').textContent = `Q${currentQ+1}: ${q.q}`;
+    document.getElementById('quizQ').textContent = Q${currentQ+1}: ${q.q};
     document.getElementById('quizResult').style.display = 'none';
     document.getElementById('btnNext').style.display = 'none';
     const opts = document.getElementById('quizOpts');
@@ -178,18 +178,18 @@
     if (selected === correct) {
       el.classList.add('correct');
       score++;
-      result.textContent = '✅ Correct!';
+      result.textContent = ' Correct!';
       result.style.color = '#16a34a';
     } else {
       el.classList.add('wrong');
       document.querySelectorAll('.quiz-opt')[correct].classList.add('correct');
-      result.textContent = '❌ Wrong! The correct answer is highlighted.';
+      result.textContent = ' Wrong! The correct answer is highlighted.';
       result.style.color = '#dc2626';
     }
     result.style.display = 'block';
     document.getElementById('btnNext').style.display = currentQ < quizzes.length - 1 ? 'block' : 'none';
     if (currentQ === quizzes.length - 1) {
-      result.textContent += ` | Final Score: ${score}/${quizzes.length} 🎉`;
+      result.textContent +=  | Final Score: ${score}/${quizzes.length} 🎉;
     }
   }
 

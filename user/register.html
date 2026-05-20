@@ -132,7 +132,7 @@
     </div>
     <div style="display:flex;gap:10px;">
       <button class="btn" style="background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;" onclick="goStep2()">← Back</button>
-      <button class="btn" onclick="submitRegistration()">✅ Register Now</button>
+      <button class="btn" onclick="submitRegistration()"> Register Now</button>
     </div>
   </div>
 
@@ -142,14 +142,14 @@
 <script>
   function showError(msg) {
     const el = document.getElementById('regError');
-    el.textContent = '❌ ' + msg;
+    el.textContent = ' ' + msg;
     el.style.display = 'block';
     setTimeout(() => el.style.display = 'none', 4000);
   }
 
   function showSuccess(msg) {
     const el = document.getElementById('regSuccess');
-    el.textContent = '✅ ' + msg;
+    el.textContent = ' ' + msg;
     el.style.display = 'block';
   }
 
@@ -187,7 +187,7 @@
   async function submitRegistration() {
     const pass = document.getElementById('s3Pass').value;
     const confirm = document.getElementById('s3Confirm').value;
-    if (pass.length < 8) return showError('Password must be at least 8 characters.');
+    if (pass.length < 😎 return showError('Password must be at least 8 characters.');
     if (pass !== confirm) return showError('Passwords do not match.');
 
     const payload = {
@@ -196,7 +196,7 @@
       birthdate: document.getElementById('s1Birth').value,
       email: document.getElementById('s2Email').value.trim(),
       phone: document.getElementById('s2Phone').value.trim(),
-      address: `${document.getElementById('s2Address').value}, ${document.getElementById('s2City').value}, ${document.getElementById('s2Province').value}`,
+      address: ${document.getElementById('s2Address').value}, ${document.getElementById('s2City').value}, ${document.getElementById('s2Province').value},
       password: pass
     };
 
@@ -210,7 +210,7 @@
       if (!res.ok) return showError(data.message);
       document.querySelector('.card').innerHTML = `
         <div style="text-align:center;padding:2rem 0;">
-          <div style="font-size:72px;">🎉</div>
+          <div style="font-size:72px;"></div>
           <h2 style="color:#16a34a;font-size:22px;font-weight:800;margin:1rem 0;">Registration Successful!</h2>
           <p style="color:#64748b;">Your Voter ID:</p>
           <div style="font-size:22px;font-weight:800;color:#1e3a8a;letter-spacing:3px;margin:10px 0;">${data.voter_id}</div>
@@ -221,7 +221,7 @@
       const fakeId = 'VTR-' + Date.now().toString().slice(-6);
       document.querySelector('.card').innerHTML = `
         <div style="text-align:center;padding:2rem 0;">
-          <div style="font-size:72px;">🎉</div>
+          <div style="font-size:72px;"></div>
           <h2 style="color:#16a34a;font-size:22px;font-weight:800;margin:1rem 0;">Registration Submitted!</h2>
           <p style="color:#64748b;">Demo Voter ID:</p>
           <div style="font-size:22px;font-weight:800;color:#1e3a8a;letter-spacing:3px;margin:10px 0;">${fakeId}</div>

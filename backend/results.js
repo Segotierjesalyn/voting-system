@@ -3,70 +3,48 @@ const router = express.Router();
 const db = require('./db');
 const verifyToken = require('./middleware');
 
-// =============================================
-// GET RESULTS PER ELECTION
-// =============================================
-router.get('/:election_id', async (req, res) => {
+// Turnout stats (admin)
+router.get('/turnout/:election_id', verifyToken, async (req, res) => {
   try {
-    const [rows] = await db.query(
-      `SELECT 
-         c.id AS candidate_id,
-         c.full_name,
-         c.party,
-         p.name AS position,
-         COUNT(v.id) AS vote_count
-       FROM candidates c
-       LEFT JOIN votes v ON c.id = v.candidate_id
-       JOIN positions p ON c.position_id = p.id
-       WHERE c.election_id = ?
-       GROUP BY c.id
-       ORDER BY p.display_order ASC, vote_count DESC`,
-      [req.params.election_id]
-    );
-    res.json(rows);
+    const [total] = await db.query('SELECT COUNT(*) as total FROM voters WHERE status="approved"');
+    const [voted] = await db.query('SELECT COUNT(DISTINCT voter_id) as voted FROM votes WHERE election_id=?', [req.params.election_id]);
+    const turnout = total[0].total ? (voted[0].voted / total[0].total * 100).toFixed(2) : 0;
+    res.json({ votes_cast: voted[0].voted || 0, turnout_percentage: turnout });
   } catch (err) {
-    res.status(500).json({ message: '❌ Server error.', error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// =============================================
-// GET TURNOUT STATS
-// =============================================
-router.get('/turnout/:election_id', async (req, res) => {
+// Detailed results per position for an election
+router.get('/election/:id', async (req, res) => {
+  const electionId = req.params.id;
   try {
-    const [totalVoters] = await db.query(
-      'SELECT COUNT(*) AS total FROM voters WHERE status = "approved"'
-    );
-    const [votedCount] = await db.query(
-      `SELECT COUNT(DISTINCT voter_id) AS voted 
-       FROM vote_verification WHERE election_id = ?`,
-      [req.params.election_id]
-    );
-    const total = totalVoters[0].total;
-    const voted = votedCount[0].voted;
-    const percentage = total > 0 ? ((voted / total) * 100).toFixed(2) : 0;
-
-    res.json({
-      total_voters: total,
-      votes_cast: voted,
-      turnout_percentage: percentage
-    });
+    // Get positions for this election
+    const [positions] = await db.query('SELECT * FROM positions WHERE election_id = ? ORDER BY display_order', [electionId]);
+    if (positions.length === 0) {
+      return res.json([]);
+    }
+    const results = [];
+    for (let pos of positions) {
+      // Count votes per candidate for this position
+      const [candidates] = await db.query(`
+        SELECT c.id, c.full_name as name, c.party, COUNT(v.id) as vote_count
+        FROM candidates c
+        LEFT JOIN votes v ON v.candidate_id = c.id AND v.election_id = ?
+        WHERE c.position_id = ?
+        GROUP BY c.id
+        ORDER BY vote_count DESC
+      `, [electionId, pos.id]);
+      results.push({
+        position: pos.title,
+        max_seats: pos.max_seats,
+        candidates: candidates.map(c => ({ ...c, name: c.name || c.full_name }))
+      });
+    }
+    res.json(results);
   } catch (err) {
-    res.status(500).json({ message: '❌ Server error.', error: err.message });
-  }
-});
-
-// =============================================
-// GET AUDIT LOGS (Admin)
-// =============================================
-router.get('/audit/logs', verifyToken, async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      'SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 100'
-    );
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ message: '❌ Server error.', error: err.message });
+    console.error('Results error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
