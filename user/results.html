@@ -3,53 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Election Results | Admin</title>
+  <title>Live Results | VoteSecure PH</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
-    .sidebar { width:240px; background:#0038a8; color:white; min-height:100vh; }
-    .sidebar a { display:block; padding:12px 20px; color:#cbd5e1; text-decoration:none; }
-    .sidebar a.active { background:#1e3a8a; color:white; }
-    .main { flex:1; padding:20px; }
-    .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; background:white; border-radius:12px; padding:20px; }
+    h1 { color:#0038a8; margin-bottom:20px; }
     select { padding:8px; margin-bottom:20px; width:100%; max-width:300px; }
     .position-card { margin-bottom:25px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; }
     .position-header { background:#e9ecef; padding:12px; font-weight:bold; font-size:16px; border-left:5px solid #0038a8; }
     .candidate-row { display:flex; justify-content:space-between; padding:10px 15px; border-bottom:1px solid #eee; }
     .candidate-name { font-weight:500; }
     .candidate-votes { font-weight:bold; color:#1e3a8a; }
-    .total-votes { margin-top:10px; font-style:italic; color:#64748b; }
+    .btn-back { background:#cbd5e1; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; margin-top:20px; }
   </style>
 </head>
 <body>
-<div class="sidebar">
-  <h2 style="padding:20px;">🗳️ VoteSecure</h2>
-  <a href="dashboard.html">Dashboard</a>
-  <a href="voters.html">Voter Management</a>
-  <a href="candidates.html">Candidates</a>
-  <a href="election-setup.html">Election Setup</a>
-  <a href="positions.html">Positions</a>
-  <a href="ballot-design.html">Ballot Design</a>
-  <a href="announcements.html">Announcements</a>
-  <a href="results.html" class="active">Results</a>
-</div>
-<div class="main">
-  <h1>Election Results</h1>
-  <div class="card">
-    <label>Select Election</label>
-    <select id="electionSelect"></select>
-    <div id="resultsContainer"></div>
-  </div>
+<div class="container">
+  <h1>🗳️ Live Election Results</h1>
+  <label>Select Election</label>
+  <select id="electionSelect"></select>
+  <div id="resultsContainer"></div>
+  <button class="btn-back" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
 </div>
 <script>
-  const token = localStorage.getItem('adminToken');
+  const token = localStorage.getItem('voterToken');
   if (!token) window.location.href = 'index.html';
 
-  let elections = [];
-
   async function loadElections() {
-    const res = await fetch('/api/election', { headers: { 'Authorization': `Bearer ${token}` } });
-    elections = await res.json();
+    const res = await fetch('/api/election');
+    const elections = await res.json();
     const select = document.getElementById('electionSelect');
     select.innerHTML = '<option value="">-- Select Election --</option>';
     elections.forEach(e => {
@@ -66,9 +53,9 @@
 
   async function loadResults(electionId) {
     const container = document.getElementById('resultsContainer');
-    container.innerHTML = '<div class="loading">Loading results...</div>';
+    container.innerHTML = '<div>Loading results...</div>';
     try {
-      const res = await fetch(`/api/results/election/${electionId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch(`/api/results/election/${electionId}`);
       const data = await res.json();
       if (!data.length) {
         container.innerHTML = '<p>No votes have been cast yet.</p>';
@@ -77,7 +64,7 @@
       let html = '';
       data.forEach(pos => {
         html += `<div class="position-card">
-          <div class="position-header">🗳️ ${pos.position} (Vote for ${pos.max_seats})</div>`;
+          <div class="position-header">🗳️ ${pos.position}</div>`;
         pos.candidates.forEach(cand => {
           html += `<div class="candidate-row">
             <span class="candidate-name">${cand.name} (${cand.party || 'Independent'})</span>

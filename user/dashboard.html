@@ -335,26 +335,15 @@
 
 <div class="container">
   <div class="welcome-card">
-    <div>
-      <h2>Welcome, <span id="welcomeName">Voter</span>! </h2>
-      <p>Your voice matters. Vote wisely.</p>
-    </div>
-    <button class="vote-now-btn" onclick="goToBallot()"> VOTE NOW</button>
+  <div>
+    <h2>Welcome, <span id="welcomeName">Voter</span>! 🎉</h2>
+    <p>Your voice matters. Vote wisely.</p>
   </div>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-number" id="totalVoters">0</div>
-      <div class="stat-label">Registered Voters</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="totalVotes">0</div>
-      <div class="stat-label">Votes Cast</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="turnout">0%</div>
-      <div class="stat-label">Turnout Rate</div>
-    </div>
+  <div style="display: flex; gap: 10px;">
+    <button class="vote-now-btn" onclick="goToBallot()">🗳️ VOTE NOW</button>
+    <button class="vote-now-btn" style="background: #ce1126; color: white;" onclick="window.location.href='results.html'">📊 VIEW RESULTS</button>
+  </div>
+</div>
   </div>
 
   <div class="two-columns">

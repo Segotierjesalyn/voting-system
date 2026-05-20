@@ -21,9 +21,11 @@ app.use('/api/results', require('./results'));
 app.use('/api/announcements', require('./announcements'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/positions', require('./positions'));
+app.use('/api/votes', require('./votes'));
 
 // ========== NEW: ELECTION DESIGN ROUTE ==========
 app.use('/api/election-design', require('./election-design'));
+
 
 // ========== NEW: FILE UPLOAD FOR CUSTOM LOGOS ==========
 // Ensure upload directory exists

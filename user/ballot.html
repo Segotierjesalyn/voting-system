@@ -535,11 +535,11 @@
         localStorage.setItem('hasVoted', 'true');
         window.location.href = 'dashboard.html';
       } else {
-        alert('❌ Error: ' + (data.message || 'Failed to submit votes'));
+        alert(' Error: ' + (data.message || 'Failed to submit votes'));
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Connection error. Please try again.');
+      alert(' Connection error. Please try again.');
     }
   };
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('./db');
 const verifyToken = require('./middleware');
 
+// Turnout stats (admin)
 router.get('/turnout/:election_id', verifyToken, async (req, res) => {
   try {
     const [total] = await db.query('SELECT COUNT(*) as total FROM voters WHERE status="approved"');
@@ -15,27 +16,34 @@ router.get('/turnout/:election_id', verifyToken, async (req, res) => {
 });
 
 // Detailed results per position for an election
-router.get('/details/:election_id', verifyToken, async (req, res) => {
+router.get('/election/:id', async (req, res) => {
+  const electionId = req.params.id;
   try {
-    const [positions] = await db.query('SELECT * FROM positions WHERE election_id = ? ORDER BY display_order', [req.params.election_id]);
+    // Get positions for this election
+    const [positions] = await db.query('SELECT * FROM positions WHERE election_id = ? ORDER BY display_order', [electionId]);
+    if (positions.length === 0) {
+      return res.json([]);
+    }
     const results = [];
-    for (const pos of positions) {
+    for (let pos of positions) {
+      // Count votes per candidate for this position
       const [candidates] = await db.query(`
-        SELECT c.id, c.name, c.party, COUNT(v.id) as vote_count
+        SELECT c.id, c.full_name as name, c.party, COUNT(v.id) as vote_count
         FROM candidates c
-        LEFT JOIN votes v ON v.candidate_id = c.id
+        LEFT JOIN votes v ON v.candidate_id = c.id AND v.election_id = ?
         WHERE c.position_id = ?
         GROUP BY c.id
         ORDER BY vote_count DESC
-      `, [pos.id]);
+      `, [electionId, pos.id]);
       results.push({
         position: pos.title,
         max_seats: pos.max_seats,
-        candidates
+        candidates: candidates.map(c => ({ ...c, name: c.name || c.full_name }))
       });
     }
     res.json(results);
   } catch (err) {
+    console.error('Results error:', err);
     res.status(500).json({ error: err.message });
   }
 });
