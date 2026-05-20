@@ -15,7 +15,7 @@ router.post('/admin/login', async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await db.query('UPDATE admins SET otp_code = ?, otp_expires = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = ?', [otp, admin.id]);
-    console.log(🔐 Admin OTP for ${email}: ${otp});
+    console.log(`🔐 Admin OTP for ${email}: ${otp}`);
     res.json({ message: 'OTP sent', admin_id: admin.id, otp });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -66,7 +66,7 @@ router.post('/voter/login', async (req, res) => {
     if (!ok) return res.status(401).json({ message: 'Invalid email or password' });
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await db.query('UPDATE voters SET otp = ?, otp_expires = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = ?', [otp, voter.id]);
-    console.log(🔐 Voter OTP for ${email}: ${otp});
+    console.log(`🔐 Voter OTP for ${email}: ${otp}`);
     res.json({ message: 'OTP sent', otp, voter_id: voter.id });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -94,7 +94,7 @@ router.post('/voter/forgot-password', async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ message: 'Email not found' });
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     await db.query('UPDATE voters SET reset_code = ?, reset_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE) WHERE id = ?', [resetCode, rows[0].id]);
-    console.log(🔐 Reset code for ${email}: ${resetCode});
+    console.log(`🔐 Reset code for ${email}: ${resetCode}`);
     res.json({ message: 'Reset code sent', reset_code: resetCode });
   } catch (err) {
     res.status(500).json({ error: err.message });

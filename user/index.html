@@ -97,7 +97,7 @@
       color: #0038a8;
       border-bottom: 2px solid #0038a8;
     }
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
     label {
       display: block;
       font-size: 12px;
@@ -111,6 +111,7 @@
       border: 1.5px solid #e2e8f0;
       border-radius: 10px;
       font-size: 14px;
+      margin-bottom: 10px;
     }
     input:focus {
       outline: none;
@@ -125,6 +126,7 @@
       border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
+      margin-top: 10px;
     }
     .btn:hover {
       transform: translateY(-1px);
@@ -144,7 +146,7 @@
       margin-bottom: 15px;
       display: none;
     }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
     @media (max-width: 768px) {
       .login-container { flex-direction: column; }
       .waving-flag { width: 120px; }
@@ -153,7 +155,6 @@
 </head>
 <body>
 <div class="login-container">
-  <!-- LEFT SIDE – FLAG -->
   <div class="flag-side">
     <svg class="waving-flag" viewBox="0 0 1200 600">
       <rect x="0" y="0" width="1200" height="300" fill="#0038a8"/>
@@ -171,7 +172,6 @@
     </ul>
   </div>
 
-  <!-- RIGHT SIDE – FORMS -->
   <div class="form-side">
     <div class="logo">
       <h1>Voter Portal</h1>
@@ -179,7 +179,6 @@
     </div>
     <div id="errorMsg" class="error-msg"></div>
 
-    <!-- LOGIN FORM -->
     <div id="loginForm">
       <div class="tabs">
         <button class="tab active" onclick="showLogin()">Login</button>
@@ -197,26 +196,30 @@
       <div class="link" onclick="showForgot()">Forgot Password?</div>
     </div>
 
-    <!-- REGISTER FORM -->
     <div id="registerForm" class="hidden">
       <div class="tabs">
         <button class="tab" onclick="showLogin()">Login</button>
         <button class="tab active" onclick="showRegister()">Register</button>
       </div>
+      <label>Full Name</label>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <input type="text" id="regFirst" placeholder="First Name">
         <input type="text" id="regLast" placeholder="Last Name">
       </div>
+      <label>Email Address</label>
       <input type="email" id="regEmail" placeholder="Email">
+      <label>Password</label>
       <input type="password" id="regPassword" placeholder="Password (min 8 chars)">
+      <label>Birthdate</label>
       <input type="date" id="regBirth">
+      <label>Phone Number</label>
       <input type="text" id="regPhone" placeholder="Phone">
+      <label>Complete Address</label>
       <input type="text" id="regAddress" placeholder="Address">
       <button class="btn" onclick="handleRegister()">Register</button>
       <div class="link" onclick="showLogin()">Back to Login</div>
     </div>
 
-    <!-- FORGOT PASSWORD FORM -->
     <div id="forgotForm" class="hidden">
       <div class="tabs">
         <button class="tab active" onclick="showLogin()">Login</button>
@@ -235,12 +238,11 @@
       <div class="link" onclick="showLogin()">Back to Login</div>
     </div>
 
-    <!-- OTP VERIFICATION (after login) -->
     <div id="otpForm" class="hidden">
       <div class="tabs">
         <button class="tab active" onclick="backToLogin()">Login</button>
       </div>
-      <p style="margin-bottom:15px;">Enter the 6-digit OTP sent to your email (check PowerShell)</p>
+      <p style="margin-bottom:15px; font-size:14px; color:#475569;">Enter the 6-digit OTP sent to your email (check PowerShell)</p>
       <input type="text" id="otpCode" placeholder="000000" maxlength="6" style="text-align:center; font-size:24px; letter-spacing:5px;">
       <button class="btn" onclick="verifyOTP()">Verify OTP</button>
       <div class="link" onclick="backToLogin()">Cancel</div>
@@ -249,6 +251,8 @@
 </div>
 
 <script>
+  // Binago: URL ng Node.js backend system ninyo
+  const BASE_URL = 'http://localhost:3000';
   let tempVoterId = null;
   let resetEmail = null;
 
@@ -258,12 +262,15 @@
     const errorDiv = document.getElementById('errorMsg');
     if (!email || !password) {
       errorDiv.innerText = 'Please enter email and password';
+      errorDiv.style.background = '#fee2e2';
+      errorDiv.style.color = '#ce1126';
       errorDiv.style.display = 'block';
       return;
     }
     errorDiv.style.display = 'none';
     try {
-      const res = await fetch('/api/auth/voter/login', {
+      // INAYOS: Nilagyan ng BASE_URL
+      const res = await fetch(`${BASE_URL}/api/auth/voter/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -277,10 +284,14 @@
         if (data.otp) document.getElementById('otpCode').value = data.otp;
       } else {
         errorDiv.innerText = data.message || 'Login failed';
+        errorDiv.style.background = '#fee2e2';
+        errorDiv.style.color = '#ce1126';
         errorDiv.style.display = 'block';
       }
     } catch (err) {
       errorDiv.innerText = 'Cannot connect to server. Make sure backend is running.';
+      errorDiv.style.background = '#fee2e2';
+      errorDiv.style.color = '#ce1126';
       errorDiv.style.display = 'block';
     }
   }
@@ -295,7 +306,8 @@
     }
     errorDiv.style.display = 'none';
     try {
-      const res = await fetch('/api/auth/voter/verify-otp', {
+      // INAYOS: Nilagyan ng BASE_URL
+      const res = await fetch(`${BASE_URL}/api/auth/voter/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ voter_id: tempVoterId, otp })
@@ -324,19 +336,26 @@
     const phone = document.getElementById('regPhone').value;
     const address = document.getElementById('regAddress').value;
     const errorDiv = document.getElementById('errorMsg');
+    
     if (!first_name || !last_name || !email || !password || !birthdate || !address) {
       errorDiv.innerText = 'Please fill all fields';
+      errorDiv.style.background = '#fee2e2';
+      errorDiv.style.color = '#ce1126';
       errorDiv.style.display = 'block';
       return;
     }
-    if (password.length < 😎 {
+    // INAYOS: Tinanggal ang sirang emoji na 😎 at ibinalik sa tamang numero 8
+    if (password.length < 8) {
       errorDiv.innerText = 'Password must be at least 8 characters';
+      errorDiv.style.background = '#fee2e2';
+      errorDiv.style.color = '#ce1126';
       errorDiv.style.display = 'block';
       return;
     }
     errorDiv.style.display = 'none';
     try {
-      const res = await fetch('/api/auth/voter/register', {
+      // INAYOS: Nilagyan ng BASE_URL
+      const res = await fetch(`${BASE_URL}/api/auth/voter/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first_name, last_name, email, password, birthdate, phone, address })
@@ -347,10 +366,14 @@
         showLogin();
       } else {
         errorDiv.innerText = data.message || 'Registration failed';
+        errorDiv.style.background = '#fee2e2';
+        errorDiv.style.color = '#ce1126';
         errorDiv.style.display = 'block';
       }
     } catch (err) {
       errorDiv.innerText = 'Cannot connect to server';
+      errorDiv.style.background = '#fee2e2';
+      errorDiv.style.color = '#ce1126';
       errorDiv.style.display = 'block';
     }
   }
@@ -366,7 +389,8 @@
     }
     errorDiv.style.display = 'none';
     try {
-      const res = await fetch('/api/auth/voter/forgot-password', {
+      // INAYOS: Nilagyan ng BASE_URL
+      const res = await fetch(`${BASE_URL}/api/auth/voter/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -401,7 +425,8 @@
     }
     errorDiv.style.display = 'none';
     try {
-      const res = await fetch('/api/auth/voter/reset-password', {
+      // INAYOS: Nilagyan ng BASE_URL
+      const res = await fetch(`${BASE_URL}/api/auth/voter/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail, reset_code: resetCode, new_password: newPassword })
@@ -432,12 +457,14 @@
     document.getElementById('registerForm').classList.remove('hidden');
     document.getElementById('forgotForm').classList.add('hidden');
     document.getElementById('otpForm').classList.add('hidden');
+    document.getElementById('errorMsg').style.display = 'none';
   }
   function showForgot() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.add('hidden');
     document.getElementById('forgotForm').classList.remove('hidden');
     document.getElementById('otpForm').classList.add('hidden');
+    document.getElementById('errorMsg').style.display = 'none';
   }
   function backToLogin() {
     showLogin();

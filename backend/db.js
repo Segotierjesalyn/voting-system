@@ -1,11 +1,11 @@
 const mysql = require('mysql2');
-require('dotenv').config();
 
+// Direkta nating ilalagay ang mga detalye para hindi na umasa sa .env file na hindi nababasa
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'voting-system', // 👈 Sinigurado nating MAY GITLING para tugma sa phpMyAdmin mo
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

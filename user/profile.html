@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile | SecureVote</title>
+  <style>
+    /* I-copy ang styles ng dashboard para magtugma ang itsura */
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; }
+    .main-content { padding: 40px; width: 100%; }
+    .card { background: white; padding: 30px; border-radius: 16px; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+
+<div class="main-content">
+  <div class="card">
+    <h2>👤 Edit Profile</h2>
+    
+    <div style="text-align: center;">
+      <img id="profilePreview" src="https://via.placeholder.com/120" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #2563eb;">
+      <br>
+      <input type="file" id="imageUpload" accept="image/*" onchange="previewImage(event)">
+    </div>
+
+    <label>Full Name</label>
+    <input type="text" id="userName" placeholder="Enter your name">
+    
+    <label>Email</label>
+    <input type="email" id="userEmail" placeholder="Enter your email">
+
+    <button onclick="saveProfile()" style="width:100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">SAVE CHANGES</button>
+  </div>
+</div>
+
+<script>
+  // Function para sa image preview
+  function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+      document.getElementById('profilePreview').src = reader.result;
+      localStorage.setItem('profilePic', reader.result);
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+
+  // Function para sa pag-save
+  function saveProfile() {
+    localStorage.setItem('voterName', document.getElementById('userName').value);
+    localStorage.setItem('voterEmail', document.getElementById('userEmail').value);
+    alert("Profile saved!");
+  }
+
+  // Load data pagbukas ng page
+  window.onload = function() {
+    document.getElementById('userName').value = localStorage.getItem('voterName') || "";
+    document.getElementById('userEmail').value = localStorage.getItem('voterEmail') || "";
+    if(localStorage.getItem('profilePic')) {
+        document.getElementById('profilePreview').src = localStorage.getItem('profilePic');
+    }
+  };
+</script>
+</body>
+</html>
