@@ -1,36 +1,24 @@
 ﻿<!DOCTYPE html>
 <html>
-<head><title>Test Login</title></head>
+<head><title>Test Backend</title></head>
 <body>
-<h2>🔐 Admin Login Test</h2>
-<input type="text" id="email" placeholder="Email" value="admin@votesecure.ph" style="width:300px"><br>
-<input type="password" id="pass" placeholder="Password" value="admin123" style="width:300px"><br>
-<button onclick="login()">Login</button>
-<pre id="result" style="margin-top:20px;background:#f0f0f0;padding:10px"></pre>
-
+<h2>Backend Test</h2>
+<button onclick="test()">Test Connection</button>
+<pre id="result"></pre>
 <script>
-async function login() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('pass').value;
+async function test() {
   const result = document.getElementById('result');
-  
-  result.innerText = 'Connecting to backend...';
-  
+  result.innerText = 'Testing...';
   try {
     const res = await fetch('http://localhost:3000/api/admin/login', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email, password})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'admin@votesecure.ph', password: 'admin123' })
     });
-    
     const data = await res.json();
-    result.innerText = JSON.stringify(data, null, 2);
-    
-    if(data.admin_id) {
-      result.innerText += '\n\n✅ Login successful! Check PowerShell for OTP.';
-    }
-  } catch(err) {
-    result.innerText = 'ERROR: ' + err.message + '\n\nMake sure backend is running:\n1. Open PowerShell\n2. cd backend\n3. node server.js';
+    result.innerText = 'Success!\n' + JSON.stringify(data, null, 2);
+  } catch (err) {
+    result.innerText = ' Failed: ' + err.message;
   }
 }
 </script>
