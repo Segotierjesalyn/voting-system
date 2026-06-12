@@ -17,19 +17,61 @@
     .color-input { display:flex; align-items:center; gap:10px; }
     .color-input input { width:80px; }
     button { background:#16a34a; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; margin-top:15px; }
-    .preview { border:1px solid #ddd; padding:10px; margin-top:15px; border-radius:8px; }
+    .preview { border:1px solid #ddd; padding:15px; margin-top:15px; border-radius:8px; background:#e2e8f0; }
     .logo-upload { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
     .logo-upload button { margin-top:0; }
-    .logo-preview { max-width:100px; max-height:100px; margin-top:5px; }
+    .logo-preview { max-width:100px; max-height:100px; margin-top:5px; border-radius: 4px; border: 1px dashed #cbd5e1; padding: 2px; background: #fff; }
     .election-list { margin-bottom:20px; }
     .election-item { display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #ddd; cursor:pointer; }
     .election-item:hover { background:#f0f0f0; }
-    .design-actions { margin-top:10px; display:flex; gap:10px; }
+    .design-actions { margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; }
     .btn-delete { background:#dc2626; }
     .btn-reset { background:#6b7280; }
+    .upload-status { font-size:12px; margin-top:4px; display:none; }
+
+    /* Toast Notification */
+    #toastMsg {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Segoe UI', sans-serif;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      transition: all 0.35s ease;
+      transform: translateY(120px);
+      opacity: 0;
+      max-width: 360px;
+      pointer-events: none;
+    }
+    #toastMsg.show { transform: translateY(0); opacity: 1; }
+    #toastMsg.success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+    #toastMsg.error   { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+    #toastMsg.info    { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+    #toastMsg.warning { background:#fffbeb; color:#d97706; border:1px solid #fde68a; }
+
+    /* Ballot Canvas */
+    .ballot-canvas { background:white; border:2px solid #000; width:100%; max-width:1000px; margin:10px auto; overflow:hidden; }
+    .ballot-top-row { display:flex; justify-content:center; align-items:center; gap:20px; padding:15px 10px 5px 10px; min-height:60px; position:relative; }
+    .ballot-side-no { position:absolute; right:15px; top:15px; font-size:9px; color:#000; font-family:monospace; }
+    .ballot-logo-slot { width:65px; height:65px; object-fit:contain; display:none; }
+    .ballot-header-block { text-align:center; padding:5px 10px 15px 10px; border-bottom:2px solid #000; }
+    .ballot-main-title { font-size:22px; font-weight:800; color:#000; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+    .ballot-sub-title { font-size:11px; color:#475569; font-weight:600; }
+    .ballot-body-area { min-height:180px; display:flex; justify-content:center; align-items:center; color:#94a3b8; font-size:16px; font-weight:500; border-bottom:2px solid #000; padding:20px; }
+    .ballot-footer-notes { text-align:center; padding:10px; font-size:10px; color:#000; font-weight:600; line-height:1.4; background:#fff; }
+    .ballot-btn-tray { display:flex; justify-content:center; align-items:center; gap:15px; margin-top:15px; padding-bottom:5px; }
+    .ballot-preview-btn { padding:10px 24px; font-size:13px; font-weight:700; border-radius:6px; border:none; text-transform:uppercase; cursor:not-allowed; }
   </style>
 </head>
 <body>
+
+<!-- Toast -->
+<div id="toastMsg"></div>
+
 <div class="sidebar">
   <h2 style="padding:20px;">🗳️ VoteSecure</h2>
   <a href="dashboard.html">Dashboard</a>
@@ -41,79 +83,106 @@
   <a href="announcements.html">Announcements</a>
   <a href="results.html">Results</a>
 </div>
+
 <div class="main">
   <h1>Ballot Design per Election</h1>
   <div class="card">
-    <h3>Select Election to Customize</h3>
+    <h3>Select Active Election to Customize</h3>
     <div id="electionList" class="election-list"></div>
   </div>
+
   <div id="designPanel" style="display:none;">
     <div class="card">
-      <h3 id="designTitle">Design for: <span id="electionName"></span></h3>
+      <h3>Edit Ballot Configuration for: <span id="electionName"></span></h3>
       <input type="hidden" id="currentElectionId">
 
       <label>Custom Ballot Title</label>
-      <input type="text" id="customTitle" placeholder="e.g., Student Council Election">
+      <input type="text" id="customTitle" placeholder="e.g., OFFICIAL BALLOT">
 
+      <label>Sub-header Details / Instructions Text</label>
+      <input type="text" id="customSubTitle" placeholder="e.g., VoteSecure PH - Automated Election System | Bagong Pilipinas">
+
+      <!-- LEFT LOGO -->
       <label>Left Logo</label>
       <div class="logo-upload">
         <input type="text" id="logoLeft" placeholder="Image URL (or upload)" style="flex:1">
-        <button onclick="uploadLogo('left')"> Upload Image</button>
+        <button type="button" onclick="triggerUpload('left')">Upload Image</button>
         <input type="file" id="fileLeft" accept="image/*" style="display:none">
       </div>
+      <div id="statusLeft" class="upload-status"></div>
       <img id="previewLeft" class="logo-preview" style="display:none;">
 
+      <!-- CENTER LOGO -->
       <label>Center Logo</label>
       <div class="logo-upload">
         <input type="text" id="logoCenter" placeholder="Image URL (or upload)" style="flex:1">
-        <button onclick="uploadLogo('center')"> Upload Image</button>
+        <button type="button" onclick="triggerUpload('center')">Upload Image</button>
         <input type="file" id="fileCenter" accept="image/*" style="display:none">
       </div>
+      <div id="statusCenter" class="upload-status"></div>
       <img id="previewCenter" class="logo-preview" style="display:none;">
 
+      <!-- RIGHT LOGO -->
       <label>Right Logo</label>
       <div class="logo-upload">
         <input type="text" id="logoRight" placeholder="Image URL (or upload)" style="flex:1">
-        <button onclick="uploadLogo('right')"> Upload Image</button>
+        <button type="button" onclick="triggerUpload('right')">Upload Image</button>
         <input type="file" id="fileRight" accept="image/*" style="display:none">
       </div>
+      <div id="statusRight" class="upload-status"></div>
       <img id="previewRight" class="logo-preview" style="display:none;">
 
-      <label>Primary Color (header, buttons)</label>
+      <label>Primary Theme Color (Submit Action Button Background)</label>
       <div class="color-input">
         <input type="color" id="primaryColor" value="#0038a8">
         <span id="primaryColorHex">#0038a8</span>
       </div>
 
-      <label>Secondary Color (accents, borders)</label>
+      <label>Secondary Accent Color (Review Action Button Background)</label>
       <div class="color-input">
         <input type="color" id="secondaryColor" value="#ce1126">
         <span id="secondaryColorHex">#ce1126</span>
       </div>
 
-      <label>Accent Color (review button, highlights)</label>
+      <label>Neutral Button Color (Clear All Background)</label>
       <div class="color-input">
         <input type="color" id="accentColor" value="#fcdb30">
         <span id="accentColorHex">#fcdb30</span>
       </div>
 
-      <label>Custom CSS (optional)</label>
-      <textarea id="customCss" rows="4" placeholder=".ballot-header { background: linear-gradient(...); }"></textarea>
+      <label>Custom CSS Overrides (optional)</label>
+      <textarea id="customCss" rows="4" placeholder=".ballot-main-title { font-family: serif; }"></textarea>
 
       <div class="design-actions">
-        <button onclick="saveDesign()"> Save Design</button>
-        <button class="btn-delete" onclick="deleteDesign()"> Delete Design (Reset)</button>
-        <button class="btn-reset" onclick="resetToDefault()"> Reset to Default</button>
+        <button type="button" onclick="saveDesign()">💾 Save Design</button>
+        <button type="button" class="btn-delete" onclick="deleteDesign()">🗑️ Delete Design</button>
+        <button type="button" class="btn-reset" onclick="resetToDefault()">↺ Reset to Default</button>
       </div>
 
       <div class="preview">
-        <strong>Live Preview</strong>
-        <div id="preview" style="border:1px solid #ccc; padding:10px; margin-top:8px; background:white;">
-          <div style="text-align:center; padding:10px; background:#0038a8; color:white;">Ballot Header</div>
-          <div style="margin-top:10px; padding:8px; border-left:4px solid #ce1126; background:#f0f0f0;">
-            <span style="color:#ce1126;">✪</span> Candidate Name
+        <strong style="color:#1e293b;font-size:14px;">Live Ballot User-Side Preview</strong>
+        <div class="ballot-canvas">
+          <div class="ballot-top-row">
+            <span class="ballot-side-no">Ballot No: XXXXXX</span>
+            <img id="viewLogoLeft"   class="ballot-logo-slot" src="" alt="Left Logo">
+            <img id="viewLogoCenter" class="ballot-logo-slot" src="" alt="Center Logo">
+            <img id="viewLogoRight"  class="ballot-logo-slot" src="" alt="Right Logo">
           </div>
-          <div style="margin-top:8px; background:#ce1126; color:white; text-align:center; padding:5px; border-radius:4px;">Primary Button</div>
+          <div class="ballot-header-block">
+            <div id="viewMainTitle" class="ballot-main-title">OFFICIAL BALLOT</div>
+            <div id="viewSubTitle"  class="ballot-sub-title">VoteSecure PH - Automated Election System | Bagong Pilipinas</div>
+          </div>
+          <div class="ballot-body-area">Sample Ballot Candidate Layout Viewport</div>
+          <div class="ballot-footer-notes">
+            INSTRUCTIONS: Shade the oval (●) completely beside the candidate of your choice.<br>
+            Do not write anything outside the designated areas. This ballot is official and confidential.<br>
+            PH "Bagong Pilipinas" - Isang bansa, isang pangarap, isang kinabukasan. PH
+          </div>
+        </div>
+        <div class="ballot-btn-tray">
+          <button id="viewBtnClear"  class="ballot-preview-btn" style="background:#cbd5e1;color:#1e293b;">Clear All</button>
+          <button id="viewBtnReview" class="ballot-preview-btn" style="background:#fcdb30;color:#000;">Review Votes</button>
+          <button id="viewBtnSubmit" class="ballot-preview-btn" style="background:#0038a8;color:#fff;">Submit Ballot</button>
         </div>
       </div>
     </div>
@@ -124,144 +193,289 @@
   const token = localStorage.getItem('adminToken');
   if (!token) window.location.href = 'index.html';
 
+  const APP_URL = window.location.origin;
   let elections = [];
-  let currentDesign = null;
 
-  // Load all elections and show list
-  async function loadElections() {
-    const res = await fetch('/api/election', { headers: { 'Authorization': Bearer ${token} } });
-    elections = await res.json();
-    const container = document.getElementById('electionList');
-    container.innerHTML = '';
-    elections.forEach(e => {
-      const div = document.createElement('div');
-      div.className = 'election-item';
-      div.innerHTML = <span>${e.name}</span><button onclick="selectElection(${e.id})">🎨 Design</button>;
-      container.appendChild(div);
-    });
+  // =============================================
+  // TOAST — replaces all alert() calls
+  // =============================================
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toastMsg');
+    toast.className = 'show ' + type;
+    toast.textContent = msg;
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+      toast.className = toast.className.replace('show', '').trim();
+    }, 3500);
   }
 
+  // =============================================
+  // LOAD ELECTIONS
+  // =============================================
+  async function loadElections() {
+    try {
+      const res = await fetch('/api/election', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const allElections = await res.json();
+      elections = allElections.filter(e =>
+        e.status === 'active' || e.status === 'Active'
+      );
+
+      const container = document.getElementById('electionList');
+      container.innerHTML = '';
+
+      if (elections.length === 0) {
+        container.innerHTML = '<p style="padding:10px;color:#64748b;">No currently active elections found.</p>';
+        return;
+      }
+
+      elections.forEach(e => {
+        const div = document.createElement('div');
+        div.className = 'election-item';
+        div.innerHTML = `<span><strong>${e.name}</strong></span>
+          <button type="button" onclick="selectElection(${e.id})">⚙️ Edit</button>`;
+        container.appendChild(div);
+      });
+    } catch (err) {
+      console.error(err);
+      document.getElementById('electionList').innerHTML =
+        '<p style="padding:10px;color:#dc2626;">Failed to load elections.</p>';
+    }
+  }
+
+  // =============================================
+  // SELECT ELECTION — load its saved design
+  // =============================================
   async function selectElection(electionId) {
     document.getElementById('currentElectionId').value = electionId;
     const election = elections.find(e => e.id === electionId);
     document.getElementById('electionName').innerText = election.name;
     document.getElementById('designPanel').style.display = 'block';
 
-    // Load existing design
-    const res = await fetch(/api/election-design/${electionId});
-    const design = await res.json();
-    currentDesign = design;
-    document.getElementById('customTitle').value = design.custom_title || '';
-    document.getElementById('logoLeft').value = design.logo_left || '';
-    document.getElementById('logoCenter').value = design.logo_center || '';
-    document.getElementById('logoRight').value = design.logo_right || '';
-    document.getElementById('primaryColor').value = design.primary_color || '#0038a8';
-    document.getElementById('secondaryColor').value = design.secondary_color || '#ce1126';
-    document.getElementById('accentColor').value = design.accent_color || '#fcdb30';
-    document.getElementById('customCss').value = design.custom_css || '';
+    ['Left','Center','Right'].forEach(p => {
+      const s = document.getElementById(`status${p}`);
+      s.style.display = 'none';
+      s.textContent = '';
+    });
+
+    try {
+      const res = await fetch(`/api/election-design/${electionId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const design = await res.json();
+
+      document.getElementById('customTitle').value    = design.custom_title    || 'OFFICIAL BALLOT';
+      document.getElementById('customSubTitle').value = design.custom_subtitle || 'VoteSecure PH - Automated Election System | Bagong Pilipinas';
+      document.getElementById('logoLeft').value        = design.logo_left    || '';
+      document.getElementById('logoCenter').value      = design.logo_center  || '';
+      document.getElementById('logoRight').value       = design.logo_right   || '';
+      document.getElementById('primaryColor').value    = design.primary_color   || '#0038a8';
+      document.getElementById('secondaryColor').value  = design.secondary_color || '#ce1126';
+      document.getElementById('accentColor').value     = design.accent_color    || '#fcdb30';
+      document.getElementById('customCss').value       = design.custom_css || '';
+    } catch (err) {
+      console.warn('No saved design, using defaults.');
+      resetToDefault();
+    }
+
     updatePreview();
     updateLogoPreviews();
+
+    // Scroll to panel
+    document.getElementById('designPanel').scrollIntoView({ behavior: 'smooth' });
   }
 
+  // =============================================
+  // LIVE PREVIEW
+  // =============================================
   function updatePreview() {
-    const primary = document.getElementById('primaryColor').value;
+    const primary   = document.getElementById('primaryColor').value;
     const secondary = document.getElementById('secondaryColor').value;
-    const previewDiv = document.getElementById('preview');
-    previewDiv.innerHTML = `
-      <div style="text-align:center; padding:10px; background:${primary}; color:white;">Ballot Header</div>
-      <div style="margin-top:10px; padding:8px; border-left:4px solid ${secondary}; background:#f0f0f0;">
-        <span style="color:${secondary};"></span> Candidate Name
-      </div>
-      <div style="margin-top:8px; background:${secondary}; color:white; text-align:center; padding:5px; border-radius:4px;">Primary Button</div>
-    `;
-    document.getElementById('primaryColorHex').innerText = primary;
+    const accent    = document.getElementById('accentColor').value;
+
+    document.getElementById('viewMainTitle').innerText = document.getElementById('customTitle').value    || 'OFFICIAL BALLOT';
+    document.getElementById('viewSubTitle').innerText  = document.getElementById('customSubTitle').value || 'VoteSecure PH - Automated Election System | Bagong Pilipinas';
+    document.getElementById('viewBtnClear').style.background  = accent;
+    document.getElementById('viewBtnReview').style.background = secondary;
+    document.getElementById('viewBtnSubmit').style.background = primary;
+    document.getElementById('primaryColorHex').innerText   = primary;
     document.getElementById('secondaryColorHex').innerText = secondary;
-    document.getElementById('accentColorHex').innerText = document.getElementById('accentColor').value;
+    document.getElementById('accentColorHex').innerText    = accent;
+  }
+
+  function formatImageUrl(urlPath) {
+    if (!urlPath || urlPath.trim() === '') return '';
+    if (urlPath.startsWith('http') || urlPath.startsWith('data:')) return urlPath;
+    return `${APP_URL}/${urlPath.replace(/^\//, '')}`;
   }
 
   function updateLogoPreviews() {
-    const left = document.getElementById('logoLeft').value;
-    const center = document.getElementById('logoCenter').value;
-    const right = document.getElementById('logoRight').value;
-    if (left) { document.getElementById('previewLeft').src = left; document.getElementById('previewLeft').style.display = 'block'; }
-    else document.getElementById('previewLeft').style.display = 'none';
-    if (center) { document.getElementById('previewCenter').src = center; document.getElementById('previewCenter').style.display = 'block'; }
-    else document.getElementById('previewCenter').style.display = 'none';
-    if (right) { document.getElementById('previewRight').src = right; document.getElementById('previewRight').style.display = 'block'; }
-    else document.getElementById('previewRight').style.display = 'none';
-  }
-
-  async function saveDesign() {
-    const electionId = document.getElementById('currentElectionId').value;
-    const data = {
-      custom_title: document.getElementById('customTitle').value,
-      logo_left: document.getElementById('logoLeft').value,
-      logo_center: document.getElementById('logoCenter').value,
-      logo_right: document.getElementById('logoRight').value,
-      primary_color: document.getElementById('primaryColor').value,
-      secondary_color: document.getElementById('secondaryColor').value,
-      accent_color: document.getElementById('accentColor').value,
-      custom_css: document.getElementById('customCss').value
-    };
-    const res = await fetch(/api/election-design/${electionId}, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': Bearer ${token} },
-      body: JSON.stringify(data)
+    ['Left','Center','Right'].forEach(pos => {
+      const val       = document.getElementById(`logo${pos}`).value;
+      const previewEl = document.getElementById(`preview${pos}`);
+      const canvasEl  = document.getElementById(`viewLogo${pos}`);
+      const url       = formatImageUrl(val);
+      if (url) {
+        previewEl.src = url; previewEl.style.display = 'block';
+        canvasEl.src  = url; canvasEl.style.display  = 'block';
+      } else {
+        previewEl.style.display = 'none';
+        canvasEl.style.display  = 'none';
+      }
     });
-    if (res.ok) alert('Design saved successfully');
-    else alert('Error saving design');
   }
 
-  async function deleteDesign() {
-    if (!confirm('Delete the custom design for this election? It will revert to default.')) return;
+  // =============================================
+  // UPLOAD LOGO
+  // =============================================
+  function triggerUpload(position) {
     const electionId = document.getElementById('currentElectionId').value;
-    const res = await fetch(/api/election-design/${electionId}, { method: 'DELETE', headers: { 'Authorization': Bearer ${token} } });
-    if (res.ok) {
-      alert('Design deleted. Using defaults.');
-      selectElection(electionId); // reload defaults
-    } else alert('Error deleting design');
+    if (!electionId) return showToast('Select an active election first.', 'warning');
+
+    const posMap  = { left:'Left', center:'Center', right:'Right' };
+    const posKey  = posMap[position];
+    const oldInput = document.getElementById(`file${posKey}`);
+
+    // Clone to remove any stale listeners
+    const newInput = oldInput.cloneNode(true);
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+
+    newInput.addEventListener('change', async function() {
+      if (!newInput.files || !newInput.files.length) return;
+
+      const statusEl = document.getElementById(`status${posKey}`);
+      statusEl.style.display  = 'block';
+      statusEl.style.color    = '#d97706';
+      statusEl.textContent    = '⏳ Uploading...';
+
+      const formData = new FormData();
+      formData.append('logo', newInput.files[0]);
+
+      try {
+        const res  = await fetch('/api/upload-logo', {
+          method : 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body   : formData
+        });
+        const data = await res.json();
+
+        if (res.ok && data.url) {
+          document.getElementById(`logo${posKey}`).value = data.url;
+          updateLogoPreviews();
+          await saveDesign(true); // silent = true, toast handled here
+          statusEl.style.color = '#16a34a';
+          statusEl.textContent = '✔ Uploaded and saved!';
+        } else {
+          statusEl.style.color = '#dc2626';
+          statusEl.textContent = '✖ Upload failed: ' + (data.error || 'Unknown error');
+        }
+      } catch (err) {
+        statusEl.style.color = '#dc2626';
+        statusEl.textContent = '✖ Network error during upload.';
+        console.error(err);
+      }
+    });
+
+    newInput.click();
   }
 
+  // =============================================
+  // SAVE DESIGN
+  // silent=true → called from upload, skip own toast
+  // silent=false (default) → show success toast
+  // =============================================
+  async function saveDesign(silent = false) {
+    const electionId = document.getElementById('currentElectionId').value;
+    if (!electionId) {
+      showToast('Please choose an election first.', 'warning');
+      return;
+    }
+
+    const data = {
+      custom_title   : document.getElementById('customTitle').value,
+      custom_subtitle: document.getElementById('customSubTitle').value,
+      logo_left      : document.getElementById('logoLeft').value,
+      logo_center    : document.getElementById('logoCenter').value,
+      logo_right     : document.getElementById('logoRight').value,
+      primary_color  : document.getElementById('primaryColor').value,
+      secondary_color: document.getElementById('secondaryColor').value,
+      accent_color   : document.getElementById('accentColor').value,
+      custom_css     : document.getElementById('customCss').value
+    };
+
+    try {
+      const res = await fetch(`/api/election-design/${electionId}`, {
+        method : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        if (!silent) showToast('✨ Ballot design saved! Changes are now live for voters.', 'success');
+      } else {
+        const errText = await res.text();
+        showToast(`❌ Error Saving: ${res.status} — ${errText}`, 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('❌ Network error while saving.', 'error');
+    }
+  }
+
+  // =============================================
+  // DELETE DESIGN
+  // =============================================
+  async function deleteDesign() {
+    if (!confirm('Revert all settings back to default?')) return;
+    const electionId = document.getElementById('currentElectionId').value;
+    try {
+      const res = await fetch(`/api/election-design/${electionId}`, {
+        method : 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        showToast('✔ Design cleared. Using defaults.', 'info');
+        selectElection(parseInt(electionId));
+      } else {
+        showToast(`❌ Delete failed. Status: ${res.status}`, 'error');
+      }
+    } catch (err) {
+      showToast('❌ Network error during delete.', 'error');
+    }
+  }
+
+  // =============================================
+  // RESET TO DEFAULT
+  // =============================================
   function resetToDefault() {
-    document.getElementById('customTitle').value = '';
-    document.getElementById('logoLeft').value = '';
+    document.getElementById('customTitle').value    = 'OFFICIAL BALLOT';
+    document.getElementById('customSubTitle').value = 'VoteSecure PH - Automated Election System | Bagong Pilipinas';
+    document.getElementById('logoLeft').value   = '';
     document.getElementById('logoCenter').value = '';
-    document.getElementById('logoRight').value = '';
-    document.getElementById('primaryColor').value = '#0038a8';
+    document.getElementById('logoRight').value  = '';
+    document.getElementById('primaryColor').value   = '#0038a8';
     document.getElementById('secondaryColor').value = '#ce1126';
-    document.getElementById('accentColor').value = '#fcdb30';
+    document.getElementById('accentColor').value    = '#fcdb30';
     document.getElementById('customCss').value = '';
     updatePreview();
     updateLogoPreviews();
+    showToast('↺ Reset to default values.', 'info');
   }
 
-  // Upload logo via multer
-  async function uploadLogo(position) {
-    let fileInput = null;
-    let targetField = null;
-    if (position === 'left') { fileInput = document.getElementById('fileLeft'); targetField = 'logoLeft'; }
-    else if (position === 'center') { fileInput = document.getElementById('fileCenter'); targetField = 'logoCenter'; }
-    else { fileInput = document.getElementById('fileRight'); targetField = 'logoRight'; }
-    fileInput.click();
-    fileInput.onchange = async () => {
-      if (!fileInput.files.length) return;
-      const formData = new FormData();
-      formData.append('logo', fileInput.files[0]);
-      const res = await fetch('/api/upload-logo', {
-        method: 'POST',
-        headers: { 'Authorization': Bearer ${token} },
-        body: formData
-      });
-      const data = await res.json();
-      if (res.ok) {
-        document.getElementById(targetField).value = data.url;
-        updateLogoPreviews();
-      } else alert('Upload failed');
-    };
-  }
-
+  // Live preview listeners
   document.getElementById('primaryColor').addEventListener('input', updatePreview);
   document.getElementById('secondaryColor').addEventListener('input', updatePreview);
+  document.getElementById('accentColor').addEventListener('input', updatePreview);
+  document.getElementById('customTitle').addEventListener('input', updatePreview);
+  document.getElementById('customSubTitle').addEventListener('input', updatePreview);
+  document.getElementById('logoLeft').addEventListener('input', updateLogoPreviews);
+  document.getElementById('logoCenter').addEventListener('input', updateLogoPreviews);
+  document.getElementById('logoRight').addEventListener('input', updateLogoPreviews);
+
   loadElections();
 </script>
 </body>

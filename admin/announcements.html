@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Manage Announcements</title>
+  <title>Admin - Manage Announcements</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; display:flex; }
@@ -17,12 +17,13 @@
     .add { background:#16a34a; color:white; }
     .edit { background:#3b82f6; color:white; }
     .delete { background:#dc2626; color:white; }
-    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index: 1000; }
     .modal-content { background:white; padding:20px; border-radius:12px; width:500px; }
-    input, textarea { width:100%; padding:8px; margin:8px 0; }
+    input, textarea { width:100%; padding:8px; margin:8px 0; border:1px solid #cbd5e1; border-radius:6px; }
   </style>
 </head>
 <body>
+
 <div class="sidebar">
   <h2 style="padding:20px;"> VoteSecure</h2>
   <a href="dashboard.html">Dashboard</a>
@@ -33,69 +34,178 @@
   <a href="announcements.html" class="active">Announcements</a>
   <a href="results.html">Results</a>
 </div>
+
 <div class="main">
-  <h1>Announcements</h1>
+  <h1>Announcements (Admin Control)</h1>
   <div class="card">
     <button class="add" onclick="openModal()"> New Announcement</button>
-    <table id="announcementTable"><thead><tr><th>ID</th><th>Title</th><th>Content</th><th>Posted</th><th>Actions</th></tr></thead><tbody></tbody></table>
+    <table id="announcementTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Content</th>
+          <th>Posted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5">Loading announcements...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
 <div id="modal" class="modal">
   <div class="modal-content">
     <h3 id="modalTitle">Add Announcement</h3>
     <input type="hidden" id="announcementId">
-    <label>Title</label><input type="text" id="title">
-    <label>Content</label><textarea id="content" rows="4"></textarea>
-    <button class="add" onclick="saveAnnouncement()">Save</button>
-    <button onclick="closeModal()">Cancel</button>
+    
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Enter title here...">
+    
+    <label for="content">Content</label>
+    <textarea id="content" rows="4" placeholder="Enter content details..."></textarea>
+    
+    <div style="text-align: right; margin-top: 15px;">
+      <button class="add" onclick="saveAnnouncement()">Save</button>
+      <button onclick="closeModal()" style="background:#94a3b8; color:white;">Cancel</button>
+    </div>
   </div>
 </div>
+
 <script>
   const token = localStorage.getItem('adminToken');
   if (!token) window.location.href = 'index.html';
 
+  // GLOBAL CACHE STORAGE: Dito ise-save ang listahan para sa error-free Editing
+  let allAnnouncements = [];
+
+  // 1. FETCH ALL ANNOUNCEMENTS
   async function fetchAnnouncements() {
-    const res = await fetch('/api/announcements', { headers: { 'Authorization': Bearer ${token} } });
-    const announcements = await res.json();
-    const tbody = document.querySelector('#announcementTable tbody');
-    tbody.innerHTML = '';
-    announcements.forEach(a => {
-      const row = tbody.insertRow();
-      row.insertCell(0).innerText = a.id;
-      row.insertCell(1).innerText = a.title;
-      row.insertCell(2).innerText = a.content.substring(0,50)+(a.content.length>50?'...':'');
-      row.insertCell(3).innerText = new Date(a.created_at).toLocaleDateString();
-      const cell = row.insertCell(4);
-      cell.innerHTML = `<button class="edit" onclick="editAnnouncement(${a.id})">Edit</button>
-                        <button class="delete" onclick="deleteAnnouncement(${a.id})">Delete</button>`;
-    });
+    try {
+      const res = await fetch('/api/announcements', { 
+        headers: { 'Authorization': `Bearer ${token}` } 
+      });
+      const announcements = await res.json();
+      
+      // I-save sa ating local variable cache
+      allAnnouncements = announcements;
+
+      const tbody = document.querySelector('#announcementTable tbody');
+      tbody.innerHTML = '';
+      
+      if(announcements.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No announcements posted yet.</td></tr>';
+        return;
+      }
+
+      announcements.forEach(a => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = a.id;
+        row.insertCell(1).innerText = a.title;
+        
+        // Babasahin ang data field nang ligtas (content o body)
+        const textContent = a.content || a.body || '';
+        row.insertCell(2).innerText = textContent.substring(0,50) + (textContent.length > 50 ? '...' : '');
+        row.insertCell(3).innerText = new Date(a.created_at || a.date_posted).toLocaleDateString();
+        
+        const cell = row.insertCell(4);
+        cell.innerHTML = `
+          <button class="edit" onclick="editAnnouncement(${a.id})">Edit</button>
+          <button class="delete" onclick="deleteAnnouncement(${a.id})">Delete</button>
+        `;
+      });
+    } catch (err) {
+      console.error("Error fetching announcements:", err);
+      document.querySelector('#announcementTable tbody').innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Failed to load datasets.</td></tr>';
+    }
   }
-  async function saveAnnouncement() {
-    const id = document.getElementById('announcementId').value;
-    const data = {
-      title: document.getElementById('title').value,
-      content: document.getElementById('content').value
-    };
-    const url = id ? /api/announcements/${id} : '/api/announcements';
-    const method = id ? 'PUT' : 'POST';
-    await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': Bearer ${token} }, body: JSON.stringify(data) });
-    closeModal();
-    fetchAnnouncements();
-  }
-  async function editAnnouncement(id) {
-    const res = await fetch(/api/announcements/${id}, { headers: { 'Authorization': Bearer ${token} } });
-    const a = await res.json();
-    document.getElementById('announcementId').value = a.id;
-    document.getElementById('title').value = a.title;
-    document.getElementById('content').value = a.content;
+
+  // 2. FIXED EDIT FUNCTION (Gumagamit na ng Local Cache para hindi mag-fail)
+  function editAnnouncement(id) {
+    // Hanapin ang anunsyo sa ating allAnnouncements array list
+    const announcement = allAnnouncements.find(a => a.id == id);
+    
+    if (!announcement) {
+      alert("Error: Announcement data could not be located locally.");
+      return;
+    }
+
+    // I-load ang mga detalye sa mga input fields
+    document.getElementById('announcementId').value = announcement.id;
+    document.getElementById('title').value = announcement.title || '';
+    document.getElementById('content').value = announcement.content || announcement.body || '';
+    
+    // Buksan ang modal window
     document.getElementById('modalTitle').innerText = 'Edit Announcement';
     document.getElementById('modal').style.display = 'flex';
   }
-  async function deleteAnnouncement(id) {
-    if (!confirm('Delete this announcement?')) return;
-    await fetch(/api/announcements/${id}, { method: 'DELETE', headers: { 'Authorization': Bearer ${token} } });
-    fetchAnnouncements();
+
+  // 3. SAVE CHANGES (ADD OR UPDATE)
+  async function saveAnnouncement() {
+    const id = document.getElementById('announcementId').value;
+    const titleVal = document.getElementById('title').value.trim();
+    const contentVal = document.getElementById('content').value.trim();
+
+    if (!titleVal || !contentVal) {
+      alert("Please fill up both Title and Content fields.");
+      return;
+    }
+
+    // Payload Schema: Pinapadala ang 'content' property (nakabase sa huli mong working structure)
+    const data = {
+      title: titleVal,
+      content: contentVal 
+    };
+
+    const url = id ? `/api/announcements/${id}` : '/api/announcements';
+    const method = id ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, { 
+        method: method, 
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`
+        }, 
+        body: JSON.stringify(data) 
+      });
+
+      if (res.ok) {
+        closeModal();
+        fetchAnnouncements(); // I-refresh ang listahan
+        alert("Announcement successfully saved! Changes are now live on the voter side.");
+      } else {
+        const errorData = await res.json().catch(() => null);
+        const serverError = errorData ? (errorData.error || errorData.message || JSON.stringify(errorData)) : `Status Code: ${res.status}`;
+        alert(`Failed to save.\nServer Error: ${serverError}`);
+      }
+    } catch (err) {
+      console.error("Network Error:", err);
+      alert("Database connectivity lost. Check backend logs.");
+    }
   }
+
+  // 4. DELETE ANNOUNCEMENT
+  async function deleteAnnouncement(id) {
+    if (!confirm('Are you sure you want to permanently delete this announcement?')) return;
+    try {
+      const res = await fetch(`/api/announcements/${id}`, { 
+        method: 'DELETE', 
+        headers: { 'Authorization': `Bearer ${token}` } 
+      });
+      if (res.ok) {
+        fetchAnnouncements();
+        alert("Announcement deleted successfully.");
+      } else {
+        alert("Server rejected the deletion command.");
+      }
+    } catch (err) {
+      console.error("Error deleting:", err);
+    }
+  }
+
   function openModal() {
     document.getElementById('announcementId').value = '';
     document.getElementById('title').value = '';
@@ -103,10 +213,11 @@
     document.getElementById('modalTitle').innerText = 'Add Announcement';
     document.getElementById('modal').style.display = 'flex';
   }
+
   function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+  // Initial Execution
   fetchAnnouncements();
 </script>
 </body>
 </html>
-Compose
-Write to Jesalyn Segotier

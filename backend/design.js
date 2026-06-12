@@ -1,24 +1,64 @@
 const express = require('express');
 const router = express.Router();
-const db = require('./db'); // Adjust path to your db module if needed
-const verifyToken = require('./middleware'); // Using your existing middleware
+const db = require('../js/db'); // Points to your db helper inside backend/js/
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
-// Middleware helper to strictly keep voter accounts out of configuration setups
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Access denied. Administrative privileges required.' });
+// 1. Configure Multer to save images inside the user-side folder
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Navigates up out of routes/ to the project root, then into user/image-logo
+    const uploadDir = path.join(__dirname, '../../user/image-logo');
+    
+    // Safety check: Create directory if it doesn't exist to prevent crashes
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   }
-  next();
-};
+});
+
+// Support multiple fallback keys ('logo', 'image', 'file') to prevent Multer Errors
+const upload = multer({ storage: storage }).fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'image', maxCount: 1 },
+  { name: 'file', maxCount: 1 }
+]);
+
+// ========== UPLOAD BALLOT LOGO COMPONENT ==========
+router.post('/api/election-design/:electionId/upload', upload, async (req, res) => {
+  try {
+    const files = req.files;
+    let uploadedFile = null;
+
+    if (files && files.logo && files.logo[0]) uploadedFile = files.logo[0];
+    else if (files && files.image && files.image[0]) uploadedFile = files.image[0];
+    else if (files && files.file && files.file[0]) uploadedFile = files.file[0];
+
+    if (!uploadedFile) {
+      return res.status(400).json({ error: 'No file received.' });
+    }
+
+    // Return the relative URL path to save in the database text inputs
+    const relativeUrlPath = `user/image-logo/${uploadedFile.filename}`;
+    res.json({ url: relativeUrlPath, success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ========== GET BALLOT DESIGN CONFIGURATION ==========
-// GET /api/election-design/:electionId
-router.get('/:electionId', verifyToken, async (req, res) => {
+router.get('/api/election-design/:electionId', async (req, res) => {
   const { electionId } = req.params;
   try {
     const [rows] = await db.query('SELECT * FROM ballot_designs WHERE election_id = ?', [electionId]);
     if (rows.length === 0) {
-      // Return structured clean baseline defaults if no row configuration exists yet
+      // Return structured baseline defaults if no configuration exists yet
       return res.json({
         election_id: electionId,
         custom_title: 'OFFICIAL BALLOT',
@@ -39,8 +79,7 @@ router.get('/:electionId', verifyToken, async (req, res) => {
 });
 
 // ========== SAVE OR UPDATE BALLOT DESIGN CONFIGURATION ==========
-// POST /api/election-design/:electionId
-router.post('/:electionId', verifyToken, isAdmin, async (req, res) => {
+router.post('/api/election-design/:electionId', async (req, res) => {
   const { electionId } = req.params;
   const {
     custom_title,
@@ -58,7 +97,7 @@ router.post('/:electionId', verifyToken, isAdmin, async (req, res) => {
     const [rows] = await db.query('SELECT id FROM ballot_designs WHERE election_id = ?', [electionId]);
     
     if (rows.length > 0) {
-      // Update existing records
+      // Update existing design records
       await db.query(
         `UPDATE ballot_designs 
          SET custom_title = ?, custom_subtitle = ?, logo_left = ?, logo_center = ?, logo_right = ?, 
@@ -82,8 +121,7 @@ router.post('/:electionId', verifyToken, isAdmin, async (req, res) => {
 });
 
 // ========== REVERT/DELETE CONFIGURATIONS ==========
-// DELETE /api/election-design/:electionId
-router.delete('/:electionId', verifyToken, isAdmin, async (req, res) => {
+router.delete('/api/election-design/:electionId', async (req, res) => {
   const { electionId } = req.params;
   try {
     await db.query('DELETE FROM ballot_designs WHERE election_id = ?', [electionId]);
